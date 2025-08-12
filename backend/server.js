@@ -17,13 +17,17 @@ db.sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Connexion PostgreSQL réussie !");
+    // Synchroniser les modèles avec la base de données
+    return db.sequelize.sync(); // Ajoutez cette ligne
+  })
+  .then(() => {
+    console.log("✅ Tables synchronisées !");
+    // Lancer le serveur après la synchronisation
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
+    });
   })
   .catch((err) => {
     console.error("❌ Erreur connexion DB :", err);
   });
-
-// Lancer le serveur
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
-});
