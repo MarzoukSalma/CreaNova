@@ -21,7 +21,7 @@ db.sequelize
     return db.sequelize.sync(); // Ajoutez cette ligne
   })
   .then(() => {
-    console.log("✅ Tables synchronisées !");
+    console.log(" Tables synchronisées !");
     // Lancer le serveur après la synchronisation
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
@@ -29,5 +29,5 @@ db.sequelize
     });
   })
   .catch((err) => {
-    console.error("❌ Erreur connexion DB :", err);
+    console.error(" Erreur connexion DB :", err);
   });
