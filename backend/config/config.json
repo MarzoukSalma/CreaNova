@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "salma",
+    "database": "studio_reves_db",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "TON_MOT_DE_PASSE",
+    "database": "studio_reves_test",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "TON_MOT_DE_PASSE",
+    "database": "studio_reves_prod",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
