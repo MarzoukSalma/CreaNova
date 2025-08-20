@@ -3,12 +3,13 @@ const { Journal } = require('../models');
 // Créer un journal
 exports.createJournal = async (req, res) => {
   try {
-    const { titre, description, userId ,date} = req.body;
+    const { titre, description, utilisateur_id,mood ,date} = req.body;
     const journal = await Journal.create({
       titre,
       description,
-      userId,
-      date
+      utilisateur_id,
+      date,
+      mood
     });
     res.json(journal);
   } catch (error) {
@@ -31,7 +32,7 @@ exports.getUserJournals = async (req, res) => {
 exports.updateJournal = async (req, res) => {
   try {
     const { id } = req.params; // id du journal dans l'URL
-    const { titre, description,date } = req.body;
+    const { titre, description,date ,mood} = req.body;
 
     const journal = await Journal.findByPk(id);
     if (!journal) return res.status(404).json({ message: "Journal non trouvé" });
@@ -40,6 +41,7 @@ exports.updateJournal = async (req, res) => {
     journal.titre = titre || journal.titre;
     journal.description = description || journal.description;
     journal.date = date || journal.date;
+    journal.mood = mood || journal.mood; // Mise à jour du champ mood
     // Enregistrer les modifications
 
     await journal.save();

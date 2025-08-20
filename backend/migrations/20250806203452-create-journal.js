@@ -16,8 +16,9 @@ module.exports = {
         type: Sequelize.TEXT
       },
       date: {
-        type: Sequelize.DATE
-      },
+type: Sequelize.DATEONLY, // <--- ici: DATE sans heure
+        allowNull: false     
+       },
       utilisateur_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -38,6 +39,12 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW')
       }
+    });
+
+       await queryInterface.addConstraint("Journals", {
+      fields: ["userId", "date"],
+      type: "unique",
+      name: "unique_journal_per_day"
     });
   },
   async down(queryInterface, Sequelize) {

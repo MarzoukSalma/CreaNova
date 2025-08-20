@@ -16,8 +16,6 @@ module.exports = (sequelize, DataTypes) => {
       contenu: DataTypes.TEXT,
       date: DataTypes.DATE,
       mood: DataTypes.STRING,
-      text: DataTypes.TEXT,
-      info: DataTypes.TEXT,
     },
     {
       sequelize,

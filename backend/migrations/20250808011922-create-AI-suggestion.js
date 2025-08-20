@@ -2,51 +2,40 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Reves', {
+    await queryInterface.createTable('AIsuggestions', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      titre: {
-        type: Sequelize.STRING
-      },
-      description: {
+      contenu: {
         type: Sequelize.TEXT
       },
-      date_creation: {
-        type: Sequelize.DATE
-      },
-      statut: {
-        type: Sequelize.STRING
-      },
-      priorite: {
-        type: Sequelize.STRING
-      },
-      utilisateur_id: {
+      reve_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Utilisateurs', // Nom EXACT de la table cible (majuscule si c’est comme ça dans ta BDD)
+          model: 'Dreams', // NOM de la table cible
           key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
+      date: {
+        type: Sequelize.DATE
+      },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        type: Sequelize.DATE
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        type: Sequelize.DATE
       }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Reves');
+    await queryInterface.dropTable('AIsuggestions');
   }
 };

@@ -11,15 +11,13 @@ module.exports = {
       },
       contenu: {
         type: Sequelize.TEXT
+        , allowNull: false
       },
       date: {
         type: Sequelize.DATE
       },
       mood: {
         type: Sequelize.STRING
-      },
-      text: {
-        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
