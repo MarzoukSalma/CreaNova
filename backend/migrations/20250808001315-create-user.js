@@ -10,21 +10,43 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       nom: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       mail: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
       },
       motDePasse: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      avatarUrl: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      bio: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      dateNaissance: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      phoneNumber: {
+        type: Sequelize.STRING, // better as STRING to support +212 etc
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
   },

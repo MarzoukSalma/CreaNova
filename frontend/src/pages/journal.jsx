@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit3, Trash2, X, Save } from 'lucide-react';
-import navbar from '../components/navbar.jsx'; // Assurez-vous d'avoir un fichier journal.css pour les styles personnalisés
+import Navbar  from '../components/navbar'; 
 const JournalCreativite = () => {
   const [journals, setJournals] = useState([
     {
@@ -128,24 +128,25 @@ const JournalCreativite = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden" 
-         style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       
       {/* Animated Background Particles */}
       <Particles />
       
-      {/* Main Container */}<navbar/>
+      {/* Main Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        
+      
+     
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold text-white mb-4 drop-shadow-lg">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             📔 Journal de Créativité
           </h1>
-          <p className="text-xl text-white opacity-90 drop-shadow-md">
+          <p className="text-lg text-gray-600">
             Exprimez vos pensées, vos rêves et votre inspiration quotidienne
           </p>
         </div>
+        
 
         {/* Journals Grid */}
         {journals.length === 0 ? (
