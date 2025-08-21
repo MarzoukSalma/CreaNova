@@ -19,11 +19,11 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
-      utilisateur_id: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Utilisateurs', // ← nom exact de ta table utilisateurs
+          model: 'Users', // ← nom exact de ta table utilisateurs
           key: 'id'
         },
         onUpdate: 'CASCADE',

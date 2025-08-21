@@ -16,14 +16,14 @@ module.exports = {
         type: Sequelize.TEXT
       },
       date: {
-type: Sequelize.DATEONLY, // <--- ici: DATE sans heure
+        type: Sequelize.DATEONLY, // <--- ici: DATE sans heure
         allowNull: false     
        },
-      utilisateur_id: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Utilisateurs', // NOM exact de la table cible
+          model: 'Users', // NOM exact de la table cible
           key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -41,11 +41,6 @@ type: Sequelize.DATEONLY, // <--- ici: DATE sans heure
       }
     });
 
-       await queryInterface.addConstraint("Journals", {
-      fields: ["userId", "date"],
-      type: "unique",
-      name: "unique_journal_per_day"
-    });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Journals');
