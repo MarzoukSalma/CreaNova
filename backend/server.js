@@ -1,6 +1,7 @@
 // backend/server.js
 const express = require("express");
 const db = require("./models"); // Va chercher models/index.js
+const journalRoutes = require('./routes/journalRoutes');
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("API Studio de Rêves Créatifs fonctionne 🚀");
 });
+app.use('/journals', journalRoutes);
 
 // Tester la connexion à la base
 db.sequelize
