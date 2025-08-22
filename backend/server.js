@@ -2,7 +2,7 @@
 const express = require("express");
 const db = require("./models"); // Va chercher models/index.js
 const journalRoutes = require('./routes/journalRoutes');
-
+const authRoutes = require('./routes/auth');
 const app = express();
 
 // Middleware pour lire le JSON dans les requêtes
@@ -12,7 +12,14 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("API Studio de Rêves Créatifs fonctionne 🚀");
 });
+
+
+
+// Routes
 app.use('/journals', journalRoutes);
+app.use('/auth', authRoutes);
+
+
 
 // Tester la connexion à la base
 db.sequelize

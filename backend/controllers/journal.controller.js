@@ -3,10 +3,10 @@ const { Journal } = require('../models');
 // Créer un journal
 exports.createJournal = async (req, res) => {
   try {
-    const { texte, utilisateur_id,mood ,date} = req.body;
+    const { texte, userId,mood ,date} = req.body;
     const journal = await Journal.create({
       texte,
-      utilisateur_id,
+      userId,
       date,
       mood
     });

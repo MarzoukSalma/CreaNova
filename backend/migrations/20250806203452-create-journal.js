@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.DATEONLY, // <--- ici: DATE sans heure
         allowNull: false     
        },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
