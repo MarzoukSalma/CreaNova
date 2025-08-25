@@ -1,17 +1,6 @@
-<<<<<<< HEAD
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import JournalCreativite from './pages/journal.jsx';
-import StudioRevesCreatifs from './pages/dream.jsx';
-import Galerie from './pages/inspiration.jsx';
-import Chatboot from './pages/chatboot.jsx';
-import Sittings from './pages/sittings.jsx';
-import Login from './pages/login.jsx';
-import ProtectedRoute from './components/ProtectedRoute'; // ✅ import correctement en haut
 
-=======
-import React from "react";
+import React from 'react';
+import ProtectedRoute from './components/ProtectedRoute'; // ✅ import correctement en haut
 import {
   BrowserRouter as Router,
   Routes,
@@ -26,7 +15,6 @@ import Chatboot from "./pages/chatboot.jsx"; // Assurez-vous que ce composant ex
 import Sittings from "./pages/sittings.jsx"; // Assurez-vous que ce composant existe
 import Login from "./pages/login.jsx";
 import WorkspacePage from "./pages/workspace.jsx";
->>>>>>> 583e8f613e18ab6b6c0117f547406f5022b98cde
 const App = () => {
   return (
     <Router>
@@ -34,8 +22,6 @@ const App = () => {
       
       <Routes>
         <Route path="/" element={<Login />} />
-<<<<<<< HEAD
-
         {/* toutes les pages protégées */}
         <Route
           path="/galerie"
@@ -77,14 +63,14 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-=======
-        <Route path="/galerie" element={<Galerie />} />
-        <Route path="/muse" element={<Chatboot />} />
-        <Route path="/sittings" element={<Sittings />} />
-        <Route path="/reves" element={<StudioRevesCreatifs />} />
-        <Route path="/journal" element={<JournalCreativite />} />
-        <Route path="/workspace" element={<WorkspacePage />} />
->>>>>>> 583e8f613e18ab6b6c0117f547406f5022b98cde
+        <Route
+          path="/workspace"
+          element={
+            <ProtectedRoute>
+              <WorkspacePage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
