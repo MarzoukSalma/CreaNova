@@ -1,4 +1,4 @@
-// backend/server.js
+
 const express = require("express");
 const db = require("./models"); // Va chercher models/index.js
 const journalRoutes = require('./routes/journalRoutes');
