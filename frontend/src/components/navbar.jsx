@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -13,24 +13,39 @@ const Navbar = () => {
               </h1>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-8">
             <NavLink
               to="/reves"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  isActive ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                  isActive
+                    ? "bg-purple-100 text-purple-700"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
                 }`
               }
             >
               💭 Mes Rêves
             </NavLink>
-
+            <NavLink
+              to="/workspace"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  isActive
+                    ? "bg-purple-100 text-purple-700"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
+                }`
+              }
+            >
+              Workspace
+            </NavLink>
             <NavLink
               to="/galerie"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  isActive ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                  isActive
+                    ? "bg-purple-100 text-purple-700"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
                 }`
               }
             >
@@ -41,7 +56,9 @@ const Navbar = () => {
               to="/journal"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  isActive ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                  isActive
+                    ? "bg-purple-100 text-purple-700"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
                 }`
               }
             >
@@ -52,7 +69,9 @@ const Navbar = () => {
               to="/muse"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  isActive ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                  isActive
+                    ? "bg-purple-100 text-purple-700"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
                 }`
               }
             >
@@ -62,16 +81,18 @@ const Navbar = () => {
 
           <div className="flex items-center">
             <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-semibold">
-               <NavLink
-              to="/sittings"
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  isActive ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
-                }`
-              }
-            >
-              u
-            </NavLink>
+              <NavLink
+                to="/sittings"
+                className={({ isActive }) =>
+                  `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    isActive
+                      ? "bg-purple-100 text-purple-700"
+                      : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
+                  }`
+                }
+              >
+                u
+              </NavLink>
             </div>
           </div>
         </div>
