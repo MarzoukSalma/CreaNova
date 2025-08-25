@@ -69,6 +69,18 @@ const WorkspacePage = () => {
     return () => clearInterval(interval);
   }, [isRunning, timeLeft, isBreak, pomodoroLength, currentTask]);
 
+  // Effet pour gérer la touche Échap en mode focus
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === 'Escape' && isFocusMode) {
+        setIsFocusMode(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [isFocusMode]);
+
   // Formatage du temps
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -323,13 +335,18 @@ const WorkspacePage = () => {
                   </div>
                   
                   <div className="flex justify-center gap-3 mb-3">
-                    <button
-                      onClick={() => setIsRunning(!isRunning)}
-                      disabled={!currentTask}
+                   <button
+                      onClick={() => {
+                        if (currentTask) {
+                          setIsRunning(!isRunning);
+                        } else {
+                          // Start a generic pomodoro if no task is selected
+                          setIsRunning(!isRunning);
+                          setIsBreak(false);
+                        }
+                      }}
                       className={`px-6 py-2 rounded-2xl font-semibold text-sm transition-all duration-300 transform hover:scale-105 ${
-                        !currentTask 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : isRunning 
+                        isRunning 
                           ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:shadow-lg' 
                           : 'bg-gradient-to-r from-green-500 to-teal-500 text-white hover:shadow-lg'
                       }`}
@@ -346,7 +363,6 @@ const WorkspacePage = () => {
                         </>
                       )}
                     </button>
-                    
                     <button
                       onClick={() => {
                         setTimeLeft(pomodoroLength * 60);
@@ -366,7 +382,7 @@ const WorkspacePage = () => {
                           🎯 {currentTask.title.length > 20 ? currentTask.title.substring(0, 20) + '...' : currentTask.title}
                         </span>
                       ) : (
-                        <span className="text-gray-500 text-xs">Sélectionnez une tâche</span>
+                        <span className="text-gray-500 text-xs">Session libre - pas de tâche sélectionnée</span>
                       )}
                     </p>
                     <p className="text-xs">Cycles: <span className="font-bold text-purple-600">{cycles}</span></p>
@@ -463,6 +479,28 @@ const WorkspacePage = () => {
         ) : (
           /* Mode Focus Plein Écran */
           <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 flex items-center justify-center z-50">
+            {/* Boutons en haut à droite */}
+            <div className="absolute top-6 right-6 flex gap-3">
+              <button
+                onClick={() => {
+                  setTimeLeft(pomodoroLength * 60);
+                  setIsRunning(false);
+                  setIsBreak(false);
+                }}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-lg"
+              >
+                <RotateCcw className="w-5 h-5" />
+                Reset
+              </button>
+              <button
+                onClick={() => setIsFocusMode(false)}
+                className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-lg"
+              >
+                <Minimize2 className="w-5 h-5" />
+                Quitter
+              </button>
+            </div>
+
             <div className="text-center text-white max-w-4xl px-6">
               <div className="mb-12">
                 <div className={`text-8xl font-mono font-bold mb-8 ${
@@ -497,7 +535,7 @@ const WorkspacePage = () => {
               
               <div className="text-center mb-8">
                 <p className="text-3xl mb-6 font-semibold">
-                  {isBreak ? '☕ Pause bien méritée !' : `🎯 Focus sur: ${currentTask?.title}`}
+                  {isBreak ? '☕ Pause bien méritée !' : `🎯 Focus sur: ${currentTask?.title || 'Session libre'}`}
                 </p>
                 {selectedPlaylist && musicEnabled && (
                   <p className="text-lg opacity-70">
@@ -508,6 +546,7 @@ const WorkspacePage = () => {
               
               <div className="text-center text-sm opacity-60">
                 <p>Pomodoro {pomodoroLength}min • Cycles complétés: {cycles}</p>
+                <p className="mt-2 text-xs">Appuyez sur <kbd className="bg-gray-700 px-2 py-1 rounded">Échap</kbd> pour quitter rapidement</p>
               </div>
             </div>
           </div>
