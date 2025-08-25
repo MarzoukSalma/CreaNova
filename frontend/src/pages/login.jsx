@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Lock, Mail, User, Heart, Sparkles, Stars } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/api.jsx'; // Adjust path based on your file structure
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showmotDePasse, setShowmotDePasse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
+    mail: '',
+    motDePasse: '',
+    confirmmotDePasse: '',
     name: ''
   });
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
 
   // Floating elements animation
   const [floatingElements, setFloatingElements] = useState([]);
@@ -42,29 +46,32 @@ const LoginPage = () => {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
+    if (serverError) {
+      setServerError('');
+    }
   };
 
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.email) {
-      newErrors.email = 'Email requis';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Format d\'email invalide';
+    if (!formData.mail) {
+      newErrors.mail = 'mail requis';
+    } else if (!/\S+@\S+\.\S+/.test(formData.mail)) {
+      newErrors.mail = 'Format d\'mail invalide';
     }
     
-    if (!formData.password) {
-      newErrors.password = 'Mot de passe requis';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Au moins 6 caractères';
+    if (!formData.motDePasse) {
+      newErrors.motDePasse = 'Mot de passe requis';
+    } else if (formData.motDePasse.length < 6) {
+      newErrors.motDePasse = 'Au moins 6 caractères';
     }
     
     if (!isLogin) {
       if (!formData.name) {
         newErrors.name = 'Nom requis';
       }
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
+      if (formData.motDePasse !== formData.confirmmotDePasse) {
+        newErrors.confirmmotDePasse = 'Les mots de passe ne correspondent pas';
       }
     }
     
@@ -72,27 +79,145 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleLogin = async () => {
+    try {
+      const response = await api.post('/auth/login', {
+        mail: formData.mail,
+        motDePasse: formData.motDePasse
+      });
+
+      // Assuming your backend returns { token, user }
+      const { token, user } = response.data;
+      
+      // Store token in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+     
+      
+      // Redirect to reves or home page
+      navigate('/reves'); // Adjust route as needed
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      if (error.response) {
+        // Server responded with error status
+        const { status, data } = error.response;
+        
+        if (status === 401) {
+          setServerError('mail ou mot de passe incorrect');
+        } else if (status === 404) {
+          setServerError('Utilisateur non trouvé');
+        } else if (status === 500) {
+          setServerError('Erreur serveur. Veuillez réessayer plus tard.');
+        } else {
+          setServerError(data.message || 'Erreur de connexion');
+        }
+      } else if (error.request) {
+        // Network error
+        setServerError('Impossible de se connecter au serveur. Vérifiez votre connexion.');
+      } else {
+        setServerError('Une erreur inattendue s\'est produite');
+      }
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      const response = await api.post('/auth/register', {
+        name: formData.name,
+        mail: formData.mail,
+        motDePasse: formData.motDePasse
+      });
+
+      // Assuming your backend returns { token, user } or { message }
+      const { token, user, message } = response.data;
+      
+      if (token) {
+        // Auto-login after registration
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        alert('Inscription réussie! Vous êtes maintenant connecté.');
+        navigate('/reves'); // Adjust route as needed
+      } else {
+        // Registration successful but requires mail verification
+        alert(message || 'Inscription réussie! Veuillez vérifier votre mail.');
+        setIsLogin(true); // Switch to login mode
+      }
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      if (error.response) {
+        const { status, data } = error.response;
+        
+        if (status === 400) {
+          if (data.message && data.message.includes('mail')) {
+            setServerError('Cette adresse mail est déjà utilisée');
+          } else {
+            setServerError(data.message || 'Données invalides');
+          }
+        } else if (status === 409) {
+          setServerError('Un compte avec cette adresse mail existe déjà');
+        } else if (status === 500) {
+          setServerError('Erreur serveur. Veuillez réessayer plus tard.');
+        } else {
+          setServerError(data.message || 'Erreur d\'inscription');
+        }
+      } else if (error.request) {
+        setServerError('Impossible de se connecter au serveur. Vérifiez votre connexion.');
+      } else {
+        setServerError('Une erreur inattendue s\'est produite');
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
     
     setIsLoading(true);
+    setServerError('');
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      if (isLogin) {
+        await handleLogin();
+      } else {
+        await handleRegister();
+      }
+    } finally {
       setIsLoading(false);
-      alert(isLogin ? 'Connexion réussie!' : 'Inscription réussie!');
-    }, 2000);
+    }
   };
 
   const switchMode = () => {
     setIsLogin(!isLogin);
     setFormData({
-      email: '',
-      password: '',
-      confirmPassword: '',
+      mail: '',
+      motDePasse: '',
+      confirmmotDePasse: '',
       name: ''
     });
     setErrors({});
+    setServerError('');
+  };
+
+  const handleForgotmotDePasse = async () => {
+    if (!formData.mail) {
+      setErrors({ mail: 'Veuillez entrer votre mail d\'abord' });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await api.post('/auth/forgot-motDePasse', { mail: formData.mail });
+      alert('Un mail de réinitialisation a été envoyé à votre adresse');
+    } catch (error) {
+      console.error('Forgot motDePasse error:', error);
+      setServerError('Erreur lors de l\'envoi de l\'mail de réinitialisation');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -136,6 +261,16 @@ const LoginPage = () => {
 
           {/* Login/Register Card */}
           <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+            {/* Server Error Display */}
+            {serverError && (
+              <div className="mb-6 p-4 bg-red-500/20 border border-red-400/50 rounded-xl">
+                <p className="text-red-200 text-sm flex items-center gap-2">
+                  <span>⚠️</span>
+                  {serverError}
+                </p>
+              </div>
+            )}
+
             {/* Tab Switcher */}
             <div className="flex bg-white/10 rounded-2xl p-1 mb-6">
               <button
@@ -188,31 +323,31 @@ const LoginPage = () => {
                 </div>
               )}
 
-              {/* Email Field */}
+              {/* mail Field */}
               <div className="space-y-2">
                 <label className="text-white font-medium flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  Adresse email
+                  Adresse mail
                 </label>
                 <div className="relative">
                   <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    type="mail"
+                    value={formData.mail}
+                    onChange={(e) => handleInputChange('mail', e.target.value)}
                     className={`w-full px-4 py-4 bg-white/10 border ${
-                      errors.email ? 'border-red-400' : 'border-white/30'
+                      errors.mail ? 'border-red-400' : 'border-white/30'
                     } rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300`}
-                    placeholder="votre@email.com"
+                    placeholder="votre@mail.com"
                   />
                 </div>
-                {errors.email && (
+                {errors.mail && (
                   <p className="text-red-300 text-sm flex items-center gap-1">
-                    <span>⚠️</span> {errors.email}
+                    <span>⚠️</span> {errors.mail}
                   </p>
                 )}
               </div>
 
-              {/* Password Field */}
+              {/* motDePasse Field */}
               <div className="space-y-2">
                 <label className="text-white font-medium flex items-center gap-2">
                   <Lock className="w-4 h-4" />
@@ -220,30 +355,30 @@ const LoginPage = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    type={showmotDePasse ? 'text' : 'motDePasse'}
+                    value={formData.motDePasse}
+                    onChange={(e) => handleInputChange('motDePasse', e.target.value)}
                     className={`w-full px-4 py-4 pr-12 bg-white/10 border ${
-                      errors.password ? 'border-red-400' : 'border-white/30'
+                      errors.motDePasse ? 'border-red-400' : 'border-white/30'
                     } rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowmotDePasse(!showmotDePasse)}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white transition-colors"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showmotDePasse ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.password && (
+                {errors.motDePasse && (
                   <p className="text-red-300 text-sm flex items-center gap-1">
-                    <span>⚠️</span> {errors.password}
+                    <span>⚠️</span> {errors.motDePasse}
                   </p>
                 )}
               </div>
 
-              {/* Confirm Password (only for registration) */}
+              {/* Confirm motDePasse (only for registration) */}
               {!isLogin && (
                 <div className="space-y-2">
                   <label className="text-white font-medium flex items-center gap-2">
@@ -252,18 +387,18 @@ const LoginPage = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      type="motDePasse"
+                      value={formData.confirmmotDePasse}
+                      onChange={(e) => handleInputChange('confirmmotDePasse', e.target.value)}
                       className={`w-full px-4 py-4 bg-white/10 border ${
-                        errors.confirmPassword ? 'border-red-400' : 'border-white/30'
+                        errors.confirmmotDePasse ? 'border-red-400' : 'border-white/30'
                       } rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300`}
                       placeholder="••••••••"
                     />
                   </div>
-                  {errors.confirmPassword && (
+                  {errors.confirmmotDePasse && (
                     <p className="text-red-300 text-sm flex items-center gap-1">
-                      <span>⚠️</span> {errors.confirmPassword}
+                      <span>⚠️</span> {errors.confirmmotDePasse}
                     </p>
                   )}
                 </div>
@@ -297,10 +432,14 @@ const LoginPage = () => {
                 )}
               </button>
 
-              {/* Forgot Password (only for login) */}
+              {/* Forgot motDePasse (only for login) */}
               {isLogin && (
                 <div className="text-center">
-                  <button className="text-purple-300 hover:text-white transition-colors text-sm">
+                  <button 
+                    onClick={handleForgotmotDePasse}
+                    disabled={isLoading}
+                    className="text-purple-300 hover:text-white transition-colors text-sm disabled:opacity-50"
+                  >
                     Mot de passe oublié ?
                   </button>
                 </div>
@@ -334,7 +473,7 @@ const LoginPage = () => {
       </div>
 
       {/* Custom CSS for animations */}
-      <style jsx>{`
+      <style >{`
         @keyframes float {
           0% { transform: translateY(0px) rotate(0deg); }
           100% { transform: translateY(-20px) rotate(10deg); }

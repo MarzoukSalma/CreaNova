@@ -1,20 +1,37 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   User, Edit3, Camera, Save, Bell, Palette, Globe, Shield, 
   Moon, Sun, Volume2, VolumeX, Heart, Star, Settings, 
-  Mail, Phone, MapPin, Calendar, Award, Trash2, Eye, EyeOff
+  Mail, Phone, MapPin, Calendar, Award, Trash2, Eye, EyeOff,
+  AlertCircle, CheckCircle, X, Lock
 } from 'lucide-react';
+import api from '../api/api.jsx';
 
 const PersonalSettingsPage = () => {
   const [activeTab, setActiveTab] = useState('profile');
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  
   const [profileData, setProfileData] = useState({
-    name: 'Marie Dubois',
-    email: 'marie.dubois@example.com',
-    phone: '+33 6 12 34 56 78',
-    location: 'Paris, France',
-    birthdate: '1990-05-15',
-    bio: 'Artiste passionnée par la créativité et l\'inspiration. J\'aime partager mes œuvres et découvrir celles des autres.',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b15c?w=150&h=150&fit=crop&crop=face'
+    nom: '',
+    mail: '',
+    phoneNumber: '',
+    bio: '',
+    dateNaissance: '',
+    avatarUrl: ''
+  });
+  
+  // État pour les changements de mot de passe et email
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  
+  const [emailData, setEmailData] = useState({
+    newMail: '',
+    motDePasse: ''
   });
   
   const [settings, setSettings] = useState({
@@ -28,32 +45,202 @@ const PersonalSettingsPage = () => {
     weeklyDigest: false
   });
 
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showEmailFields, setShowEmailFields] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Message system
+  const showMessage = (text, type = 'success') => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 5000);
+  };
+
+  const MessageComponent = () => {
+    if (!message) return null;
+    
+    return (
+      <div className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-6 py-4 rounded-xl shadow-lg transform transition-all duration-300 ${
+        message.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+      }`}>
+        {message.type === 'success' ? 
+          <CheckCircle className="w-5 h-5" /> : 
+          <AlertCircle className="w-5 h-5" />
+        }
+        <span>{message.text}</span>
+        <button 
+          onClick={() => setMessage(null)}
+          className="ml-2 hover:bg-white hover:bg-opacity-20 p-1 rounded-full"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  };
+
+  // Load user profile data - UTILISERA /profile/me
+  const loadProfile = async () => {
+    try {
+      const response = await api.get('/users/profile/me'); // Route protégée
+      const userData = response.data?.user || response.data;
+      
+      setProfileData({
+        nom: userData.nom || '',
+        mail: userData.mail || '',
+        phoneNumber: userData.phoneNumber || '',
+        bio: userData.bio || '',
+        dateNaissance: userData.dateNaissance ? userData.dateNaissance.split('T')[0] : '',
+        avatarUrl: userData.avatarUrl || 'https://images.unsplash.com/photo-1494790108755-2616b612b15c?w=150&h=150&fit=crop&crop=face'
+      });
+    } catch (error) {
+      console.error('Erreur lors du chargement du profil:', error);
+      showMessage(error.response?.data?.message || 'Erreur lors du chargement du profil', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Save profile data - UTILISERA /profile/me
+  const saveProfile = async () => {
+    setSaving(true);
+    try {
+      const response = await api.put('/users/profile/me', {
+        nom: profileData.nom,
+        avatarUrl: profileData.avatarUrl,
+        bio: profileData.bio,
+        dateNaissance: profileData.dateNaissance,
+        phoneNumber: profileData.phoneNumber
+      });
+      
+      showMessage('Profil sauvegardé avec succès !', 'success');
+      
+      // Update localStorage if user object exists
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        const updatedUser = { ...user, ...profileData };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      showMessage(error.response?.data?.message || 'Erreur lors de la sauvegarde du profil', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Changer l'email
+  const updateEmail = async () => {
+    if (!emailData.newMail || !emailData.motDePasse) {
+      showMessage('Veuillez remplir tous les champs', 'error');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await api.put('/users/profile/email', emailData);
+      showMessage('Email mis à jour avec succès !', 'success');
+      setProfileData(prev => ({ ...prev, mail: emailData.newMail }));
+      setEmailData({ newMail: '', motDePasse: '' });
+      setShowEmailFields(false);
+    } catch (error) {
+      showMessage(error.response?.data?.message || 'Erreur lors de la mise à jour de l\'email', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Changer le mot de passe
+  const updatePassword = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      showMessage('Veuillez remplir tous les champs', 'error');
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      showMessage('Les mots de passe ne correspondent pas', 'error');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await api.put('/users/profile/password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+      
+      showMessage('Mot de passe mis à jour avec succès !', 'success');
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setShowPasswordFields(false);
+    } catch (error) {
+      showMessage(error.response?.data?.message || 'Erreur lors de la mise à jour du mot de passe', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Supprimer le compte
+  const deleteAccount = async () => {
+    const password = prompt('Pour supprimer votre compte, veuillez entrer votre mot de passe:');
+    if (!password) return;
+
+    if (confirm('⚠️ ATTENTION: Cette action supprimera définitivement votre compte et toutes vos données. Êtes-vous absolument sûr(e) ?')) {
+      setSaving(true);
+      try {
+        await api.delete('/users/profile/me', {
+          data: { motDePasse: password }
+        });
+        
+        // Clear local storage and redirect
+        localStorage.clear();
+        showMessage('Compte supprimé avec succès', 'success');
+        
+        // Redirect after a short delay
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+        
+      } catch (error) {
+        showMessage(error.response?.data?.message || 'Erreur lors de la suppression du compte', 'error');
+      } finally {
+        setSaving(false);
+      }
+    }
+  };
 
   // Handle avatar upload
   const handleAvatarUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Vérifier la taille (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        showMessage('La taille de l\'image doit être inférieure à 5MB', 'error');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setProfileData(prev => ({
           ...prev,
-          avatar: e.target.result
+          avatarUrl: e.target.result
         }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Save profile changes
-  const handleSaveProfile = () => {
-    // Simulate save
-    alert('Profil sauvegardé avec succès ! ✨');
-  };
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
   // Tab configuration
   const tabs = [
     { id: 'profile', label: 'Profil', icon: <User className="w-5 h-5" /> },
+    { id: 'security', label: 'Sécurité', icon: <Lock className="w-5 h-5" /> },
     { id: 'preferences', label: 'Préférences', icon: <Settings className="w-5 h-5" /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" /> },
     { id: 'privacy', label: 'Confidentialité', icon: <Shield className="w-5 h-5" /> }
@@ -71,9 +258,9 @@ const PersonalSettingsPage = () => {
         <div className="flex items-center gap-6">
           <div className="relative">
             <img
-              src={profileData.avatar}
+              src={profileData.avatarUrl}
               alt="Avatar"
-              className="w-24 h-24 rounded-full object-cover border-4 border-gradient-to-r from-purple-400 to-pink-400"
+              className="w-24 h-24 rounded-full object-cover border-4 border-purple-200"
             />
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -110,25 +297,28 @@ const PersonalSettingsPage = () => {
             </label>
             <input
               type="text"
-              value={profileData.name}
-              onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
+              value={profileData.nom}
+              onChange={(e) => setProfileData(prev => ({ ...prev, nom: e.target.value }))}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Votre nom complet"
             />
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              Email (lecture seule)
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
               <input
                 type="email"
-                value={profileData.email}
-                onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                value={profileData.mail}
+                readOnly
+                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-100 cursor-not-allowed"
+                placeholder="votre.email@example.com"
               />
             </div>
+            <p className="text-xs text-gray-500 mt-1">Utilisez l'onglet Sécurité pour changer votre email</p>
           </div>
           
           <div>
@@ -139,29 +329,15 @@ const PersonalSettingsPage = () => {
               <Phone className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
               <input
                 type="tel"
-                value={profileData.phone}
-                onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                value={profileData.phoneNumber}
+                onChange={(e) => setProfileData(prev => ({ ...prev, phoneNumber: e.target.value }))}
                 className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="+212 6 00 00 00 00"
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Localisation
-            </label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={profileData.location}
-                onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-          </div>
-          
-          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Date de naissance
             </label>
@@ -169,8 +345,8 @@ const PersonalSettingsPage = () => {
               <Calendar className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
               <input
                 type="date"
-                value={profileData.birthdate}
-                onChange={(e) => setProfileData(prev => ({ ...prev, birthdate: e.target.value }))}
+                value={profileData.dateNaissance}
+                onChange={(e) => setProfileData(prev => ({ ...prev, dateNaissance: e.target.value }))}
                 className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
@@ -190,21 +366,154 @@ const PersonalSettingsPage = () => {
           onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 h-32 resize-none"
           placeholder="Parlez-nous de vous et de votre passion créative..."
+          maxLength="500"
         />
         <p className="text-sm text-gray-500 mt-2">
-          {profileData.bio.length}/500 caractères
+          {profileData.bio?.length || 0}/500 caractères
         </p>
       </div>
 
       {/* Save Button */}
       <div className="flex justify-end">
         <button
-          onClick={handleSaveProfile}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
+          onClick={saveProfile}
+          disabled={saving}
+          className={`bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105 ${
+            saving ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
           <Save className="w-5 h-5" />
-          Sauvegarder le profil
+          {saving ? 'Sauvegarde...' : 'Sauvegarder le profil'}
         </button>
+      </div>
+    </div>
+  );
+
+  // NOUVEL ONGLET SÉCURITÉ
+  const renderSecurityTab = () => (
+    <div className="space-y-8">
+      {/* Change Email */}
+      <div className="bg-white rounded-3xl shadow-xl p-8">
+        <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <Mail className="w-6 h-6 text-purple-500" />
+          Changer d'Email
+        </h3>
+        
+        <div className="mb-4">
+          <p className="text-gray-600 mb-2">Email actuel: <strong>{profileData.mail}</strong></p>
+          <button
+            onClick={() => setShowEmailFields(!showEmailFields)}
+            className="text-purple-600 hover:text-purple-700 font-medium"
+          >
+            {showEmailFields ? 'Annuler' : 'Changer d\'email'}
+          </button>
+        </div>
+
+        {showEmailFields && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nouvel email
+              </label>
+              <input
+                type="email"
+                value={emailData.newMail}
+                onChange={(e) => setEmailData(prev => ({ ...prev, newMail: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="nouveau.email@example.com"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mot de passe actuel
+              </label>
+              <input
+                type="password"
+                value={emailData.motDePasse}
+                onChange={(e) => setEmailData(prev => ({ ...prev, motDePasse: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Votre mot de passe actuel"
+              />
+            </div>
+            
+            <button
+              onClick={updateEmail}
+              disabled={saving}
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Mise à jour...' : 'Mettre à jour l\'email'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Change Password */}
+      <div className="bg-white rounded-3xl shadow-xl p-8">
+        <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <Lock className="w-6 h-6 text-purple-500" />
+          Changer le Mot de Passe
+        </h3>
+        
+        <div className="mb-4">
+          <button
+            onClick={() => setShowPasswordFields(!showPasswordFields)}
+            className="text-purple-600 hover:text-purple-700 font-medium"
+          >
+            {showPasswordFields ? 'Annuler' : 'Changer le mot de passe'}
+          </button>
+        </div>
+
+        {showPasswordFields && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mot de passe actuel
+              </label>
+              <input
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Mot de passe actuel"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nouveau mot de passe
+              </label>
+              <input
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Nouveau mot de passe (min. 6 caractères)"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirmer le nouveau mot de passe
+              </label>
+              <input
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Confirmer le nouveau mot de passe"
+              />
+            </div>
+            
+            <button
+              onClick={updatePassword}
+              disabled={saving}
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -371,24 +680,62 @@ const PersonalSettingsPage = () => {
               Zone Dangereuse
             </h4>
             <p className="text-sm text-red-600 mb-4">
-              Ces actions sont irréversibles. Soyez certain de votre choix.
+              Cette action est irréversible. Toutes vos données seront supprimées.
             </p>
-            <div className="space-y-2">
-              <button className="w-full px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
-                Supprimer toutes mes données
-              </button>
-              <button className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                Supprimer mon compte définitivement
-              </button>
-            </div>
+            <button 
+              onClick={deleteAccount}
+              disabled={saving}
+              className={`px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors ${
+                saving ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {saving ? 'Suppression...' : 'Supprimer mon compte définitivement'}
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 
+  // Check if user is authenticated
+  const isAuthenticated = () => {
+    const token = localStorage.getItem('token');
+    return !!token;
+  };
+
+  if (!isAuthenticated()) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-6 opacity-60">🔒</div>
+          <h3 className="text-2xl font-semibold mb-2 text-gray-700">Accès requis</h3>
+          <p className="text-lg opacity-80 text-gray-600">Veuillez vous connecter pour accéder à vos paramètres</p>
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all"
+          >
+            Se connecter
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Chargement de votre profil...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <MessageComponent />
+      
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
         <div className="text-center mb-8">
@@ -404,11 +751,11 @@ const PersonalSettingsPage = () => {
             <div className="bg-white rounded-3xl shadow-xl p-6 sticky top-6">
               <div className="text-center mb-6">
                 <img
-                  src={profileData.avatar}
+                  src={profileData.avatarUrl}
                   alt="Profile"
-                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-gradient-to-r from-purple-400 to-pink-400"
+                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-purple-200 object-cover"
                 />
-                <h3 className="font-bold text-lg text-gray-800">{profileData.name}</h3>
+                <h3 className="font-bold text-lg text-gray-800">{profileData.nom || 'Utilisateur'}</h3>
                 <p className="text-sm text-gray-600">Artiste créatif</p>
                 <div className="flex justify-center gap-1 mt-2">
                   {[...Array(5)].map((_, i) => (
@@ -458,6 +805,7 @@ const PersonalSettingsPage = () => {
           {/* Main Content */}
           <div className="lg:w-3/4">
             {activeTab === 'profile' && renderProfileTab()}
+            {activeTab === 'security' && renderSecurityTab()}
             {activeTab === 'preferences' && renderPreferencesTab()}
             {activeTab === 'notifications' && renderNotificationsTab()}
             {activeTab === 'privacy' && renderPrivacyTab()}

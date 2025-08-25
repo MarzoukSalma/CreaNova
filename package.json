@@ -6,5 +6,8 @@
     "start:all": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd backend && npm start",
     "client": "cd frontend && npm run dev"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0"
   }
 }

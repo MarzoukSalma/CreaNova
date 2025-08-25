@@ -4,7 +4,10 @@ module.exports = (sequelize, DataTypes) => {
   class Journal extends Model {
    
     static associate(models) {
-      // define association here
+   Journal.belongsTo(models.User, {
+    foreignKey: "userId",
+   
+  });
     }
   }
   Journal.init(
@@ -12,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       mood: DataTypes.TEXT,
       texte: DataTypes.TEXT,
       date: DataTypes.DATE,
-      utilisateur_id: DataTypes.INTEGER,
+      userId: DataTypes.INTEGER,
     },
     {
       sequelize,
