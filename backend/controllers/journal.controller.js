@@ -1,14 +1,14 @@
-const { Journal } = require('../models');
+const { Journal } = require("../models");
 
 // Créer un journal
 exports.createJournal = async (req, res) => {
   try {
-    const { texte, userId,mood ,date} = req.body;
+    const { texte, userId, mood, date } = req.body;
     const journal = await Journal.create({
       texte,
       userId,
       date,
-      mood
+      mood,
     });
     res.json(journal);
   } catch (error) {
@@ -20,7 +20,7 @@ exports.createJournal = async (req, res) => {
 exports.getUserJournals = async (req, res) => {
   try {
     const journals = await Journal.findAll({
-      where: { userId: req.params.userId }
+      where: { userId: req.params.userId },
     });
     res.json(journals);
   } catch (error) {
@@ -31,15 +31,16 @@ exports.getUserJournals = async (req, res) => {
 exports.updateJournal = async (req, res) => {
   try {
     const { id } = req.params; // id du journal dans l'URL
-    const { texte,date ,mood} = req.body;
+    const { texte, date, mood } = req.body;
 
     const journal = await Journal.findByPk(id);
-    if (!journal) return res.status(404).json({ message: "Journal non trouvé" });
+    if (!journal)
+      return res.status(404).json({ message: "Journal non trouvé" });
 
     // Mettre à jour les champs
     journal.texte = texte || journal.texte;
     journal.date = date || journal.date;
-    journal.mood = mood || journal.mood; 
+    journal.mood = mood || journal.mood;
     await journal.save();
 
     res.json(journal);
@@ -53,7 +54,8 @@ exports.deleteJournal = async (req, res) => {
     const { id } = req.params;
 
     const journal = await Journal.findByPk(id);
-    if (!journal) return res.status(404).json({ message: "Journal non trouvé" });
+    if (!journal)
+      return res.status(404).json({ message: "Journal non trouvé" });
 
     await journal.destroy();
 

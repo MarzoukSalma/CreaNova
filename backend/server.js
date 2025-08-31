@@ -1,31 +1,33 @@
-
 const express = require("express");
-const db = require("./models"); // Va chercher models/index.js
-const journalRoutes = require('./routes/journalRoutes');
-const authRoutes = require('./routes/auth');
-const users = require('./routes/userRoutes.js');
+const db = require("./models");
+const dotenv = require("dotenv");
+dotenv.config();
+// Va chercher models/index.js
+const inspirationRoutes = require("./routes/inspiration");
+const journalRoutes = require("./routes/journalRoutes");
+const authRoutes = require("./routes/auth");
+const users = require("./routes/userRoutes.js");
+const dreamRoutes = require("./routes/dream");
+const workRoutes = require("./routes/work");
 
 const app = express();
-const cors = require('cors') 
+const cors = require("cors");
 app.use(express.json()); // pour lire JSON
 app.use(cors());
 // Middleware pour lire le JSON dans les requêtes
-
 
 // Route de test
 app.get("/", (req, res) => {
   res.send("API Studio de Rêves Créatifs fonctionne 🚀");
 });
 
-
-
 // Routes
-app.use('/journals', journalRoutes);
-app.use('/auth', authRoutes);
-app.use('/users', users);
-
-
-
+app.use("/journals", journalRoutes);
+app.use("/auth", authRoutes);
+app.use("/users", users);
+app.use("/dreams", dreamRoutes);
+app.use("/workspace", workRoutes);
+app.use("/inspirations", inspirationRoutes);
 
 // Tester la connexion à la base
 db.sequelize

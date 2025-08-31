@@ -1,48 +1,48 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('MessageChatbots', {
+    await queryInterface.createTable("WorkSpaces", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
-      contenu: {
-        type: Sequelize.TEXT
+      titre: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      date: {
-        type: Sequelize.DATE
+      description: {
+        type: Sequelize.TEXT,
       },
-      important: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
+      dateCreation: {
+        type: Sequelize.DATE,
       },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users', // ← nom exact de ta table utilisateurs
-          key: 'id'
+          model: "Users", // NOM exact de la table Users
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.fn("NOW"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
-      }
+        defaultValue: Sequelize.fn("NOW"),
+      },
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('MessageChatbots');
-  }
+    await queryInterface.dropTable("WorkSpaces");
+  },
 };
