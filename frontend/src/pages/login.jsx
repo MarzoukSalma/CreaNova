@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Lock, Mail, User, Heart, Sparkles, Stars } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import api from '../api/api.jsx'; // Adjust path based on your file structure
+import React, { useState, useEffect } from "react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  User,
+  Heart,
+  Sparkles,
+  Stars,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/api.jsx"; // Adjust path based on your file structure
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -9,13 +18,13 @@ const LoginPage = () => {
   const [showmotDePasse, setShowmotDePasse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    mail: '',
-    motDePasse: '',
-    confirmmotDePasse: '',
-    name: ''
+    mail: "",
+    motDePasse: "",
+    confirmmotDePasse: "",
+    name: "",
   });
   const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState('');
+  const [serverError, setServerError] = useState("");
 
   // Floating elements animation
   const [floatingElements, setFloatingElements] = useState([]);
@@ -27,158 +36,162 @@ const LoginPage = () => {
       y: Math.random() * 100,
       size: Math.random() * 20 + 10,
       speed: Math.random() * 2 + 1,
-      opacity: Math.random() * 0.5 + 0.1
+      opacity: Math.random() * 0.5 + 0.1,
     }));
     setFloatingElements(elements);
 
     const interval = setInterval(() => {
-      setFloatingElements(prev => prev.map(el => ({
-        ...el,
-        y: (el.y - el.speed) % 110
-      })));
+      setFloatingElements((prev) =>
+        prev.map((el) => ({
+          ...el,
+          y: (el.y - el.speed) % 110,
+        }))
+      );
     }, 100);
 
     return () => clearInterval(interval);
   }, []);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
     if (serverError) {
-      setServerError('');
+      setServerError("");
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.mail) {
-      newErrors.mail = 'mail requis';
+      newErrors.mail = "mail requis";
     } else if (!/\S+@\S+\.\S+/.test(formData.mail)) {
-      newErrors.mail = 'Format d\'mail invalide';
+      newErrors.mail = "Format d'mail invalide";
     }
-    
+
     if (!formData.motDePasse) {
-      newErrors.motDePasse = 'Mot de passe requis';
+      newErrors.motDePasse = "Mot de passe requis";
     } else if (formData.motDePasse.length < 6) {
-      newErrors.motDePasse = 'Au moins 6 caractères';
+      newErrors.motDePasse = "Au moins 6 caractères";
     }
-    
+
     if (!isLogin) {
       if (!formData.name) {
-        newErrors.name = 'Nom requis';
+        newErrors.name = "Nom requis";
       }
       if (formData.motDePasse !== formData.confirmmotDePasse) {
-        newErrors.confirmmotDePasse = 'Les mots de passe ne correspondent pas';
+        newErrors.confirmmotDePasse = "Les mots de passe ne correspondent pas";
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleLogin = async () => {
     try {
-      const response = await api.post('/auth/login', {
+      const response = await api.post("/auth/login", {
         mail: formData.mail,
-        motDePasse: formData.motDePasse
+        motDePasse: formData.motDePasse,
       });
 
       // Assuming your backend returns { token, user }
       const { token, user } = response.data;
-      
+
       // Store token in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-     
-      
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
       // Redirect to reves or home page
-      navigate('/reves'); // Adjust route as needed
-      
+      navigate("/reves"); // Adjust route as needed
     } catch (error) {
-      console.error('Login error:', error);
-      
+      console.error("Login error:", error);
+
       if (error.response) {
         // Server responded with error status
         const { status, data } = error.response;
-        
+
         if (status === 401) {
-          setServerError('mail ou mot de passe incorrect');
+          setServerError("mail ou mot de passe incorrect");
         } else if (status === 404) {
-          setServerError('Utilisateur non trouvé');
+          setServerError("Utilisateur non trouvé");
         } else if (status === 500) {
-          setServerError('Erreur serveur. Veuillez réessayer plus tard.');
+          setServerError("Erreur serveur. Veuillez réessayer plus tard.");
         } else {
-          setServerError(data.message || 'Erreur de connexion');
+          setServerError(data.message || "Erreur de connexion");
         }
       } else if (error.request) {
         // Network error
-        setServerError('Impossible de se connecter au serveur. Vérifiez votre connexion.');
+        setServerError(
+          "Impossible de se connecter au serveur. Vérifiez votre connexion."
+        );
       } else {
-        setServerError('Une erreur inattendue s\'est produite');
+        setServerError("Une erreur inattendue s'est produite");
       }
     }
   };
 
   const handleRegister = async () => {
     try {
-      const response = await api.post('/auth/register', {
+
+      const response = await api.post("/auth/register", {
+
         nom: formData.name,
         mail: formData.mail,
-        motDePasse: formData.motDePasse
+        motDePasse: formData.motDePasse,
       });
 
       // Assuming your backend returns { token, user } or { message }
       const { token, user, message } = response.data;
-      
+
       if (token) {
         // Auto-login after registration
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        alert('Inscription réussie! Vous êtes maintenant connecté.');
-        navigate('/reves'); // Adjust route as needed
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        alert("Inscription réussie! Vous êtes maintenant connecté.");
+        navigate("/reves"); // Adjust route as needed
       } else {
         // Registration successful but requires mail verification
-        alert(message || 'Inscription réussie! Veuillez vérifier votre mail.');
+        alert(message || "Inscription réussie! Veuillez vérifier votre mail.");
         setIsLogin(true); // Switch to login mode
       }
-      
     } catch (error) {
-      console.error('Registration error:', error);
-      
+      console.error("Registration error:", error);
+
       if (error.response) {
         const { status, data } = error.response;
-        
+
         if (status === 400) {
-          if (data.message && data.message.includes('mail')) {
-            setServerError('Cette adresse mail est déjà utilisée');
+          if (data.message && data.message.includes("mail")) {
+            setServerError("Cette adresse mail est déjà utilisée");
           } else {
-            setServerError(data.message || 'Données invalides');
+            setServerError(data.message || "Données invalides");
           }
         } else if (status === 409) {
-          setServerError('Un compte avec cette adresse mail existe déjà');
+          setServerError("Un compte avec cette adresse mail existe déjà");
         } else if (status === 500) {
-          setServerError('Erreur serveur. Veuillez réessayer plus tard.');
+          setServerError("Erreur serveur. Veuillez réessayer plus tard.");
         } else {
-          setServerError(data.message || 'Erreur d\'inscription');
+          setServerError(data.message || "Erreur d'inscription");
         }
       } else if (error.request) {
-        setServerError('Impossible de se connecter au serveur. Vérifiez votre connexion.');
+        setServerError(
+          "Impossible de se connecter au serveur. Vérifiez votre connexion."
+        );
       } else {
-        setServerError('Une erreur inattendue s\'est produite');
+        setServerError("Une erreur inattendue s'est produite");
       }
     }
   };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    
+
     setIsLoading(true);
-    setServerError('');
-    
+    setServerError("");
+
     try {
       if (isLogin) {
         await handleLogin();
@@ -193,28 +206,28 @@ const LoginPage = () => {
   const switchMode = () => {
     setIsLogin(!isLogin);
     setFormData({
-      mail: '',
-      motDePasse: '',
-      confirmmotDePasse: '',
-      name: ''
+      mail: "",
+      motDePasse: "",
+      confirmmotDePasse: "",
+      name: "",
     });
     setErrors({});
-    setServerError('');
+    setServerError("");
   };
 
   const handleForgotmotDePasse = async () => {
     if (!formData.mail) {
-      setErrors({ mail: 'Veuillez entrer votre mail d\'abord' });
+      setErrors({ mail: "Veuillez entrer votre mail d'abord" });
       return;
     }
 
     try {
       setIsLoading(true);
-      await api.post('/auth/forgot-motDePasse', { mail: formData.mail });
-      alert('Un mail de réinitialisation a été envoyé à votre adresse');
+      await api.post("/auth/forgot-motDePasse", { mail: formData.mail });
+      alert("Un mail de réinitialisation a été envoyé à votre adresse");
     } catch (error) {
-      console.error('Forgot motDePasse error:', error);
-      setServerError('Erreur lors de l\'envoi de l\'mail de réinitialisation');
+      console.error("Forgot motDePasse error:", error);
+      setServerError("Erreur lors de l'envoi de l'mail de réinitialisation");
     } finally {
       setIsLoading(false);
     }
@@ -234,7 +247,9 @@ const LoginPage = () => {
               width: `${element.size}px`,
               height: `${element.size}px`,
               opacity: element.opacity,
-              animation: `float ${element.speed + 3}s ease-in-out infinite alternate`
+              animation: `float ${
+                element.speed + 3
+              }s ease-in-out infinite alternate`,
             }}
           />
         ))}
@@ -251,9 +266,7 @@ const LoginPage = () => {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4 shadow-2xl">
               <Sparkles className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-2">
-              ✨ Les Rêves
-            </h1>
+            <h1 className="text-4xl font-bold text-white mb-2">✨ Les Rêves</h1>
             <p className="text-purple-200 text-lg">
               Votre journal créatif personnel
             </p>
@@ -277,8 +290,8 @@ const LoginPage = () => {
                 onClick={() => setIsLogin(true)}
                 className={`flex-1 py-3 px-6 rounded-xl transition-all duration-300 font-semibold ${
                   isLogin
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                    : 'text-white/70 hover:text-white'
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                    : "text-white/70 hover:text-white"
                 }`}
               >
                 Connexion
@@ -287,8 +300,8 @@ const LoginPage = () => {
                 onClick={() => setIsLogin(false)}
                 className={`flex-1 py-3 px-6 rounded-xl transition-all duration-300 font-semibold ${
                   !isLogin
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                    : 'text-white/70 hover:text-white'
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                    : "text-white/70 hover:text-white"
                 }`}
               >
                 Inscription
@@ -308,9 +321,11 @@ const LoginPage = () => {
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       className={`w-full px-4 py-4 bg-white/10 border ${
-                        errors.name ? 'border-red-400' : 'border-white/30'
+                        errors.name ? "border-red-400" : "border-white/30"
                       } rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300`}
                       placeholder="Votre nom complet"
                     />
@@ -333,9 +348,9 @@ const LoginPage = () => {
                   <input
                     type="mail"
                     value={formData.mail}
-                    onChange={(e) => handleInputChange('mail', e.target.value)}
+                    onChange={(e) => handleInputChange("mail", e.target.value)}
                     className={`w-full px-4 py-4 bg-white/10 border ${
-                      errors.mail ? 'border-red-400' : 'border-white/30'
+                      errors.mail ? "border-red-400" : "border-white/30"
                     } rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300`}
                     placeholder="votre@mail.com"
                   />
@@ -355,11 +370,13 @@ const LoginPage = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showmotDePasse ? 'text' : 'motDePasse'}
+                    type={showmotDePasse ? "text" : "motDePasse"}
                     value={formData.motDePasse}
-                    onChange={(e) => handleInputChange('motDePasse', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("motDePasse", e.target.value)
+                    }
                     className={`w-full px-4 py-4 pr-12 bg-white/10 border ${
-                      errors.motDePasse ? 'border-red-400' : 'border-white/30'
+                      errors.motDePasse ? "border-red-400" : "border-white/30"
                     } rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300`}
                     placeholder="••••••••"
                   />
@@ -368,7 +385,11 @@ const LoginPage = () => {
                     onClick={() => setShowmotDePasse(!showmotDePasse)}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white transition-colors"
                   >
-                    {showmotDePasse ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showmotDePasse ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
                 {errors.motDePasse && (
@@ -389,9 +410,13 @@ const LoginPage = () => {
                     <input
                       type="motDePasse"
                       value={formData.confirmmotDePasse}
-                      onChange={(e) => handleInputChange('confirmmotDePasse', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("confirmmotDePasse", e.target.value)
+                      }
                       className={`w-full px-4 py-4 bg-white/10 border ${
-                        errors.confirmmotDePasse ? 'border-red-400' : 'border-white/30'
+                        errors.confirmmotDePasse
+                          ? "border-red-400"
+                          : "border-white/30"
                       } rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all duration-300`}
                       placeholder="••••••••"
                     />
@@ -413,7 +438,9 @@ const LoginPage = () => {
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-3">
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {isLogin ? 'Connexion en cours...' : 'Création du compte...'}
+                    {isLogin
+                      ? "Connexion en cours..."
+                      : "Création du compte..."}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
@@ -435,7 +462,7 @@ const LoginPage = () => {
               {/* Forgot motDePasse (only for login) */}
               {isLogin && (
                 <div className="text-center">
-                  <button 
+                  <button
                     onClick={handleForgotmotDePasse}
                     disabled={isLoading}
                     className="text-purple-300 hover:text-white transition-colors text-sm disabled:opacity-50"
@@ -448,7 +475,9 @@ const LoginPage = () => {
               {/* Switch Mode */}
               <div className="text-center pt-4 border-t border-white/20">
                 <p className="text-white/70 mb-3">
-                  {isLogin ? "Vous n'avez pas de compte ?" : "Vous avez déjà un compte ?"}
+                  {isLogin
+                    ? "Vous n'avez pas de compte ?"
+                    : "Vous avez déjà un compte ?"}
                 </p>
                 <button
                   onClick={switchMode}
@@ -473,7 +502,7 @@ const LoginPage = () => {
       </div>
 
       {/* Custom CSS for animations */}
-      <style >{`
+      <style>{`
         @keyframes float {
           0% { transform: translateY(0px) rotate(0deg); }
           100% { transform: translateY(-20px) rotate(10deg); }

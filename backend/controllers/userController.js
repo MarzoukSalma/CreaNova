@@ -1,11 +1,39 @@
 // controllers/userController.js
-const { User } = require('../models');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const { User } = require("../models");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret_dev";
 
 module.exports = {
+  async createUser(req, res) {
+    try {
+      const {
+        nom,
+        mail,
+        motDePasse,
+        avatarUrl,
+        bio,
+        dateNaissance,
+        phoneNumber,
+      } = req.body;
+      const user = await User.create({
+        nom,
+        mail,
+        motDePasse, // idéalement hasher avant
+        avatarUrl,
+        bio,
+        dateNaissance,
+        phoneNumber,
+      });
+      res.status(201).json(user);
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Erreur lors de la création de l'utilisateur" });
+    }
+  },
 
   // 🔹 Récupérer le profil de l'utilisateur connecté
   async getProfile(req, res) {
@@ -13,7 +41,7 @@ module.exports = {
       const userId = req.user.id; // Vient du middleware d'authentification
 
       const user = await User.findByPk(userId, {
-        attributes: { exclude: ['motDePasse'] } // Exclure le mot de passe
+        attributes: { exclude: ["motDePasse"] }, // Exclure le mot de passe
       });
 
       if (!user) {
@@ -22,9 +50,8 @@ module.exports = {
 
       res.json({
         message: "Profil récupéré avec succès",
-        user
+        user,
       });
-
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -37,7 +64,7 @@ module.exports = {
       const { id } = req.params;
 
       const user = await User.findByPk(id, {
-        attributes: { exclude: ['motDePasse', 'mail'] } // Exclure infos sensibles
+        attributes: { exclude: ["motDePasse", "mail"] }, // Exclure infos sensibles
       });
 
       if (!user) {
@@ -46,9 +73,8 @@ module.exports = {
 
       res.json({
         message: "Utilisateur trouvé",
-        user
+        user,
       });
-
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -78,14 +104,13 @@ module.exports = {
 
       // Retourner l'utilisateur mis à jour sans le mot de passe
       const updatedUser = await User.findByPk(userId, {
-        attributes: { exclude: ['motDePasse'] }
+        attributes: { exclude: ["motDePasse"] },
       });
 
       res.json({
         message: "Profil mis à jour avec succès",
-        user: updatedUser
+        user: updatedUser,
       });
-
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -119,9 +144,8 @@ module.exports = {
 
       res.json({
         message: "Email mis à jour avec succès",
-        user: { id: user.id, nom: user.nom, mail: newMail }
+        user: { id: user.id, nom: user.nom, mail: newMail },
       });
-
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -135,8 +159,9 @@ module.exports = {
       const { currentPassword, newPassword } = req.body;
 
       if (!newPassword || newPassword.length < 6) {
-        return res.status(400).json({ 
-          message: "Le nouveau mot de passe doit contenir au moins 6 caractères" 
+        return res.status(400).json({
+          message:
+            "Le nouveau mot de passe doit contenir au moins 6 caractères",
         });
       }
 
@@ -146,9 +171,14 @@ module.exports = {
       }
 
       // Vérifier l'ancien mot de passe
-      const isPasswordValid = await bcrypt.compare(currentPassword, user.motDePasse);
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        user.motDePasse
+      );
       if (!isPasswordValid) {
-        return res.status(401).json({ message: "Mot de passe actuel incorrect" });
+        return res
+          .status(401)
+          .json({ message: "Mot de passe actuel incorrect" });
       }
 
       // Hacher le nouveau mot de passe
@@ -156,7 +186,6 @@ module.exports = {
       await user.update({ motDePasse: hashedNewPassword });
 
       res.json({ message: "Mot de passe mis à jour avec succès" });
-
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -184,47 +213,41 @@ module.exports = {
       await user.destroy();
 
       res.json({ message: "Compte supprimé avec succès" });
-
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erreur serveur", error: error.message });
     }
   },
 
-  
-
-   
-
   // 🔹 Rechercher des utilisateurs
   async searchUsers(req, res) {
     try {
       const { q } = req.query; // query string
-      
+
       if (!q || q.trim().length < 2) {
-        return res.status(400).json({ 
-          message: "La recherche doit contenir au moins 2 caractères" 
+        return res.status(400).json({
+          message: "La recherche doit contenir au moins 2 caractères",
         });
       }
 
       const users = await User.findAll({
         where: {
           nom: {
-            [require('sequelize').Op.iLike]: `%${q.trim()}%` // PostgreSQL
+            [require("sequelize").Op.iLike]: `%${q.trim()}%`, // PostgreSQL
             // [require('sequelize').Op.like]: `%${q.trim()}%` // MySQL/SQLite
-          }
+          },
         },
-        attributes: { exclude: ['motDePasse', 'mail'] },
-        limit: 20
+        attributes: { exclude: ["motDePasse", "mail"] },
+        limit: 20,
       });
 
       res.json({
         message: `${users.length} utilisateur(s) trouvé(s)`,
-        users
+        users,
       });
-
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Erreur serveur", error: error.message });
     }
-  }
+  },
 };
