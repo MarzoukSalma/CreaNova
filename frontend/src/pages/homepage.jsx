@@ -4,6 +4,8 @@ import {
   Settings, Timer, ArrowRight, Sparkles, Target,
   Camera, Music, PenTool, Brain, Heart, Star
 } from 'lucide-react';
+import { Navigate } from "react-router-dom";
+
 
 const HomePage = ({ onNavigateToLogin }) => {
   const features = [

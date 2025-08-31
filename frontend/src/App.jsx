@@ -2,7 +2,7 @@ import React from 'react';
 import ProtectedRoute from './components/ProtectedRoute';
 import {BrowserRouter as Router,Routes,Route,Navigate,} from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/navbar.jsx";
 import HomePage from "./pages/homepage.jsx"; // Ajoutez cette page
 import JournalCreativite from "./pages/journal.jsx";
 import StudioRevesCreatifs from "./pages/dream.jsx";
@@ -11,7 +11,7 @@ import Chatboot from "./pages/chatboot.jsx";
 import Sittings from "./pages/sittings.jsx";
 import Login from "./pages/login.jsx";
 import WorkspacePage from "./pages/workspace.jsx";
-
+import Protectelogin from './components/protectlogin.jsx';
 // Composant wrapper pour gérer la navigation vers login
 const HomePageWrapper = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const App = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePageWrapper />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Protectelogin><Login /></Protectelogin>} />
         
         {/* Toutes les pages protégées */}
         <Route

@@ -126,7 +126,7 @@ const LoginPage = () => {
   const handleRegister = async () => {
     try {
       const response = await api.post('/auth/register', {
-        name: formData.name,
+        nom: formData.name,
         mail: formData.mail,
         motDePasse: formData.motDePasse
       });
