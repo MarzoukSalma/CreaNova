@@ -19,6 +19,9 @@ module.exports = {
       mood: {
         type: Sequelize.STRING
       },
+      createur: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

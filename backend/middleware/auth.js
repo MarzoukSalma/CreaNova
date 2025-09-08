@@ -4,43 +4,30 @@ const { User } = require('../models');
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret_dev";
 
-// 🔹 Middleware d'authentification obligatoire
-const authenticateToken = async (req, res, next) => {
+
+// Middleware pour authentification obligatoire
+async function authenticateToken(req, res, next) {
   try {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    if (!authHeader) return res.status(401).json({ error: 'Token manquant' });
 
-    if (!token) {
-      return res.status(401).json({ message: "Token d'accès requis" });
-    }
+    const token = authHeader.split(' ')[1]; // Bearer TOKEN
+    if (!token) return res.status(401).json({ error: 'Token mal formé' });
 
-    // Vérifier et décoder le token
     const decoded = jwt.verify(token, JWT_SECRET);
-    
-    // Vérifier que l'utilisateur existe toujours
-    const user = await User.findByPk(decoded.id, {
-      attributes: { exclude: ['motDePasse'] }
-    });
+    const user = await User.findByPk(decoded.id, { attributes: { exclude: ['motDePasse'] } });
 
-    if (!user) {
-      return res.status(401).json({ message: "Utilisateur non trouvé" });
-    }
+    if (!user) return res.status(401).json({ error: 'Utilisateur introuvable' });
 
-    req.user = user; // Ajouter l'utilisateur à la requête
+    req.user = user; // ✅ Ici on met l'utilisateur dans req.user
     next();
-
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(403).json({ message: "Token invalide" });
-    }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(403).json({ message: "Token expiré" });
-    }
-    
-    console.error('Erreur d\'authentification:', error);
-    return res.status(500).json({ message: "Erreur serveur" });
+  } catch (err) {
+    console.error(err);
+    return res.status(403).json({ error: 'Token invalide ou expiré' });
   }
-};
+}
+
+module.exports = { authenticateToken };
 
 // 🔹 Middleware d'authentification optionnelle
 const authenticateTokenOptional = async (req, res, next) => {

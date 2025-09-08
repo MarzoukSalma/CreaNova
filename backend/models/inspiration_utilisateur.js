@@ -10,11 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Inspiration_utilisateur.init({
-    inspiration_id: DataTypes.INTEGER,
-    userId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Inspiration_utilisateur',
-  });
+  inspiration_id: DataTypes.INTEGER,
+  userId: DataTypes.INTEGER
+}, {
+  sequelize,
+  modelName: 'Inspiration_utilisateur',
+});
+
   return Inspiration_utilisateur;
 };

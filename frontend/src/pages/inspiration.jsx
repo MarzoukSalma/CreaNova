@@ -16,205 +16,318 @@ import {
   Filter,
   Grid,
   List,
+  RefreshCw,
+  Zap,
+  Cloud,
 } from "lucide-react";
+import api from '../api/api.jsx'; // Import de l'API
 
 const GalleryPage = () => {
-  const [selectedMood, setSelectedMood] = useState("happy");
+  const [selectedMood, setSelectedMood] = useState("tous");
   const [viewMode, setViewMode] = useState("grid");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [inspirations, setInspirations] = useState([]);
   const [filteredInspirations, setFilteredInspirations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingCustom, setIsGeneratingCustom] = useState(false);
+  const [isGeneratingDaily, setIsGeneratingDaily] = useState(false);
+  const [customMood, setCustomMood] = useState("");
+  const [showUserCreations, setShowUserCreations] = useState(false);
   const [uploadData, setUploadData] = useState({
     image: null,
     imagePreview: "",
     text: "",
-    mood: "happy",
+    mood: "",
     title: "",
   });
 
-  // Mood configurations
+  // Configuration des 6 humeurs principales + "tous"
   const moods = {
-    happy: {
-      name: "Joyeux",
+    tous: {
+      name: "Toutes",
+      icon: <Star className="w-6 h-6" />,
+      color: "from-gray-400 to-gray-600",
+      bg: "bg-gray-50",
+      text: "text-gray-600",
+    },
+    heureux: {
+      name: "Heureux",
       icon: <Smile className="w-6 h-6" />,
       color: "from-yellow-400 to-orange-500",
       bg: "bg-yellow-50",
       text: "text-yellow-600",
     },
-    sad: {
+    triste: {
       name: "Triste",
-      icon: <Frown className="w-6 h-6" />,
+      icon: <Cloud className="w-6 h-6" />,
       color: "from-blue-400 to-indigo-500",
       bg: "bg-blue-50",
       text: "text-blue-600",
     },
-    calm: {
-      name: "Calme",
-      icon: <Moon className="w-6 h-6" />,
-      color: "from-green-400 to-teal-500",
-      bg: "bg-green-50",
-      text: "text-green-600",
-    },
-    energetic: {
-      name: "Énergique",
-      icon: <Sun className="w-6 h-6" />,
-      color: "from-red-400 to-pink-500",
+    stressé: {
+      name: "Stressé",
+      icon: <Zap className="w-6 h-6" />,
+      color: "from-red-400 to-red-600",
       bg: "bg-red-50",
       text: "text-red-600",
     },
-    creative: {
-      name: "Créatif",
+    motivé: {
+      name: "Motivé",
       icon: <Star className="w-6 h-6" />,
       color: "from-purple-400 to-pink-500",
       bg: "bg-purple-50",
       text: "text-purple-600",
     },
-    thoughtful: {
-      name: "Pensif",
+    fatigué: {
+      name: "Fatigué",
       icon: <Coffee className="w-6 h-6" />,
       color: "from-amber-400 to-yellow-500",
       bg: "bg-amber-50",
       text: "text-amber-600",
     },
+    amoureux: {
+      name: "Amoureux",
+      icon: <Heart className="w-6 h-6" />,
+      color: "from-pink-400 to-pink-600",
+      bg: "bg-pink-50",
+      text: "text-pink-600",
+    },
   };
 
-  // Sample inspirations data
-  useEffect(() => {
-    const sampleInspirations = [
-      {
-        id: 1,
-        type: "quote",
-        text: "La créativité c'est l'intelligence qui s'amuse.",
-        author: "Albert Einstein",
-        mood: "creative",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-        title: "Créativité pure",
-      },
-      {
-        id: 2,
-        type: "image",
-        text: "Chaque lever de soleil est une nouvelle chance de recommencer.",
-        mood: "happy",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-        title: "Nouveau jour",
-      },
-      {
-        id: 3,
-        type: "quote",
-        text: "Après la pluie, le beau temps. Chaque tempête finit par passer.",
-        author: "Proverbe",
-        mood: "sad",
-        image:
-          "https://images.unsplash.com/photo-1502780402662-acc01917286e?w=400&h=300&fit=crop",
-        title: "Espoir après la tristesse",
-      },
-      {
-        id: 4,
-        type: "image",
-        text: "La méditation transforme l'esprit comme l'eau transforme la terre.",
-        mood: "calm",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-        title: "Sérénité",
-      },
-      {
-        id: 5,
-        type: "quote",
-        text: "L'énergie et la persistance conquièrent toutes choses.",
-        author: "Benjamin Franklin",
-        mood: "energetic",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-        title: "Force et détermination",
-      },
-      {
-        id: 6,
-        type: "image",
-        text: "Dans le silence de la réflexion naissent les plus grandes idées.",
-        mood: "thoughtful",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-        title: "Moment de réflexion",
-      },
-      {
-        id: 7,
-        type: "quote",
-        text: "Vous êtes plus brave que vous ne le croyez, plus fort que vous ne le paraissez.",
-        author: "A.A. Milne",
-        mood: "sad",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-        title: "Force intérieure",
-      },
-      {
-        id: 8,
-        type: "image",
-        text: "La joie partagée est une joie doublée.",
-        mood: "happy",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-        title: "Partage de bonheur",
-      },
-    ];
+  // Obtenir une image par défaut selon le mood
+  const getMoodDefaultImage = (mood) => {
+    const imageMap = {
+      heureux: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+      triste: "https://images.unsplash.com/photo-1502780402662-acc01917286e?w=400&h=300&fit=crop", 
+      stressé: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+      motivé: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+      fatigué: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+      amoureux: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+    };
+    return imageMap[mood] || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop";
+  };
 
-    setInspirations(sampleInspirations);
-  }, []);
+  // Charger toutes les inspirations depuis l'API
+  const loadAllInspirations = async () => {
+    setIsLoading(true);
+    try {
+      // Charger les inspirations utilisateur
+      const userResponse = await api.get('/inspirations/user');
+      console.log('Inspirations utilisateur:', userResponse.data);
+      
+      // Charger les inspirations par défaut (générées par l'IA)
+      let defaultInspirations = [];
+      try {
+        const defaultResponse = await api.get('/inspirations/default');
+        console.log('Inspirations par défaut:', defaultResponse.data);
+        defaultInspirations = defaultResponse.data || [];
+      } catch (error) {
+        console.log('Aucune inspiration par défaut trouvée:', error.message);
+      }
 
-  // Filter inspirations by mood
-  useEffect(() => {
-    const filtered = inspirations.filter(
-      (inspiration) => inspiration.mood === selectedMood
-    );
-    setFilteredInspirations(filtered);
-  }, [selectedMood, inspirations]);
+      // Adapter les inspirations utilisateur
+      const userInspirations = userResponse.data.map(inspiration => ({
+        id: inspiration.id,
+        type: "quote",
+        text: inspiration.contenu,
+        title: inspiration.titre || `Inspiration ${inspiration.mood}`,
+        mood: inspiration.mood,
+        createur: inspiration.isGenerated ? "IA Assistant" : "Vous",
+        date: inspiration.date,
+        createdAt: inspiration.createdAt,
+        image: getMoodDefaultImage(inspiration.mood),
+        isUserCreated: true,
+        isGenerated: inspiration.isGenerated || false,
+        originalMoodInput: inspiration.originalMood || null,
+        isCustomMood: inspiration.originalMood && inspiration.originalMood !== inspiration.mood,
+      }));
 
-  // Handle file upload
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUploadData((prev) => ({
-          ...prev,
-          image: file,
-          imagePreview: e.target.result,
-        }));
-      };
-      reader.readAsDataURL(file);
+      // Adapter les inspirations par défaut
+      const adaptedDefaultInspirations = defaultInspirations.map(inspiration => ({
+        id: `default_${inspiration.id}`,
+        type: "quote",
+        text: inspiration.contenu,
+        title: `Inspiration ${inspiration.mood}`,
+        mood: inspiration.mood,
+        createur: "IA Assistant",
+        date: inspiration.date,
+        createdAt: inspiration.createdAt,
+        image: getMoodDefaultImage(inspiration.mood),
+        isUserCreated: false,
+        isGenerated: true,
+      }));
+      
+      // Combiner toutes les inspirations
+      const allInspirations = [...userInspirations, ...adaptedDefaultInspirations];
+      console.log('Toutes les inspirations:', allInspirations);
+      
+      setInspirations(allInspirations);
+    } catch (error) {
+      console.error('Erreur lors du chargement des inspirations:', error);
+      alert('Erreur lors du chargement des inspirations');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Save new inspiration
-  const saveInspiration = () => {
-    if (!uploadData.text || !uploadData.title) {
-      alert("Veuillez remplir tous les champs obligatoires");
+  // Générer des inspirations quotidiennes pour les 6 moods principaux
+  const generateDailyInspirations = async () => {
+    setIsGeneratingDaily(true);
+    try {
+      const principalMoods = ["heureux", "triste", "stressé", "motivé", "fatigué", "amoureux"];
+      
+      for (const mood of principalMoods) {
+        try {
+          console.log(`Génération pour mood: ${mood}`);
+          await api.post('/inspirations/generate', { mood });
+        } catch (error) {
+          console.error(`Erreur pour mood ${mood}:`, error);
+        }
+      }
+      
+      // Recharger toutes les inspirations
+      await loadAllInspirations();
+      alert('Inspirations quotidiennes générées avec succès !');
+    } catch (error) {
+      console.error('Erreur lors de la génération des inspirations quotidiennes:', error);
+      alert('Erreur lors de la génération des inspirations quotidiennes');
+    } finally {
+      setIsGeneratingDaily(false);
+    }
+  };
+
+  // Générer une inspiration personnalisée
+  const generateCustomInspiration = async () => {
+    if (!customMood.trim()) return;
+    
+    setIsGeneratingCustom(true);
+    try {
+      const response = await api.post('/inspirations/generate', { 
+        mood: customMood.trim() 
+      });
+      
+      console.log('Inspiration personnalisée générée:', response.data);
+      
+      // Ajouter la nouvelle inspiration à la liste
+      const newInspiration = {
+        id: response.data.id,
+        type: "quote",
+        text: response.data.contenu,
+        title: response.data.titre || `Inspiration ${customMood}`,
+        mood: response.data.mood,
+        createur: "IA Assistant",
+        date: response.data.date,
+        createdAt: response.data.createdAt || new Date().toISOString(),
+        image: getMoodDefaultImage(response.data.mood),
+        isUserCreated: true,
+        isGenerated: true,
+        isCustomMood: true,
+        originalMoodInput: customMood.trim(),
+      };
+      
+      setInspirations(prev => [newInspiration, ...prev]);
+      setCustomMood("");
+      
+      alert(`Inspiration générée pour l'humeur "${customMood}" !`);
+      
+    } catch (error) {
+      console.error('Erreur lors de la génération de l\'inspiration personnalisée:', error);
+      alert('Erreur lors de la génération. Veuillez réessayer.');
+    } finally {
+      setIsGeneratingCustom(false);
+    }
+  };
+
+  // Créer une inspiration manuellement
+  const saveInspiration = async () => {
+    if (!uploadData.text || !uploadData.mood) {
+    
       return;
     }
 
-    const newInspiration = {
-      id: Date.now(),
-      type: uploadData.image ? "image" : "quote",
-      text: uploadData.text,
-      title: uploadData.title,
-      mood: uploadData.mood,
-      image:
-        uploadData.imagePreview ||
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-      author: "Vous",
-      isUserCreated: true,
-    };
+    try {
+      const response = await api.post('/inspirations/', {
+        contenu: uploadData.text,
+        mood: uploadData.mood,
+        date: new Date().toISOString(),
+        createur: 'user',
+      });
 
-    setInspirations((prev) => [...prev, newInspiration]);
-    setIsUploadModalOpen(false);
-    setUploadData({
-      image: null,
-      imagePreview: "",
-      text: "",
-      mood: "happy",
-      title: "",
-    });
+      console.log('Inspiration manuelle créée:', response.data);
+
+      const newInspiration = {
+        id: response.data.id,
+        type: uploadData.image ? "image" : "quote",
+        text: response.data.contenu,
+        mood: response.data.mood,
+        image: getMoodDefaultImage(response.data.mood),
+        createur: "Vous",
+        isUserCreated: true,
+        isGenerated: false,
+        createdAt: response.data.createdAt,
+      };
+
+      setInspirations(prev => [newInspiration, ...prev]);
+      setIsUploadModalOpen(false);
+      setUploadData({
+        image: null,
+        imagePreview: "",
+        text: "",
+        mood: "",
+        title: "",
+      });
+
+      
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
+  };
+
+  // Supprimer une inspiration
+  const deleteInspiration = async (id) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette inspiration ?')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/inspirations/${id}`);
+      setInspirations(prev => prev.filter(insp => insp.id !== id));
+      alert('Inspiration supprimée avec succès !');
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      alert('Erreur lors de la suppression. Veuillez réessayer.');
+    }
+  };
+
+  // Charger les inspirations au démarrage
+  useEffect(() => {
+    loadAllInspirations();
+  }, []);
+
+  // Filtrer les inspirations par mood et par type (toutes vs mes créations)
+  useEffect(() => {
+    let filtered = inspirations;
+    
+    // Filtrer par type (toutes vs mes créations)
+    if (showUserCreations) {
+    filtered = filtered.filter(inspiration => inspiration.createur === "user");
+  }
+    // Filtrer par mood
+    if (selectedMood !== "tous") {
+      filtered = filtered.filter(inspiration => inspiration.mood === selectedMood);
+    }
+    
+    setFilteredInspirations(filtered);
+  }, [selectedMood, inspirations, showUserCreations]);
+
+  
+
+  // Obtenir les inspirations du jour
+  const getTodayInspirations = () => {
+    const today = new Date().toDateString();
+    return inspirations.filter(insp => 
+      new Date(insp.createdAt).toDateString() === today
+    );
   };
 
   return (
@@ -228,6 +341,14 @@ const GalleryPage = () => {
           <p className="text-lg text-gray-600">
             Trouvez l'inspiration selon votre humeur du moment
           </p>
+          <div className="text-sm text-gray-500 mt-2">
+            {new Date().toLocaleDateString('fr-FR', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </div>
         </div>
 
         {/* Mood Selector */}
@@ -239,6 +360,14 @@ const GalleryPage = () => {
             </h2>
 
             <div className="flex gap-2">
+              <button
+                onClick={loadAllInspirations}
+                disabled={isLoading}
+                className="p-2 rounded-lg transition-all text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                title="Actualiser"
+              >
+                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+              </button>
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-lg transition-all ${
@@ -262,7 +391,8 @@ const GalleryPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {/* Moods principaux */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
             {Object.entries(moods).map(([key, mood]) => (
               <button
                 key={key}
@@ -280,30 +410,175 @@ const GalleryPage = () => {
               </button>
             ))}
           </div>
+
+          {/* Section humeur personnalisée */}
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              🎯 Humeur personnalisée
+              <span className="text-sm text-gray-500 font-normal">
+                (Générez une inspiration selon votre humeur exacte)
+              </span>
+            </h3>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={customMood}
+                onChange={(e) => setCustomMood(e.target.value)}
+                placeholder="Ex: confus, excité, nostalgique, déçu, fier..."
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onKeyPress={(e) => e.key === 'Enter' && generateCustomInspiration()}
+              />
+              <button
+                onClick={generateCustomInspiration}
+                disabled={!customMood.trim() || isGeneratingCustom}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isGeneratingCustom ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Génération...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    Générer
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Appuyez sur Entrée ou cliquez sur Générer pour créer une inspiration personnalisée
+            </p>
+          </div>
         </div>
+
+        {/* Section Inspirations d'Aujourd'hui */}
+        {getTodayInspirations().length > 0 && (
+          <div className="bg-white rounded-3xl shadow-xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <Star className="w-6 h-6 text-purple-500" />
+                Mes Inspirations 
+              </h2>
+              <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-medium">
+                {getTodayInspirations().length} inspiration{getTodayInspirations().length > 1 ? 's' : ''}
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {getTodayInspirations().slice(0, 6).map(inspiration => (
+                <div key={inspiration.id} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div
+                      className={`px-2 py-1 bg-gradient-to-r ${
+                        moods[inspiration.mood]?.color || "from-gray-400 to-gray-600"
+                      } text-white rounded-full text-xs font-semibold flex items-center gap-1`}
+                    >
+                      {moods[inspiration.mood]?.icon || <Meh className="w-3 h-3" />}
+                      {moods[inspiration.mood]?.name || inspiration.mood}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {inspiration.isCustomMood && (
+                        <span className="bg-amber-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
+                          {inspiration.originalMoodInput || 'Custom'}
+                        </span>
+                      )}
+                      {inspiration.isGenerated && (
+                        <span className="bg-blue-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
+                          IA
+                        </span>
+                      )}
+                      {inspiration.isUserCreated && (
+                        <button
+                          onClick={() => deleteInspiration(inspiration.id)}
+                          className="text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <h4 className="font-semibold text-gray-800 mb-2 text-sm">
+                    {inspiration.title}
+                  </h4>
+                  
+                  <p className="text-gray-700 text-sm italic leading-relaxed mb-3">
+                    "{inspiration.text}"
+                  </p>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">
+                      {new Date(inspiration.createdAt).toLocaleTimeString('fr-FR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      par vous {inspiration.isGenerated ? '(IA générée)' : '(création manuelle)'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Action Bar */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
             <div
-              className={`px-4 py-2 bg-gradient-to-r ${moods[selectedMood].color} text-white rounded-full font-semibold flex items-center gap-2`}
+              className={`px-4 py-2 bg-gradient-to-r ${
+                moods[selectedMood]?.color || "from-gray-400 to-gray-600"
+              } text-white rounded-full font-semibold flex items-center gap-2`}
             >
-              {moods[selectedMood].icon}
-              Mode {moods[selectedMood].name}
+              {moods[selectedMood] && moods[selectedMood].icon}
+              Mode {moods[selectedMood] ? moods[selectedMood].name : selectedMood}
             </div>
             <span className="text-gray-600">
               {filteredInspirations.length} inspiration
               {filteredInspirations.length !== 1 ? "s" : ""}
             </span>
+            {(isLoading || isGeneratingDaily) && (
+              <div className="flex items-center gap-2 text-gray-500">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
+                <span className="text-sm">
+                  {isGeneratingDaily ? 'Génération...' : 'Chargement...'}
+                </span>
+              </div>
+            )}
           </div>
 
-          <button
-            onClick={() => setIsUploadModalOpen(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
-          >
-            <Plus className="w-5 h-5" />
-            Ajouter Inspiration
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowUserCreations(!showUserCreations)}
+              className={`px-4 py-2 rounded-xl transition-all duration-300 flex items-center gap-2 ${
+                showUserCreations 
+                  ? 'bg-indigo-500 text-white shadow-lg' 
+                  : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+              }`}
+            >
+              <Star className="w-4 h-4" />
+              {showUserCreations ? 'Toutes' : 'Mes créations'}
+            </button>
+
+            <button
+              onClick={generateDailyInspirations}
+              disabled={isGeneratingDaily || isLoading}
+              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-5 h-5 ${isGeneratingDaily ? 'animate-spin' : ''}`} />
+              {isGeneratingDaily ? 'Génération...' : 'Générer du jour'}
+            </button>
+            
+            <button
+              onClick={() => setIsUploadModalOpen(true)}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
+            >
+              <Plus className="w-5 h-5" />
+              Ajouter Inspiration
+            </button>
+          </div>
         </div>
 
         {/* Inspirations Gallery */}
@@ -331,17 +606,30 @@ const GalleryPage = () => {
                 />
                 <div
                   className={`absolute top-4 left-4 px-3 py-1 bg-gradient-to-r ${
-                    moods[inspiration.mood].color
+                    moods[inspiration.mood]?.color || "from-gray-400 to-gray-600"
                   } text-white rounded-full text-sm font-semibold flex items-center gap-1`}
                 >
-                  {moods[inspiration.mood].icon}
-                  {moods[inspiration.mood].name}
+                  {moods[inspiration.mood]?.icon || <Meh className="w-4 h-4" />}
+                  {moods[inspiration.mood]?.name || inspiration.mood}
                 </div>
-                {inspiration.isUserCreated && (
-                  <div className="absolute top-4 right-4 bg-green-500 text-white rounded-full p-2">
-                    <Star className="w-4 h-4" />
-                  </div>
-                )}
+                
+                <div className="absolute top-4 right-4 flex gap-2">
+                  {inspiration.isCustomMood && (
+                    <div className="bg-amber-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
+                      Custom
+                    </div>
+                  )}
+                  {inspiration.isGenerated && (
+                    <div className="bg-blue-500 text-white rounded-full p-2">
+                      <Star className="w-4 h-4" />
+                    </div>
+                  )}
+                  {inspiration.isUserCreated && !inspiration.isGenerated && (
+                    <div className="bg-green-500 text-white rounded-full p-2">
+                      <Heart className="w-4 h-4" />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div
@@ -362,44 +650,86 @@ const GalleryPage = () => {
                   </p>
                 </div>
 
-                {inspiration.author && (
+                {inspiration.createur && (
                   <p className="text-right text-gray-500 font-medium">
-                    — {inspiration.author}
+                    — {inspiration.createur}
                   </p>
                 )}
 
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-                  <button className="flex items-center gap-2 text-pink-500 hover:text-pink-600 transition-colors">
-                    <Heart className="w-5 h-5" />
-                    <span className="text-sm font-medium">J'aime</span>
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button className="flex items-center gap-2 text-pink-500 hover:text-pink-600 transition-colors">
+                      <Heart className="w-5 h-5" />
+                      <span className="text-sm font-medium">J'aime</span>
+                    </button>
+                    
+                    {inspiration.isCustomMood && inspiration.originalMoodInput && (
+                      <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+                        {inspiration.originalMoodInput}
+                      </span>
+                    )}
+                  </div>
 
-                  <button className="text-gray-400 hover:text-gray-600 transition-colors">
-                    <Upload className="w-5 h-5" />
-                  </button>
+                  <div className="flex gap-2">
+                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                      <Upload className="w-5 h-5" />
+                    </button>
+                    {inspiration.isUserCreated && (
+                      <button
+                        onClick={() => deleteInspiration(inspiration.id)}
+                        className="text-red-400 hover:text-red-600 transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
+
+                {inspiration.createdAt && (
+                  <div className="text-xs text-gray-400 mt-2">
+                    {new Date(inspiration.createdAt).toLocaleDateString('fr-FR')}
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
 
         {/* Empty State */}
-        {filteredInspirations.length === 0 && (
+        {filteredInspirations.length === 0 && !isLoading && (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🌟</div>
             <h3 className="text-2xl font-bold text-gray-800 mb-2">
-              Aucune inspiration pour ce mood
+              {showUserCreations ? "Aucune de vos créations" : "Aucune inspiration"} 
+              {selectedMood !== "tous" ? ` pour l'humeur "${moods[selectedMood]?.name || selectedMood}"` : ""}
             </h3>
             <p className="text-gray-600 mb-6">
-              Soyez le premier à ajouter une inspiration pour l'humeur "
-              {moods[selectedMood].name}" !
+              {showUserCreations 
+                ? "Vous n'avez pas encore créé d'inspiration. Commencez dès maintenant !"
+                : "Soyez le premier à ajouter une inspiration pour cette humeur !"
+              }
             </p>
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300"
-            >
-              Créer la première inspiration
-            </button>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setShowUserCreations(!showUserCreations)}
+                className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300"
+              >
+                {showUserCreations ? 'Voir toutes les inspirations' : 'Voir mes inspirations'}
+              </button>
+              <button
+                onClick={generateDailyInspirations}
+                disabled={isGeneratingDaily}
+                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 disabled:opacity-50"
+              >
+                {isGeneratingDaily ? 'Génération...' : 'Générer automatiquement'}
+              </button>
+              <button
+                onClick={() => setIsUploadModalOpen(true)}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300"
+              >
+                Créer manuellement
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -421,74 +751,26 @@ const GalleryPage = () => {
             </div>
 
             <div className="space-y-6">
-              {/* Title */}
+              {/* mood */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Titre *
+                  Mood associé *
                 </label>
                 <input
                   type="text"
-                  value={uploadData.title}
+                  value={uploadData.mood}
                   onChange={(e) =>
                     setUploadData((prev) => ({
                       ...prev,
-                      title: e.target.value,
+                      mood: e.target.value,
                     }))
                   }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Donnez un titre à votre inspiration..."
+                  placeholder="Donnez un mood à votre inspiration..."
                 />
               </div>
 
-              {/* Image Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Image (optionnel)
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-purple-400 transition-colors">
-                  {uploadData.imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={uploadData.imagePreview}
-                        alt="Preview"
-                        className="w-full h-40 object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() =>
-                          setUploadData((prev) => ({
-                            ...prev,
-                            image: null,
-                            imagePreview: "",
-                          }))
-                        }
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600 mb-4">
-                        Cliquez pour ajouter une image
-                      </p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        id="imageUpload"
-                      />
-                      <label
-                        htmlFor="imageUpload"
-                        className="bg-purple-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-purple-600 transition-colors"
-                      >
-                        Choisir une image
-                      </label>
-                    </div>
-                  )}
-                </div>
-              </div>
+              
 
               {/* Text */}
               <div>
@@ -505,32 +787,7 @@ const GalleryPage = () => {
                 />
               </div>
 
-              {/* Mood Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mood associé
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {Object.entries(moods).map(([key, mood]) => (
-                    <button
-                      key={key}
-                      onClick={() =>
-                        setUploadData((prev) => ({ ...prev, mood: key }))
-                      }
-                      className={`p-3 rounded-xl transition-all ${
-                        uploadData.mood === key
-                          ? `bg-gradient-to-r ${mood.color} text-white`
-                          : `${mood.bg} ${mood.text} hover:shadow-md`
-                      }`}
-                    >
-                      <div className="flex flex-col items-center gap-1">
-                        {mood.icon}
-                        <span className="text-xs font-medium">{mood.name}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              
 
               {/* Buttons */}
               <div className="flex gap-4 pt-4">
@@ -542,7 +799,8 @@ const GalleryPage = () => {
                 </button>
                 <button
                   onClick={saveInspiration}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+                  disabled={!uploadData.text || !uploadData.mood}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Publier
                 </button>
