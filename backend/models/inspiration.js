@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
    
     static associate(models) {
       Inspiration.belongsToMany(models.User, {
-      through: "UserInspiration", // même table pivot
-      foreignKey: "inspirationId",
+      through: models.Inspiration_utilisateur, // même table pivot
+      foreignKey: "inspiration_id",
       otherKey: "userId",
     });
     }
@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       contenu: DataTypes.TEXT,
       date: DataTypes.DATE,
       mood: DataTypes.STRING,
+      createur: DataTypes.STRING,
     },
     {
       sequelize,

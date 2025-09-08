@@ -4,12 +4,13 @@ const { WorkSpace } = require("../models");
 // ✅ Créer un workspace
 exports.createWorkSpace = async (req, res) => {
   try {
-    const { titre, description, dateCreation, userId } = req.body;
+    const { titre, description } = req.body;
+       
     const workspace = await WorkSpace.create({
       titre,
       description,
-      dateCreation,
-      userId,
+      dateCreation :   new Date(),
+      userId: req.user.id,
     });
     res.status(201).json(workspace);
   } catch (error) {

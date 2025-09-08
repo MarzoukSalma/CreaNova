@@ -8,7 +8,7 @@ const journalRoutes = require("./routes/journalRoutes");
 const authRoutes = require("./routes/auth");
 const users = require("./routes/userRoutes.js");
 const dreamRoutes = require("./routes/dream");
-const workRoutes = require("./routes/work");
+const workRoutes = require("./routes/work.js");
 
 const app = express();
 const cors = require("cors");
@@ -26,7 +26,7 @@ app.use("/journals", journalRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", users);
 app.use("/dreams", dreamRoutes);
-app.use("/workspace", workRoutes);
+app.use("/workspaces", workRoutes);
 app.use("/inspirations", inspirationRoutes);
 
 // Tester la connexion à la base
