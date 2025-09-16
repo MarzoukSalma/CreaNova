@@ -7,24 +7,31 @@ const { Op } = require("sequelize");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // Moods par défaut
-const DEFAULT_MOODS = ['heureux', 'triste', 'anxieux', 'motivé', 'calme', 'énergique'];
+const DEFAULT_MOODS = [
+  "heureux",
+  "triste",
+  "anxieux",
+  "motivé",
+  "calme",
+  "énergique",
+];
 
 // ✅ Créer une inspiration manuelle (par l'utilisateur)
 exports.createInspiration = async (req, res) => {
   try {
     const { contenu, mood } = req.body;
-      const userId = req.user.id;
-    console.log('Utilisateur connecté:', userId);
-    
-    const inspiration = await Inspiration.create({ 
-      contenu, 
+    const userId = req.user.id;
+    console.log("Utilisateur connecté:", userId);
+
+    const inspiration = await Inspiration.create({
+      contenu,
       date: new Date(),
       mood,
-      createur: 'user' 
+      createur: "user",
     });
 
-   // Associer au user connecté
-await inspiration.addUser(userId);
+    // Associer au user connecté
+    await inspiration.addUser(userId);
 
     res.status(201).json(inspiration);
   } catch (error) {
@@ -40,18 +47,20 @@ exports.getUserInspirations = async (req, res) => {
     // Récupérer les IDs des inspirations de cet utilisateur
     const inspirationsIds = await Inspiration_utilisateur.findAll({
       where: { userId: userId },
-      attributes: ['inspiration_id'],
+      attributes: ["inspiration_id"],
     });
 
     // Récupérer toutes les inspirations correspondantes
     const inspirations = await Inspiration.findAll({
-      where: { id: inspirationsIds.map(i => i.inspiration_id) },
-      order: [['createdAt', 'DESC']]
+      where: { id: inspirationsIds.map((i) => i.inspiration_id) },
+      order: [["createdAt", "DESC"]],
     });
 
     // Si aucune inspiration trouvée
     if (!inspirations || inspirations.length === 0) {
-      return res.status(404).json({ error: "Aucune inspiration trouvée pour cet utilisateur" });
+      return res
+        .status(404)
+        .json({ error: "Aucune inspiration trouvée pour cet utilisateur" });
     }
 
     res.json(inspirations);
@@ -72,13 +81,13 @@ exports.getDefaultMoodInspirations = async (req, res) => {
 
     const inspirations = await Inspiration.findAll({
       where: {
-        createur: 'ai',
+        createur: "ai",
         mood: { [Op.in]: DEFAULT_MOODS },
         createdAt: {
-          [Op.between]: [startOfToday, endOfToday]
-        }
+          [Op.between]: [startOfToday, endOfToday],
+        },
       },
-      order: [['createdAt', 'DESC']]
+      order: [["createdAt", "DESC"]],
     });
 
     res.json(inspirations);
@@ -94,16 +103,18 @@ exports.getPersonalizedInspirations = async (req, res) => {
     const { mood } = req.params;
 
     const inspirations = await Inspiration.findAll({
-      include: [{
-        model: Inspiration_utilisateur,
-        where: { userId: userId },
-        attributes: []
-      }],
-      where: { 
-        createur: 'ai',
-        mood: mood
+      include: [
+        {
+          model: Inspiration_utilisateur,
+          where: { userId: userId },
+          attributes: [],
+        },
+      ],
+      where: {
+        createur: "ai",
+        mood: mood,
       },
-      order: [['createdAt', 'DESC']]
+      order: [["createdAt", "DESC"]],
     });
 
     res.json(inspirations);
@@ -124,14 +135,15 @@ exports.generatePersonalizedInspiration = async (req, res) => {
       messages: [
         {
           role: "system",
-          content: "Tu es un générateur de citations POSITIVES, COURTES (max 20 mots), en français. Toujours générer EXACTEMENT UNE seule phrase, jamais d'explications ni de guillemets."
+          content:
+            "Tu es un générateur de citations POSITIVES, COURTES (max 20 mots), en français. Toujours générer EXACTEMENT UNE seule phrase, jamais d'explications ni de guillemets.",
         },
         {
           role: "user",
-          content: `Génère une citation positive et courte pour quelqu'un qui se sent "${mood}".`
-        }
+          content: `Génère une citation positive et courte pour quelqu'un qui se sent "${mood}".`,
+        },
       ],
-      max_tokens: 50
+      max_tokens: 50,
     });
 
     const contenu = completion.choices[0].message.content;
@@ -141,13 +153,13 @@ exports.generatePersonalizedInspiration = async (req, res) => {
       contenu,
       date: new Date(),
       mood,
-      createur: 'ai'
+      createur: "ai",
     });
 
     // Associer à l'utilisateur
     await Inspiration_utilisateur.create({
       userId: userId,
-      inspiration_id: inspiration.id
+      inspiration_id: inspiration.id,
     });
 
     res.status(201).json(inspiration);
@@ -171,30 +183,31 @@ exports.generateDailyInspirations = async () => {
       const existingCount = await Inspiration.count({
         where: {
           mood: mood,
-          createur: 'ai',
+          createur: "ai",
           createdAt: {
-            [Op.between]: [startOfToday, endOfToday]
-          }
-        }
+            [Op.between]: [startOfToday, endOfToday],
+          },
+        },
       });
 
       if (existingCount < 2) {
         const inspirationsToGenerate = 2 - existingCount;
-        
+
         for (let i = 0; i < inspirationsToGenerate; i++) {
           const completion = await groq.chat.completions.create({
             model: "llama-3.1-8b-instant",
             messages: [
               {
                 role: "system",
-                content: "Tu es un générateur de citations POSITIVES, COURTES (max 20 mots), en français. Toujours générer EXACTEMENT UNE seule phrase, jamais d'explications ni de guillemets."
+                content:
+                  "Tu es un générateur de citations POSITIVES, COURTES (max 20 mots), en français. Toujours générer EXACTEMENT UNE seule phrase, jamais d'explications ni de guillemets.",
               },
               {
                 role: "user",
-                content: `Génère une citation positive et courte pour quelqu'un qui se sent "${mood}".`
-              }
+                content: `Génère une citation positive et courte pour quelqu'un qui se sent "${mood}".`,
+              },
             ],
-            max_tokens: 50
+            max_tokens: 50,
           });
 
           const contenu = completion.choices[0].message.content;
@@ -203,12 +216,12 @@ exports.generateDailyInspirations = async () => {
             contenu,
             date: new Date(),
             mood,
-            createur: 'ai'
+            createur: "ai",
           });
         }
       }
     }
-    
+
     console.log("Inspirations quotidiennes générées avec succès");
   } catch (error) {
     console.error("Erreur lors de la génération quotidienne:", error);
@@ -236,21 +249,27 @@ exports.deleteInspiration = async (req, res) => {
 
     // Vérifier que l'inspiration appartient à l'utilisateur
     const inspirationUser = await Inspiration_utilisateur.findOne({
-      where: { inspiration_id: id, userId: userId }
+      where: { inspiration_id: id, userId: userId },
     });
 
     if (!inspirationUser) {
-      return res.status(403).json({ error: "Non autorisé à supprimer cette inspiration" });
+      return res
+        .status(403)
+        .json({ error: "Non autorisé à supprimer cette inspiration" });
     }
 
     const inspiration = await Inspiration.findByPk(id);
-    if (!inspiration || inspiration.createur !== 'user') {
-      return res.status(404).json({ error: "Inspiration non trouvée ou non supprimable" });
+    if (!inspiration || inspiration.createur !== "user") {
+      return res
+        .status(404)
+        .json({ error: "Inspiration non trouvée ou non supprimable" });
     }
 
-    await Inspiration_utilisateur.destroy({ where: { inspiration_id: id, userId: userId } });
+    await Inspiration_utilisateur.destroy({
+      where: { inspiration_id: id, userId: userId },
+    });
     await Inspiration.destroy({ where: { id } });
-    
+
     res.json({ message: "Inspiration supprimée avec succès" });
   } catch (error) {
     res.status(500).json({ error: error.message });

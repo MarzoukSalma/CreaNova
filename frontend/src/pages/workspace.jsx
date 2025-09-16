@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Play,
   Pause,
@@ -20,8 +20,9 @@ import {
   Loader,
   Save,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
-import api from '../api/api.jsx'; // Import de l'API
+import api from "../api/api.jsx";
 
 const WorkspacePage = () => {
   // État pour le minuteur Pomodoro
@@ -52,20 +53,27 @@ const WorkspacePage = () => {
 
   // État pour l'API
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
+  const [lastSaved, setLastSaved] = useState(null);
 
-  // Projets/Dreams existants (simulation)
-  const existingProjects = [
-    "Application Mobile",
-    "Site Web Portfolio",
-    "Livre de Recettes",
-    "Podcast Créatif",
-    "Cours en Ligne",
-    "Blog Personnel",
-  ];
+  // Projets/Dreams existan
+  const dreamslist = async (userId) => {
+    if (!userId) {
+      console.log("userid makayenxi");
 
+      return [];
+    }
+    try {
+      const existingProjects = await api.get("/dreams");
+      return existingProjects.data || [];
+    } catch (error) {
+      console.error("Erreur lors de la récupération des projets:", error);
+      return [];
+    }
+  };
   const playlists = {
     chill: { name: "Musique Chill", icon: "🎵" },
     focus: { name: "Deep Focus", icon: "🧠" },
@@ -76,190 +84,191 @@ const WorkspacePage = () => {
 
   const pomodoroOptions = [15, 25, 30, 45, 60];
 
-  // Fonction pour charger les données du workspace
-  const loadWorkspaceData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Récupérer les workspaces de l'utilisateur
-      const workspacesResponse = await api.get('/workspaces');
-   const workspaces = workspacesResponse.data.data || workspacesResponse.data;
-      
-      // Si il y a des workspaces, prendre le premier ou créer un nouveau
-      let workspaceId;
-      if (workspaces.length > 0) {
-        workspaceId = workspaces[0].id;
-        setCurrentWorkspaceId(workspaceId);
-        
-        // Charger les détails du workspace
-        const workspaceResponse = await api.get(`/workspaces/${workspaceId}`);
-        const workspaceData = workspaceResponse.data;
-        
-        // Charger les données sauvegardées
-        if (workspaceData.data) {
-          const savedData = JSON.parse(workspaceData.data);
-          setTasks(savedData.tasks || []);
-          setCycles(savedData.cycles || 0);
-          setMusicEnabled(savedData.musicEnabled || false);
-          setSelectedPlaylist(savedData.selectedPlaylist || "chill");
-          setPomodoroLength(savedData.pomodoroLength || 25);
-        }
-      } else {
-        // Créer un nouveau workspace
-        await createNewWorkspace();
-      }
+  // ========== FONCTIONS BACKEND ==========
 
-      // Charger les statistiques
-      await loadStats();
-      
-    } catch (err) {
-      console.error('Erreur lors du chargement:', err);
-      setError('Erreur lors du chargement des données');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fonction pour créer un nouveau workspace
+  // Créer un nouveau workspace
   const createNewWorkspace = async () => {
     try {
-      const response = await api.post('/workspaces', {
+      const response = await api.post("/workspaces", {
         name: `Workspace ${new Date().toLocaleDateString()}`,
-        description: 'Espace de travail pomodoro',
+        description: "Mon espace de travail créatif",
         data: JSON.stringify({
           tasks: [],
           cycles: 0,
           musicEnabled: false,
           selectedPlaylist: "chill",
-          pomodoroLength: 25
-        })
+          pomodoroLength: 25,
+          createdAt: new Date().toISOString(),
+        }),
       });
-      
-      setCurrentWorkspaceId(response.data.id);
-      return response.data.id;
+
+      const newWorkspace = response.data.data || response.data;
+      setCurrentWorkspaceId(newWorkspace.id);
+      return newWorkspace;
     } catch (err) {
-      console.error('Erreur lors de la création du workspace:', err);
-      setError('Erreur lors de la création du workspace');
+      console.error("Erreur création workspace:", err);
+      throw err;
     }
   };
 
-  // Fonction pour sauvegarder les données
-/* const saveWorkspaceData = async () => {
-    if (!currentWorkspaceId || !autoSave) return;
-    
-    try {
-      const dataToSave = {
-        tasks,
-        cycles,
-        musicEnabled,
-        selectedPlaylist,
-        pomodoroLength,
-        lastUpdated: new Date().toISOString()
-      };
-
-      await api.put(`/workspaces/${currentWorkspaceId}`, {
-        data: JSON.stringify(dataToSave)
-      });
-      
-    } catch (err) {
-      console.error('Erreur lors de la sauvegarde:', err);
-      setError('Erreur lors de la sauvegarde');
-    }
-  };*/
-
-  // Fonction pour charger les statistiques
+  // Charger les statistiques
   const loadStats = async () => {
     try {
-      const response = await api.get('/workspaces/stats');
-      setWorkspaceStats(response.data);
-      
-      // Simuler l'historique hebdomadaire (à remplacer par de vraies données)
-      const mockHistory = [
-        { day: "Lundi", tasks: 3, timeSpent: 120, pomodoros: 5 },
-        { day: "Mardi", tasks: 2, timeSpent: 95, pomodoros: 4 },
-        { day: "Mercredi", tasks: 4, timeSpent: 150, pomodoros: 6 },
-        { day: "Jeudi", tasks: 1, timeSpent: 45, pomodoros: 2 },
-        { day: "Vendredi", tasks: 3, timeSpent: 110, pomodoros: 4 },
-        { day: "Samedi", tasks: 2, timeSpent: 80, pomodoros: 3 },
-        { day: "Dimanche", tasks: 1, timeSpent: 30, pomodoros: 1 },
-      ];
-      setWeeklyHistory(mockHistory);
+      const response = await api.get("/stats/weekly");
+      const stats = response.data;
+
+      if (stats.data) {
+        setWeeklyHistory(stats.data.weeklyHistory || []);
+        setWorkspaceStats(stats.data);
+      }
     } catch (err) {
-      console.error('Erreur lors du chargement des stats:', err);
+      console.warn("Impossible de charger les statistiques:", err);
+      // Générer des données de demo si l'API stats n'existe pas
+      setWeeklyHistory([
+        { day: "Lun", tasks: 3, pomodoros: 6, timeSpent: 150 },
+        { day: "Mar", tasks: 2, pomodoros: 4, timeSpent: 100 },
+        { day: "Mer", tasks: 4, pomodoros: 8, timeSpent: 200 },
+        { day: "Jeu", tasks: 1, pomodoros: 2, timeSpent: 50 },
+        { day: "Ven", tasks: 5, pomodoros: 10, timeSpent: 250 },
+        { day: "Sam", tasks: 2, pomodoros: 3, timeSpent: 75 },
+        { day: "Dim", tasks: 1, pomodoros: 1, timeSpent: 25 },
+      ]);
     }
   };
 
-  // Effet pour charger les données au montage
-  useEffect(() => {
-    loadWorkspaceData();
-  }, []);
+  // Fonction principale de chargement des données
+  const loadWorkspaceData = useCallback(async () => {
+    if (loading) return; // Éviter les appels multiples
 
-  // Effet pour sauvegarder automatiquement les changements
-  useEffect(() => {
-    if (currentWorkspaceId) {
-      const saveTimer = setTimeout(() => {
-        saveWorkspaceData();
-      }, 2000); // Sauvegarde après 2 secondes d'inactivité
+    setLoading(true);
+    setError(null);
 
-      return () => clearTimeout(saveTimer);
-    }
-  }, [tasks, cycles, musicEnabled, selectedPlaylist, pomodoroLength, currentWorkspaceId]);
+    try {
+      // 1. Récupérer les workspaces existants
+      const workspacesResponse = await api.get("/workspaces/");
+      const workspaces =
+        workspacesResponse.data.data || workspacesResponse.data;
 
-  // Effet pour le minuteur
-  useEffect(() => {
-    let interval = null;
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((time) => time - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      if (isBreak) {
-        setTimeLeft(pomodoroLength * 60);
-        setIsBreak(false);
+      let workspaceId;
+      let workspaceData = null;
+
+      if (Array.isArray(workspaces) && workspaces.length > 0) {
+        // Prendre le dernier workspace (le plus récent)
+        const latestWorkspace = workspaces.sort(
+          (a, b) =>
+            new Date(b.created_at || b.createdAt) -
+            new Date(a.created_at || a.createdAt)
+        )[0];
+
+        workspaceId = latestWorkspace.id;
+        setCurrentWorkspaceId(workspaceId);
+
+        // 2. Charger les données du workspace
+        const workspaceResponse = await api.get(`/workspaces/${workspaceId}`);
+        workspaceData = workspaceResponse.data.data || workspaceResponse.data;
       } else {
-        setTimeLeft(5 * 60);
-        setIsBreak(true);
-        setCycles((prev) => prev + 1);
-        if (currentTask) {
-          updateTaskTime(currentTask.id, pomodoroLength);
+        // 3. Créer un nouveau workspace si aucun n'existe
+        const newWorkspace = await createNewWorkspace();
+        workspaceId = newWorkspace.id;
+        workspaceData = newWorkspace;
+      }
+
+      // 4. Appliquer les données du workspace
+      if (workspaceData && workspaceData.data) {
+        try {
+          const savedData =
+            typeof workspaceData.data === "string"
+              ? JSON.parse(workspaceData.data)
+              : workspaceData.data;
+
+          console.log("Données chargées:", savedData);
+
+          // Restaurer l'état depuis les données sauvegardées
+          setTasks(Array.isArray(savedData.tasks) ? savedData.tasks : []);
+          setCycles(savedData.cycles || 0);
+          setMusicEnabled(savedData.musicEnabled || false);
+          setSelectedPlaylist(savedData.selectedPlaylist || "chill");
+          setPomodoroLength(savedData.pomodoroLength || 25);
+          setTimeLeft((savedData.pomodoroLength || 25) * 60);
+
+          setLastSaved(new Date(savedData.lastUpdated || Date.now()));
+        } catch (parseError) {
+          console.warn("Erreur parsing données workspace:", parseError);
+          // Utiliser des valeurs par défaut si le parsing échoue
+          setTasks([]);
         }
       }
-      setIsRunning(false);
+
+      // 5. Charger les statistiques
+      await loadStats();
+    } catch (err) {
+      console.error("Erreur lors du chargement:", err);
+      setError(
+        `Erreur de chargement: ${err.response?.data?.message || err.message}`
+      );
+    } finally {
+      setLoading(false);
     }
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft, isBreak, pomodoroLength, currentTask]);
+  }, [loading]);
 
-  // Effet pour gérer la touche Échap en mode focus
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (e.key === 'Escape' && isFocusMode) {
-        setIsFocusMode(false);
+  // Sauvegarder les données dans le workspace
+  const saveWorkspaceData = useCallback(
+    async (force = false) => {
+      if (!currentWorkspaceId || (!autoSave && !force) || saving) return;
+
+      setSaving(true);
+      try {
+        const dataToSave = {
+          tasks,
+          cycles,
+          musicEnabled,
+          selectedPlaylist,
+          pomodoroLength,
+          lastUpdated: new Date().toISOString(),
+        };
+
+        console.log("Sauvegarde des données:", dataToSave);
+
+        await api.put(`/workspaces/${currentWorkspaceId}`, {
+          data: JSON.stringify(dataToSave),
+        });
+
+        setLastSaved(new Date());
+        setError(null);
+      } catch (err) {
+        console.error("Erreur lors de la sauvegarde:", err);
+        setError(
+          `Erreur de sauvegarde: ${err.response?.data?.message || err.message}`
+        );
+      } finally {
+        setSaving(false);
       }
-    };
+    },
+    [
+      currentWorkspaceId,
+      tasks,
+      cycles,
+      musicEnabled,
+      selectedPlaylist,
+      pomodoroLength,
+      autoSave,
+      saving,
+    ]
+  );
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isFocusMode]);
+  // ========== GESTION DES TÂCHES ==========
 
-  // Formatage du temps
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  // Gestion des tâches
+  // Ajouter une nouvelle tâche
   const addTask = async () => {
     if (!newTask.title.trim()) return;
 
     const task = {
       id: Date.now(),
-      ...newTask,
+      title: newTask.title.trim(),
+      project: newTask.project,
+      priority: newTask.priority,
       completed: false,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       timeSpent: 0,
       pomodoros: 0,
     };
@@ -267,8 +276,19 @@ const WorkspacePage = () => {
     setTasks((prev) => [task, ...prev]);
     setNewTask({ title: "", project: "", priority: "medium" });
     setIsAddingTask(false);
+
+    // Envoyer au backend
+    try {
+      await api.post(`/`, task); // <-- ici, la route vers ton backend
+    } catch (err) {
+      console.error("Erreur lors de l'envoi de la tâche au backend:", err);
+    }
+
+    // Sauvegarde locale
+    setTimeout(() => saveWorkspaceData(true), 100);
   };
 
+  // Basculer l'état d'une tâche
   const toggleTask = (id) => {
     setTasks((prev) =>
       prev.map((task) =>
@@ -276,13 +296,23 @@ const WorkspacePage = () => {
           ? {
               ...task,
               completed: !task.completed,
-              completedAt: !task.completed ? new Date() : null,
+              completedAt: !task.completed ? new Date().toISOString() : null,
             }
           : task
       )
     );
   };
 
+  // Supprimer une tâche
+  const deleteTask = (id) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+    if (currentTask?.id === id) {
+      setCurrentTask(null);
+      setIsRunning(false);
+    }
+  };
+
+  // Démarrer un pomodoro pour une tâche
   const startTaskPomodoro = (task) => {
     setCurrentTask(task);
     setTimeLeft(pomodoroLength * 60);
@@ -291,6 +321,7 @@ const WorkspacePage = () => {
     setIsFocusMode(true);
   };
 
+  // Mettre à jour le temps passé sur une tâche
   const updateTaskTime = (taskId, minutes) => {
     setTasks((prev) =>
       prev.map((task) =>
@@ -305,11 +336,97 @@ const WorkspacePage = () => {
     );
   };
 
-  // Fonction pour sauvegarder manuellement
-  const handleManualSave = async () => {
-    setLoading(true);
-    await saveWorkspaceData();
-    setLoading(false);
+  // ========== EFFETS ==========
+
+  // Charger les données au montage
+  useEffect(() => {
+    loadWorkspaceData();
+  }, [loadWorkspaceData]);
+
+  // Auto-sauvegarde avec debounce
+  useEffect(() => {
+    if (currentWorkspaceId && autoSave) {
+      const saveTimer = setTimeout(() => {
+        saveWorkspaceData();
+      }, 2000);
+
+      return () => clearTimeout(saveTimer);
+    }
+  }, [
+    tasks,
+    cycles,
+    musicEnabled,
+    selectedPlaylist,
+    pomodoroLength,
+    currentWorkspaceId,
+    saveWorkspaceData,
+    autoSave,
+  ]);
+
+  // Gestion du minuteur Pomodoro
+  useEffect(() => {
+    let interval = null;
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((time) => time - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      // Fin du minuteur
+      if (isBreak) {
+        // Fin de pause - retour au travail
+        setTimeLeft(pomodoroLength * 60);
+        setIsBreak(false);
+      } else {
+        // Fin de pomodoro - début de pause
+        setTimeLeft(5 * 60);
+        setIsBreak(true);
+        setCycles((prev) => prev + 1);
+
+        // Mettre à jour le temps de la tâche courante
+        if (currentTask) {
+          updateTaskTime(currentTask.id, pomodoroLength);
+        }
+      }
+      setIsRunning(false);
+
+      // Notification (si supporté)
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(isBreak ? "Pause terminée !" : "Pomodoro terminé !", {
+          body: isBreak ? "Retour au travail !" : "Temps pour une pause !",
+          icon: "/favicon.ico",
+        });
+      }
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft, isBreak, pomodoroLength, currentTask]);
+
+  // Gestion de la touche Échap en mode focus
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === "Escape" && isFocusMode) {
+        setIsFocusMode(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [isFocusMode]);
+
+  // Demander la permission pour les notifications
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // ========== FONCTIONS UTILITAIRES ==========
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const getPriorityColor = (priority) => {
@@ -338,12 +455,21 @@ const WorkspacePage = () => {
     }
   };
 
+  // Gestion de la sauvegarde manuelle
+  const handleManualSave = () => {
+    saveWorkspaceData(true);
+  };
+
+  // ========== RENDER ==========
+
   if (loading && !currentWorkspaceId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 animate-spin text-purple-600 mx-auto mb-4" />
-          <p className="text-gray-600">Chargement de votre espace de travail...</p>
+          <p className="text-gray-600">
+            Chargement de votre espace de travail...
+          </p>
         </div>
       </div>
     );
@@ -358,43 +484,58 @@ const WorkspacePage = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
+        {/* Header avec contrôles de sauvegarde */}
         <div className="text-center mb-8">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={handleManualSave}
-                disabled={loading}
+                disabled={saving}
                 className={`p-3 rounded-2xl transition-all duration-300 ${
                   isFocusMode
                     ? "bg-white bg-opacity-20 text-white hover:bg-opacity-30"
                     : "bg-white shadow-lg text-gray-700 hover:shadow-xl"
-                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                } ${saving ? "opacity-50 cursor-not-allowed" : ""}`}
+                title="Sauvegarder maintenant"
               >
-                {loading ? (
+                {saving ? (
                   <Loader className="w-6 h-6 animate-spin" />
                 ) : (
                   <Save className="w-6 h-6" />
                 )}
               </button>
-              
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="autosave"
-                  checked={autoSave}
-                  onChange={(e) => setAutoSave(e.target.checked)}
-                  className="rounded"
-                />
-                <label 
-                  htmlFor="autosave" 
-                  className={`text-sm ${isFocusMode ? 'text-white' : 'text-gray-600'}`}
-                >
-                  Auto-sauvegarde
-                </label>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="autosave"
+                    checked={autoSave}
+                    onChange={(e) => setAutoSave(e.target.checked)}
+                    className="rounded"
+                  />
+                  <label
+                    htmlFor="autosave"
+                    className={`text-sm ${
+                      isFocusMode ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    Auto-sauvegarde
+                  </label>
+                </div>
+
+                {lastSaved && (
+                  <span
+                    className={`text-xs ${
+                      isFocusMode ? "text-gray-300" : "text-gray-500"
+                    }`}
+                  >
+                    Dernière sauvegarde: {lastSaved.toLocaleTimeString()}
+                  </span>
+                )}
               </div>
             </div>
-            
+
             <button
               onClick={() => setIsFocusMode(!isFocusMode)}
               className={`p-3 rounded-2xl transition-all duration-300 ${
@@ -402,6 +543,7 @@ const WorkspacePage = () => {
                   ? "bg-white bg-opacity-20 text-white hover:bg-opacity-30"
                   : "bg-white shadow-lg text-gray-700 hover:shadow-xl"
               }`}
+              title={isFocusMode ? "Quitter le mode focus" : "Mode focus"}
             >
               {isFocusMode ? (
                 <Minimize2 className="w-6 h-6" />
@@ -411,11 +553,12 @@ const WorkspacePage = () => {
             </button>
           </div>
 
+          {/* Affichage des erreurs */}
           {error && (
             <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-2xl flex items-center gap-2 text-red-700">
-              <AlertCircle className="w-5 h-5" />
-              <span>{error}</span>
-              <button 
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <span className="flex-1 text-left">{error}</span>
+              <button
                 onClick={() => setError(null)}
                 className="ml-auto text-red-500 hover:text-red-700"
               >
@@ -518,15 +661,25 @@ const WorkspacePage = () => {
                           </div>
                         </div>
 
-                        {!task.completed && (
+                        <div className="flex items-center gap-2">
+                          {!task.completed && (
+                            <button
+                              onClick={() => startTaskPomodoro(task)}
+                              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                            >
+                              <Play className="w-4 h-4" />
+                              Start
+                            </button>
+                          )}
+
                           <button
-                            onClick={() => startTaskPomodoro(task)}
-                            className="ml-4 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                            onClick={() => deleteTask(task.id)}
+                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all"
+                            title="Supprimer la tâche"
                           >
-                            <Play className="w-4 h-4" />
-                            Start
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -592,21 +745,15 @@ const WorkspacePage = () => {
                   </div>
 
                   <div className="flex justify-center gap-3 mb-3">
-                   <button
-                      onClick={() => {
-                        if (currentTask) {
-                          setIsRunning(!isRunning);
-                        } else {
-                          setIsRunning(!isRunning);
-                          setIsBreak(false);
-                        }
-                      }}
+                    <button
+                      onClick={() => setIsRunning(!isRunning)}
+                      disabled={!currentTask && !isRunning}
                       className={`px-6 py-2 rounded-2xl font-semibold text-sm transition-all duration-300 transform hover:scale-105 ${
-                        !currentTask 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : isRunning 
-                          ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:shadow-lg' 
-                          : 'bg-gradient-to-r from-green-500 to-teal-500 text-white hover:shadow-lg'
+                        !currentTask && !isRunning
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : isRunning
+                          ? "bg-gradient-to-r from-red-500 to-pink-500 text-white hover:shadow-lg"
+                          : "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:shadow-lg"
                       }`}
                     >
                       {isRunning ? (
@@ -621,7 +768,7 @@ const WorkspacePage = () => {
                         </>
                       )}
                     </button>
-                    
+
                     <button
                       onClick={() => {
                         setTimeLeft(pomodoroLength * 60);
@@ -629,6 +776,7 @@ const WorkspacePage = () => {
                         setIsBreak(false);
                       }}
                       className="px-3 py-2 bg-gray-200 text-gray-700 rounded-2xl hover:bg-gray-300 transition-all"
+                      title="Reset minuteur"
                     >
                       <RotateCcw className="w-4 h-4" />
                     </button>
@@ -644,7 +792,9 @@ const WorkspacePage = () => {
                             : currentTask.title}
                         </span>
                       ) : (
-                        <span className="text-gray-500 text-xs">Sélectionnez une tâche</span>
+                        <span className="text-gray-500 text-xs">
+                          Sélectionnez une tâche
+                        </span>
                       )}
                     </p>
                     <p className="text-xs">
@@ -834,7 +984,11 @@ const WorkspacePage = () => {
 
               <div className="text-center mb-8">
                 <p className="text-3xl mb-6 font-semibold">
-                  {isBreak ? '☕ Pause bien méritée !' : `🎯 Focus sur: ${currentTask?.title}`}
+                  {isBreak
+                    ? "☕ Pause bien méritée !"
+                    : currentTask
+                    ? `🎯 Focus sur: ${currentTask.title}`
+                    : "🎯 Choisissez une tâche pour commencer"}
                 </p>
                 {selectedPlaylist && musicEnabled && (
                   <p className="text-lg opacity-70">
@@ -844,7 +998,9 @@ const WorkspacePage = () => {
               </div>
 
               <div className="text-center text-sm opacity-60">
-                <p>Pomodoro {pomodoroLength}min • Cycles complétés: {cycles}</p>
+                <p>
+                  Pomodoro {pomodoroLength}min • Cycles complétés: {cycles}
+                </p>
               </div>
             </div>
           </div>
@@ -866,88 +1022,104 @@ const WorkspacePage = () => {
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Aujourd'hui je veux travailler sur... *
-                  </label>
-                  <input
-                    type="text"
-                    value={newTask.title}
-                    onChange={(e) =>
-                      setNewTask((prev) => ({ ...prev, title: e.target.value }))
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Ex: Créer la page d'accueil..."
-                  />
-                </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  addTask();
+                }}
+              >
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Aujourd'hui je veux travailler sur... *
+                    </label>
+                    <input
+                      type="text"
+                      value={newWorkspace.title}
+                      onChange={(e) =>
+                        setnewWorkspace((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Ex: Créer la page d'accueil..."
+                      autoFocus
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Projet associé (optionnel)
-                  </label>
-                  <select
-                    value={newTask.project}
-                    onChange={(e) =>
-                      setNewTask((prev) => ({
-                        ...prev,
-                        project: e.target.value,
-                      }))
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    <option value="">Sélectionner un projet</option>
-                    {existingProjects.map((project, index) => (
-                      <option key={index} value={project}>
-                        {project}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Projet associé (optionnel)
+                    </label>
+                    <select
+                      value={newTask.project}
+                      onChange={(e) =>
+                        setNewTask((prev) => ({
+                          ...prev,
+                          project: e.target.value,
+                        }))
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="">Sélectionner un projet</option>
+                      {dreamslist().map((project, index) => (
+                        <option key={index} value={project}>
+                          {project}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Niveau de priorité
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {["low", "medium", "high"].map((priority) => (
-                      <button
-                        key={priority}
-                        onClick={() =>
-                          setNewTask((prev) => ({ ...prev, priority }))
-                        }
-                        className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                          newTask.priority === priority
-                            ? `bg-gradient-to-r ${getPriorityColor(
-                                priority
-                              )} text-white`
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
-                      >
-                        {getPriorityText(priority)}
-                      </button>
-                    ))}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Niveau de priorité
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {["low", "medium", "high"].map((priority) => (
+                        <button
+                          key={priority}
+                          type="button"
+                          onClick={() =>
+                            setNewTask((prev) => ({ ...prev, priority }))
+                          }
+                          className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                            newTask.priority === priority
+                              ? `bg-gradient-to-r ${getPriorityColor(
+                                  priority
+                                )} text-white`
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
+                        >
+                          {getPriorityText(priority)}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-4 mt-6">
-                <button
-                  onClick={() => setIsAddingTask(false)}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={addTask}
-                  disabled={loading}
-                  className={`flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 ${
-                    loading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {loading ? 'Création...' : 'Créer la tâche'}
-                </button>
-              </div>
+                <div className="flex gap-4 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingTask(false)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving || !newTask.title.trim()}
+                    className={`flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 ${
+                      saving || !newTask.title.trim()
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    {saving ? "Création..." : "Créer la tâche"}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

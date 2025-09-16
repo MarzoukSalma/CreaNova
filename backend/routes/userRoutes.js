@@ -8,7 +8,7 @@ router.get("/search", userController.searchUsers);
 router.get("/:id", userController.getUserById);
 
 // 🔹 Route publique pour créer un utilisateur
-router.post("/", userController.createUser); // hada li kan dayr lina mochkil f postman
+router.post("/", userController.createUser); // hada li kan dayr liya mochkil f postman
 // 🔹 Routes protégées
 router.get("/profile/me", authenticateToken, userController.getProfile);
 router.put("/profile/me", authenticateToken, userController.updateProfile);

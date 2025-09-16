@@ -2,13 +2,12 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Inspiration extends Model {
-   
     static associate(models) {
       Inspiration.belongsToMany(models.User, {
-      through: models.Inspiration_utilisateur, // même table pivot
-      foreignKey: "inspiration_id",
-      otherKey: "userId",
-    });
+        through: models.Inspiration_utilisateur, // même table pivot
+        foreignKey: "inspiration_id",
+        otherKey: "userId",
+      });
     }
   }
   Inspiration.init(
