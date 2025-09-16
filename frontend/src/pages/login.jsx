@@ -370,7 +370,7 @@ const LoginPage = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showmotDePasse ? "text" : "motDePasse"}
+                    type={showmotDePasse ? "text" : "password"}
                     value={formData.motDePasse}
                     onChange={(e) =>
                       handleInputChange("motDePasse", e.target.value)
@@ -408,7 +408,7 @@ const LoginPage = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type="motDePasse"
+                      type="password"
                       value={formData.confirmmotDePasse}
                       onChange={(e) =>
                         handleInputChange("confirmmotDePasse", e.target.value)
