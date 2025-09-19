@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, Heart, Smile, Coffee, Star, Moon, Sun, Bot, User, Lightbulb } from 'lucide-react';
+import api from "../api/api";
 
 const MuseCreativeChatbot = () => {
   const [messages, setMessages] = useState([]);
@@ -7,7 +8,7 @@ const MuseCreativeChatbot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Predefined responses for the creative muse
+  // Predefined responses for the creative muse (fallback si l'API échoue)
   const museResponses = {
     greetings: [
       "Bonjour créateur ! ✨ Je suis votre Muse Créative. Comment puis-je nourrir votre inspiration aujourd'hui ?",
@@ -47,8 +48,26 @@ const MuseCreativeChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Get appropriate response based on message content
-  const getMuseResponse = (userMessage) => {
+  // Get appropriate response from API or fallback
+  const getMuseResponse = async (userMessage) => {
+    try {
+      // Appel à l'API LLM
+      const response = await api.post('llm/chat', {
+        message: userMessage,
+        userId: localStorage.getItem('userId') || '1', // Assurez-vous d'avoir un userId
+      });
+      
+      // Retourner la réponse de l'API
+      return response.data.message || getFallbackResponse(userMessage);
+    } catch (error) {
+      console.error("Erreur API:", error);
+      // En cas d'erreur, utiliser les réponses prédéfinies
+      return getFallbackResponse(userMessage);
+    }
+  };
+
+  // Fallback responses si l'API échoue
+  const getFallbackResponse = (userMessage) => {
     const lowerMessage = userMessage.toLowerCase();
     
     if (lowerMessage.includes('bonjour') || lowerMessage.includes('salut') || lowerMessage.includes('hello')) {
@@ -73,7 +92,7 @@ const MuseCreativeChatbot = () => {
   };
 
   // Handle sending message
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     // Add user message
@@ -88,18 +107,32 @@ const MuseCreativeChatbot = () => {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate typing delay and add bot response
-    setTimeout(() => {
+    try {
+      // Get response from API
+      const responseText = await getMuseResponse(inputValue);
+      
       const botResponse = {
         id: Date.now() + 1,
-        text: getMuseResponse(inputValue),
+        text: responseText,
         sender: 'bot',
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+      // En cas d'erreur, ajouter un message d'erreur
+      const errorResponse = {
+        id: Date.now() + 1,
+        text: "Désolé, je rencontre un problème technique. Pouvez-vous réessayer ?",
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 1000);
+    }
   };
 
   // Handle Enter key

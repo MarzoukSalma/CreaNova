@@ -1,0 +1,516 @@
+[
+  {
+    "keywords": ["journée", "stress", "fatigue", "humeur"],
+    "content": "Aujourd'hui fut intense. Beaucoup de travail mais je me sens accompli. Humeur: 7/10"
+  },
+  {
+    "input": "Je veux écrire sur ma journée",
+    "ideal_output": "Excellente initiative ! Parler de sa journée permet de mieux la digérer. Veux-tu te concentrer sur les événements marquants, tes émotions ou peut-être ce que tu as appris aujourd'hui ?",
+    "keywords": ["journée", "émotions", "événements", "réflexion"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais journaliser mes objectifs",
+    "ideal_output": "Super ! Fixer des objectifs est une première étape vers leur réalisation. Souhaites-tu établir des objectifs à court terme, à long terme ou peut-être réviser ceux que tu avais déjà ?",
+    "keywords": ["objectifs", "planification", "réussite", "projet"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur mes peurs",
+    "ideal_output": "Brave de vouloir affronter tes peurs par l'écriture. Veux-tu identifier leurs origines, trouver des moyens de les surmonter ou simplement les exprimer pour t'en libérer ?",
+    "keywords": ["peurs", "anxiété", "défis", "courage"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à une décision importante",
+    "ideal_output": "L'écriture peut éclairer nos choix. Veux-tu lister les pour et les contre, explorer tes véritables motivations ou imaginer les conséquences de chaque option ?",
+    "keywords": ["décision", "choix", "réflexion", "conséquences"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter mes rêves nocturnes",
+    "ideal_output": "Capturer ses rêves permet souvent de mieux se comprendre. Veux-tu décrire le rêve en détail, en interpréter le symbolisme ou noter les émotions ressenties pendant le rêve ?",
+    "keywords": ["rêves", "nuit", "subconscient", "interprétation"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire sur mes relations",
+    "ideal_output": "Les relations méritent qu'on s'y attarde. Souhaites-tu explorer une relation spécifique, tes patterns relationnels ou peut-être ce que tu cherches vraiment dans tes connections avec les autres ?",
+    "keywords": ["relations", "amitié", "amour", "connection"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux noter mes gratitudes",
+    "ideal_output": "La gratitude transforme notre perspective! Veux-tu lister ce pour quoi tu es reconnaissant aujourd'hui, cette semaine ou peut-être remercier des personnes spécifiques ?",
+    "keywords": ["gratitude", "reconnaissance", "positivité", "bénédictions"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin d'exprimer ma colère",
+    "ideal_output": "L'écriture est un exutoire sain pour la colère. Veux-tu identifier les déclencheurs, exprimer l'intensité de ton emotion ou trouver des solutions constructives ?",
+    "keywords": ["colère", "frustration", "émotion", "expression"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire une lettre que je n'enverrai pas",
+    "ideal_output": "Les lettres non envoyées ont un pouvoir cathartique. Est-ce une lettre à une personne, à toi-même du passé ou du futur, ou peut-être à une situation ?",
+    "keywords": ["lettre", "non envoyée", "catharsis", "expression"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais documenter mes progrès personnels",
+    "ideal_output": "Célébrer ses progrès motive à continuer! Sur quel domaine veux-tu te concentrer? Développement personnel, professionnel, santé ou relations ?",
+    "keywords": ["progrès", "croissance", "accomplissement", "évolution"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes valeurs fondamentales",
+    "ideal_output": "Connaître ses valeurs guide nos décisions. Veux-tu identifier tes valeurs principales, voir si tu vis en accord avec elles ou peut-être les hiérarchiser ?",
+    "keywords": ["valeurs", "principes", "éthique", "croyances"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de clarifier mes pensées",
+    "ideal_output": "L'écriture peut mettre de l'ordre dans le chaos mental. Veux-tu brain dump toutes tes pensées, les organiser par thème ou identifier les pensées récurrentes ?",
+    "keywords": ["pensées", "clarté", "organisation", "mental"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un défi actuel",
+    "ideal_output": "Affronter ses défis par l'écriture les rend plus gérables. Veux-tu décrire le défi en détail, explorer des solutions ou noter les ressources dont tu disposes ?",
+    "keywords": ["défi", "obstacle", "solution", "résilience"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais capturer un moment de bonheur",
+    "ideal_output": "Préserver les moments joyeux enrichit notre journal! Veux-tu décrire le moment en détail, explorer pourquoi il t'a rendu heureux ou comment en créer davantage ?",
+    "keywords": ["bonheur", "joie", "moment", "souvenir"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux réfléchir à une conversation importante",
+    "ideal_output": "Revisiter les conversations permet d'en extraire plus de sens. Veux-tu analyser ce qui a été dit, ce que tu as ressenti ou peut-être ce que tu aimerais dire lors d'une prochaine conversation ?",
+    "keywords": ["conversation", "communication", "dialogue", "réflexion"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de planifier ma semaine",
+    "ideal_output": "Une semaine planifiée est une semaine réussie! Veux-tu établir tes priorités, planifier tes tâches ou peut-être inclure des moments de self-care ?",
+    "keywords": ["planification", "semaine", "organisation", "productivité"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes passions",
+    "ideal_output": "Nos passions donnent du sens à la vie. Veux-tu identifier ce qui t'anime vraiment, comment intégrer plus de passion dans ta vie ou explorer de nouvelles passions ?",
+    "keywords": ["passions", "intérêts", "enthousiasme", "motivation"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire sur un souvenir d'enfance",
+    "ideal_output": "Revisiter son enfance éclaire notre présent. Veux-tu décrire un souvenir spécifique, son impact sur qui tu es aujourd'hui ou les émotions qui y sont attachées ?",
+    "keywords": ["souvenir", "enfance", "passé", "mémoire"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter une routine matinale",
+    "ideal_output": "Les routines matinales donnent le ton de la journée. Veux-tu décrire ta routine actuelle, idéale ou peut-être explorer comment l'améliorer ?",
+    "keywords": ["routine", "matin", "habitudes", "rituel"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de libérer de l'anxiété",
+    "ideal_output": "Écrire son anxiety peut en réduire l'emprise. Veux-tu identifier les sources, noter les sensations physiques ou explorer des techniques apaisantes ?",
+    "keywords": ["anxiété", "inquiétude", "calme", "sérénité"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux réfléchir à mes succès",
+    "ideal_output": "Célébrer ses succès renforce la confiance! Quels succès veux-tu explorer? Professionnels, personnels, grands ou petits accomplissements ?",
+    "keywords": ["succès", "accomplissement", "réussite", "célébration"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mes limites personnelles",
+    "ideal_output": "Connaître ses limites, c'est se respecter. Veux-tu identifier tes limites actuelles, celles que tu veux accepter ou celles que tu souhaites repousser ?",
+    "keywords": ["limites", "frontières", "respect", "personnel"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un endroit qui m'inspire",
+    "ideal_output": "Les lieux ont un pouvoir inspirant! Veux-tu décrire un lieu réel, imaginaire ou peut-être explorer pourquoi certains endroits nous touchent particulièrement ?",
+    "keywords": ["lieu", "inspiration", "environnement", "voyage"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de prioriser mes tâches",
+    "ideal_output": "Prioriser, c'est avancer efficacement. Veux-tu utiliser une méthode spécifique (Eisenhower, ABCDE), ou simplement lister et classer tes tâches ?",
+    "keywords": ["priorités", "tâches", "organisation", "productivité"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes patterns de pensée",
+    "ideal_output": "Nos patterns mentaux façonnent notre réalité. Veux-tu identifier les patterns limitants, les patterns positifs ou peut-être leur origine ?",
+    "keywords": ["patterns", "pensée", "mental", "habitudes"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire une auto-évaluation",
+    "ideal_output": "S'auto-évaluer favorise la croissance. Sur quel aspect veux-tu te évaluer? Personnel, professionnel, relations ou santé ?",
+    "keywords": ["auto-évaluation", "réflexion", "croissance", "amélioration"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter mes habitudes",
+    "ideal_output": "Nos habitudes façonnent nos vies. Veux-tu noter tes habitudes actuelles, celles que tu veux développer ou celles que tu souhaites abandonner ?",
+    "keywords": ["habitudes", "routine", "changement", "consistance"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de trouver de l'inspiration",
+    "ideal_output": "L'inspiration cherche parfois un déclic. Veux-tu explorer ce qui t'inspire habituellement, chercher de nouvelles sources ou peut-être créer les conditions pour qu'elle vienne ?",
+    "keywords": ["inspiration", "créativité", "motivation", "étincelle"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux réfléchir à une leçon apprise",
+    "ideal_output": "Les leçons de vie sont précieuses. Veux-tu explorer une leçon récente, une leçon difficile à apprendre ou comment appliquer une leçon importante ?",
+    "keywords": ["leçon", "apprentissage", "expérience", "sagesse"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire sur mes forces",
+    "ideal_output": "Connaître ses forces, c'est savoir les utiliser. Veux-tu identifier tes forces principales, comment les appliquer davantage ou peut-être les développer ?",
+    "keywords": ["forces", "talents", "compétences", "avantages"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes faiblesses",
+    "ideal_output": "Reconnaître ses faiblesses, c'est pouvoir les transformer. Veux-tu les identifier avec bienveillance, trouver des stratégies pour les compenser ou les accepter ?",
+    "keywords": ["faiblesses", "défis", "amélioration", "acceptation"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de visualiser mon avenir",
+    "ideal_output": "Visualiser son avenir le rend plus tangible. À quelle échéance? 1 an, 5 ans, 10 ans? Ou peut-être dans des domaines spécifiques ?",
+    "keywords": ["avenir", "visualisation", "rêves", "projection"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un conflit intérieur",
+    "ideal_output": "Les conflits intérieurs méritent d'être entendus. Veux-tu explorer les différentes parts de toi en désaccord, trouver un terrain d'entente ou comprendre l'origine du conflit ?",
+    "keywords": ["conflit", "intérieur", "dilemme", "résolution"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais documenter une réalisation créative",
+    "ideal_output": "Nos créations méritent d'être célébrées! Veux-tu décrire le processus, les défis surmontés ou ce que cette création t'a appris ?",
+    "keywords": ["création", "réalisations", "art", "processus"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux réfléchir à une citation inspirante",
+    "ideal_output": "Les citations peuvent être des guides. Veux-tu explorer une citation spécifique, son application dans ta vie ou peut-être noter tes citations préférées ?",
+    "keywords": ["citation", "inspiration", "sagesse", "réflexion"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de faire le point sur ma santé",
+    "ideal_output": "Prendre soin de sa santé commence par en prendre conscience. Veux-tu explorer ta santé physique, mentale, émotionnelle ou peut-être établir des objectifs santé ?",
+    "keywords": ["santé", "bien-être", "corps", "équilibre"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes relations familiales",
+    "ideal_output": "La famille mérite une attention particulière. Veux-tu explorer une relation spécifique, les dynamiques familiales ou ton rôle dans la famille ?",
+    "keywords": ["famille", "relations", "liens", "historique"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire sur un moment de transition",
+    "ideal_output": "Les transitions sont des portes vers de nouveaux chapitres. Veux-tu décrire une transition actuelle, passée ou comment naviguer les changements à venir ?",
+    "keywords": ["transition", "changement", "transformation", "évolution"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter mes finances",
+    "ideal_output": "Une relation saine avec l'argent commence par la conscience. Veux-tu suivre tes dépenses, établir un budget ou réfléchir à tes croyances autour de l'argent ?",
+    "keywords": ["finances", "argent", "budget", "planification"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de pardonner",
+    "ideal_output": "Le pardon libère. Veux-tu explorer le pardon envers quelqu'un, envers toi-même ou peut-être comprendre ce qui bloque le pardon ?",
+    "keywords": ["pardon", "libération", "acceptation", "guérison"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux réfléchir à mon travail",
+    "ideal_output": "Notre travail occupe une place importante. Veux-tu explorer ta satisfaction professionnelle, tes aspirations de carrière ou l'équilibre travail-vie personnelle ?",
+    "keywords": ["travail", "carrière", "profession", "vocation"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire sur un livre qui m'a marqué",
+    "ideal_output": "Les livres nous transforment. Veux-tu explorer les lessons apprises, comment le livre t'a affecté ou peut-être noter tes citations préférées ?",
+    "keywords": ["livre", "lecture", "apprentissage", "inspiration"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes besoins émotionnels",
+    "ideal_output": "Reconnaître ses besoins, c'est pouvoir y répondre. Veux-tu identifier tes besoins actuels, ceux qui ne sont pas comblés ou comment mieux les satisfaire ?",
+    "keywords": ["besoins", "émotionnels", "santé mentale", "équilibre"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de clarifier ma vision personnelle",
+    "ideal_output": "Une vision claire guide nos pas. Veux-tu définir ta vision pour ta vie, pour une année spécifique ou pour un domaine particulier ?",
+    "keywords": ["vision", "direction", "but", "futur"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un mentor ou guide",
+    "ideal_output": "Nos guides nous inspirent. Veux-tu écrire sur une personne qui t'a influencé, les qualities que tu admires ou comment intégrer leurs enseignements ?",
+    "keywords": ["mentor", "guide", "inspiration", "apprentissage"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais documenter une promenade méditative",
+    "ideal_output": "Marcher en conscience ouvre l'esprit. Veux-tu décrire tes observations, les pensées qui sont venues ou les sensations éprouvées pendant ta marche ?",
+    "keywords": ["promenade", "méditation", "pleine conscience", "nature"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes attentes",
+    "ideal_output": "Nos attentes façonnent nos expériences. Veux-tu identifier tes attentes envers les autres, envers toi-même ou peut-être comment les gérer plus sainement ?",
+    "keywords": ["attentes", "espoirs", "réalité", "ajustement"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à un échec",
+    "ideal_output": "Les échecs sont des enseignements déguisés. Veux-tu analyser ce qui n'a pas fonctionné, les leçons apprises ou comment transformer cet échec en opportunité ?",
+    "keywords": ["échec", "apprentissage", "résilience", "croissance"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un moment de courage",
+    "ideal_output": "Le courage mérite d'être célébré. Veux-tu décrire un moment où tu as fait preuve de courage, ce qui t'a motivé ou comment développer davantage de courage ?",
+    "keywords": ["courage", "bravoure", "défi", "confiance"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mes croyances limitantes",
+    "ideal_output": "Identifier ses croyances limitantes, c'est s'en libérer. Veux-tu les reconnaître, comprendre leur origine ou les transformer en croyances empowerantes ?",
+    "keywords": ["croyances", "limitantes", "mental", "transformation"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter une conversation difficile",
+    "ideal_output": "Revisiter les conversations difficiles permet de mieux les digérer. Veux-tu analyser ce qui s'est passé, ce que tu aurais pu dire différemment ou comment aborder une prochaine conversation similaire ?",
+    "keywords": ["conversation", "difficile", "communication", "résolution"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de trouver mon calme intérieur",
+    "ideal_output": "Le calme est une ressource précieuse. Veux-tu explorer ce qui perturbe ton calme, ce qui le restaure ou peut-être décrire un moment de parfaite tranquillité ?",
+    "keywords": ["calme", "paix", "sérénité", "tranquillité"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux réfléchir à mes contributions",
+    "ideal_output": "Nos contributions donnent du sens. Veux-tu explorer comment tu contribues au monde, à ta communauté ou peut-être comment tu aimerais contribuer davantage ?",
+    "keywords": ["contribution", "impact", "don", "service"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire sur un endroit sûr",
+    "ideal_output": "Nous avons tous besoin de lieux refuge. Veux-tu décrire ton endroit sûr réel ou imaginaire, pourquoi il t'apaise ou comment en créer davantage dans ta vie ?",
+    "keywords": ["sûr", "refuge", "paix", "protection"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes patterns relationnels",
+    "ideal_output": "Nos patterns relationnels révèlent beaucoup. Veux-tu identifier tes patterns, comprendre leur origine ou comment créer des relations plus saines ?",
+    "keywords": ["patterns", "relationnels", "habitudes", "conscience"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de faire le deuil de quelque chose",
+    "ideal_output": "Le deuil mérite son espace. Veux-tu explorer une perte récente, les étapes de ton deuil ou comment honorer ce qui n'est plus ?",
+    "keywords": ["deuil", "perte", "acceptation", "guérison"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter une intuition",
+    "ideal_output": "Notre intuition sait souvent avant nous. Veux-tu décrire une intuition récente, son exactitude ou comment développer ta écoute intuitive ?",
+    "keywords": ["intuition", "pressentiment", "instinct", "écoute"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais écrire sur un acte de gentillesse",
+    "ideal_output": "La gentillesse transforme. Veux-tu décrire un acte de gentillesse reçu ou donné, son impact ou comment intégrer plus de gentillesse au quotidien ?",
+    "keywords": ["gentillesse", "générosité", "compassion", "altruisme"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux explorer mes résistances",
+    "ideal_output": "Nos résistances nous parlent de nos peurs. Veux-tu identifier ce à quoi tu résistes, pourquoi ou comment surmonter ces résistances ?",
+    "keywords": ["résistance", "blocage", "changement", "défense"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à mon dialogue intérieur",
+    "ideal_output": "Notre voix intérieure influence tout. Veux-tu noter ton discours intérieur actuel, le rendre plus bienveillant ou comprendre son origine ?",
+    "keywords": ["dialogue", "intérieur", "voix", "mental"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un moment de flow",
+    "ideal_output": "Les moments de flow sont magiques. Veux-tu décrire un moment où tu étais complètement absorbé, ce qui l'a facilité ou comment créer davantage de ces moments ?",
+    "keywords": ["flow", "absorption", "concentration", "performance"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mes attachements",
+    "ideal_output": "Nos attachements définissent nos liens. Veux-tu explorer tes attachements sains, ceux qui pourraient être libérés ou la nature de tes attachments ?",
+    "keywords": ["attachement", "lien", "dépendance", "liberté"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter une pratique spirituelle",
+    "ideal_output": "La spiritualité nourrit l'âme. Veux-tu décrire ta pratique actuelle, son impact ou explorer de nouvelles voies spirituelles ?",
+    "keywords": ["spiritualité", "pratique", "méditation", "connection"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à un paradoxe",
+    "ideal_output": "Les paradoxes nous invitent à penser autrement. Veux-tu explorer un paradoxe qui te trouble, accepter son ambiguité ou trouver une résolution créative ?",
+    "keywords": ["paradoxe", "ambiguïté", "complexité", "réflexion"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un moment de synchronicité",
+    "ideal_output": "Les synchronicités sont des clins d'œil de l'univers. Veux-tu décrire une coïncidence significative, son message ou comment être plus attentif à ces signes ?",
+    "keywords": ["synchronicité", "coïncidence", "signe", "univers"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mon ombre",
+    "ideal_output": "Notre ombre contient des trésors cachés. Veux-tu explorer les parts de toi que tu caches, les accepter ou peut-être comprendre leur utilité ?",
+    "keywords": ["ombre", "inconscient", "acceptation", "intégration"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter un rituel personnel",
+    "ideal_output": "Les rituels donnent du sens au quotidien. Veux-tu décrire un rituel existant, son importance ou en créer de nouveaux ?",
+    "keywords": ["rituel", "routine", "signification", "cérémonie"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à un tournant",
+    "ideal_output": "Les tournants changent notre direction. Veux-tu explorer un tournant passé, présent ou comment naviguer un tournant à venir ?",
+    "keywords": ["tournant", "changement", "décision", "vie"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un enseignement reçu",
+    "ideal_output": "Les enseignements nous façonnent. Veux-tu explorer un enseignement récent, son application ou comment l'intégrer profondément ?",
+    "keywords": ["enseignement", "sagesse", "apprentissage", "leçon"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mes frontières personnelles",
+    "ideal_output": "Des frontières saines protègent notre énergie. Veux-tu identifier où tu as besoin de frontières, comment les communiquer ou les renforcer ?",
+    "keywords": ["frontières", "limites", "respect", "énergie"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter un cycle naturel",
+    "ideal_output": "Nous faisons partie des cycles naturels. Veux-tu explorer les cycles de la nature, tes cycles personnels ou comment t'y aligner ?",
+    "keywords": ["cycle", "nature", "rythme", "saison"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à un paradoxe intérieur",
+    "ideal_output": "Nos contradictions nous rendent humains. Veux-tu explorer deux parts opposées en toi, trouver leur complémentarité ou accepter leur coexistence ?",
+    "keywords": ["paradoxe", "contradiction", "complexité", "acceptation"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un moment de présence",
+    "ideal_output": "La présence est un cadeau. Veux-tu décrire un moment de pleine présence, comment y accéder ou les obstacles à la présence ?",
+    "keywords": ["présence", "moment présent", "pleine conscience", "ici et maintenant"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mes désirs profonds",
+    "ideal_output": "Nos désirs nous guident vers notre vérité. Veux-tu identifier tes véritables désirs, distinguer désirs et besoins ou explorer comment les réaliser ?",
+    "keywords": ["désirs", "envies", "aspirations", "cœur"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter une reconnexion",
+    "ideal_output": "Se reconnecter nourrit l'âme. Veux-tu explorer une reconnexion avec toi-même, avec la nature, avec un être cher ou avec une part oubliée de toi ?",
+    "keywords": ["reconnexion", "lien", "retour", "unité"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à un héritage",
+    "ideal_output": "L'héritage dépasse le matériel. Veux-tu explorer l'héritage reçu, celui que tu veux laisser ou peut-être te libérer d'un héritage limitant ?",
+    "keywords": ["héritage", "legs", "transmission", "générations"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un moment de simplicité",
+    "ideal_output": "La simplicité apporte la clarté. Veux-tu décrire un moment de simplicité joyeuse, comment simplifier ta vie ou les bienfaits de la simplicité ?",
+    "keywords": ["simplicité", "minimalisme", "essentiel", "épuration"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mes ressources internes",
+    "ideal_output": "Nous avons tous des ressources insoupçonnées. Veux-tu identifier tes forces intérieures, comment y accéder en cas de besoin ou les développer ?",
+    "keywords": ["ressources", "internes", "force", "résilience"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter un dialogue avec mon moi futur",
+    "ideal_output": "Parler à son futur soi ouvre des perspectives. Veux-tu lui poser des questions, lui demander des conseils ou imaginer ce qu'il te dirait ?",
+    "keywords": ["futur", "moi", "dialogue", "projection"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à un choix passé",
+    "ideal_output": "Revisiter nos choix avec bienveillance. Veux-tu explorer un choix spécifique, ses conséquences ou ce que tu dirais à ton moi du passé ?",
+    "keywords": ["choix", "passé", "réflexion", "acceptation"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un moment de vulnérabilité",
+    "ideal_output": "La vulnérabilité est un courage. Veux-tu décrire un moment où tu t'es montré vulnérable, ce que ça t'a appris ou comment embrasser ta vulnérabilité ?",
+    "keywords": ["vulnérabilité", "authenticité", "courage", "ouverture"],
+    "category": "journal"
+  },
+  {
+    "input": "J'aimerais explorer mes contradictions",
+    "ideal_output": "Nos contradictions nous rendent uniques. Veux-tu explorer des aspects contradictoires de ta personnalité, leur coexistence ou ce qu'elles révèlent ?",
+    "keywords": ["contradictions", "complexité", "humanité", "acceptation"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux documenter une transformation",
+    "ideal_output": "Les transformations méritent d'être témoignées. Veux-tu décrire une transformation passée, en cours ou comment naviguer un processus transformateur ?",
+    "keywords": ["transformation", "changement", "métamorphose", "évolution"],
+    "category": "journal"
+  },
+  {
+    "input": "J'ai besoin de réfléchir à un mystère personnel",
+    "ideal_output": "Certains mystères personnels demandent de la patience. Veux-tu explorer un mystère non résolu, accepter son mystère ou chercher des éclaircissements ?",
+    "keywords": ["mystère", "inconnu", "patience", "révélation"],
+    "category": "journal"
+  },
+  {
+    "input": "Je veux écrire sur un moment de grâce",
+    "ideal_output": "Les moments de grâce sont des cadeaux. Veux-tu décrire un moment de beauté inattendue, de facilité inexplicable ou de perfection simple ?",
+    "keywords": ["grâce", "beauté", "perfection", "cadeau"],
+    "category": "journal"
+    }
+]
