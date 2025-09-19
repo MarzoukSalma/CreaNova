@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   Plus,
   Filter,
@@ -32,30 +32,28 @@ import {
   Area,
   AreaChart,
 } from "recharts"
-import api from "../api/api.jsx"
+import api from "../api/api"
 
-
-
-
-// Fixed: Added userId parameter and proper error handling
-const userId = localStorage.getItem("userId");
-const fetchProjectsFromApi = async (userId) => {
-
-  if (!userId) {
-    console.error('Aucun ID utilisateur trouvé')
-    return []
-  }
+const fetchProjectsFromApi = async () => {
   try {
     const allProjects = await api.get(`/dreams`)
     return allProjects.data || []
   } catch (error) {
-    console.error('Erreur lors du chargement des journaux:', error)
+    console.error("Erreur lors du chargement des journaux:", error)
     return []
   }
 }
 
 const CreativeTree = ({ projects }) => {
-  const totalProgress = projects.reduce((sum, p) => sum + p.progress, 0) / projects.length
+  const totalProgress =
+    projects.length > 0
+      ? projects.reduce((sum, p) => {
+          if (p.statut === "Terminé") return sum + 100
+          if (p.statut === "En cours") return sum + 50
+          return sum + 0 // "À faire"
+        }, 0) / projects.length
+      : 0
+
   const treeHeight = Math.max(200, (totalProgress / 100) * 400)
   const branchCount = Math.floor(totalProgress / 20) + 1
   const leafCount = Math.floor(totalProgress / 10)
@@ -191,45 +189,42 @@ const EnhancedDashboard = () => {
   const [editingProject, setEditingProject] = useState(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [viewMode, setViewMode] = useState("grid")
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Fixed: Added proper userId management
-  const userId = 1 // Replace with actual user authentication
+  const loadProjects = useCallback(async () => {
+    try {
+      setLoading(true)
+      const apiProjects = await fetchProjectsFromApi()
+
+      const projectsWithProgress = apiProjects.map((project) => {
+        let progress = 0
+        if (project.statut === "Terminé") progress = 100
+        else if (project.statut === "En cours") progress = 50
+        else progress = 0 // "À faire"
+
+        return {
+          ...project,
+          dateCreation: new Date(project.dateCreation),
+          progress,
+          workspaces: project.workspaces || [],
+        }
+      })
+
+      setProjects(projectsWithProgress)
+    } catch (error) {
+      console.error("Erreur lors du chargement des projets:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        setLoading(true)
-        const apiProjects = await fetchProjectsFromApi(userId)
-
-        const projectsWithProgress = apiProjects.map((project) => {
-  const workspaces = project.workspaces || []  // <-- fallback
-  const completedWorkspaces = workspaces.filter((w) => w.completed).length
-  const totalWorkspaces = workspaces.length
-  const progress = totalWorkspaces > 0 ? Math.round((completedWorkspaces / totalWorkspaces) * 100) : 0
-
-  const estimatedHours = workspaces.reduce((sum, w) => sum + (w.hours || 0), 0)
-  const spentHours = workspaces.filter((w) => w.completed).reduce((sum, w) => sum + (w.hours || 0), 0)
-
-  return {
-    ...project,
-    dateCreation: new Date(project.dateCreation),
-    progress,
-    estimatedHours,
-    spentHours,
-  }
-})
-
-
-        setProjects(projectsWithProgress)
-      } catch (error) {
-        console.error("Erreur lors du chargement des projets:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     loadProjects()
-  }, [userId])
+  }, [loadProjects, refreshTrigger])
+
+  const handleRefresh = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1)
+  }, [])
 
   const filteredProjects = projects.filter((project) => {
     const statusMatch = !statusFilter || project.statut === statusFilter
@@ -237,8 +232,7 @@ const EnhancedDashboard = () => {
     const searchMatch =
       !searchTerm ||
       project.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      project.description.toLowerCase().includes(searchTerm.toLowerCase())
     return statusMatch && priorityMatch && searchMatch
   })
 
@@ -286,48 +280,46 @@ const EnhancedDashboard = () => {
     setIsModalOpen(false)
   }
 
-  // Fixed: Corrected syntax errors and API calls
   const saveProject = async (projectData) => {
     try {
       if (editingProject) {
         await api.put(`/dreams/${editingProject.id}`, projectData)
-        setProjects(projects.map((p) => 
-          p.id === editingProject.id ? { ...p, ...projectData } : p
-        ))
+        const updatedProject = {
+          ...editingProject,
+          ...projectData,
+          progress: projectData.statut === "Terminé" ? 100 : projectData.statut === "En cours" ? 50 : 0,
+        }
+        setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)))
       } else {
-        // CREATE (POST)
         const response = await api.post("/dreams/", {
           ...projectData,
-          userId: userId,
           dateCreation: new Date().toISOString(),
           statut: projectData.statut || "À faire",
-          estimatedHours: projectData.estimatedHours || 0,
-          spentHours: projectData.spentHours || 0,
-          workspaces: []
         })
 
-        // Fixed: Parse the date for consistency
         const newProject = {
           ...response.data,
           dateCreation: new Date(response.data.dateCreation),
-          progress: 0
+          progress: response.data.statut === "Terminé" ? 100 : response.data.statut === "En cours" ? 50 : 0,
+          workspaces: [],
         }
-        
+
         setProjects([...projects, newProject])
       }
 
       closeModal()
+      setTimeout(() => handleRefresh(), 100)
     } catch (error) {
       console.error("Error saving project:", error)
     }
   }
 
-  // Fixed: Added proper API delete call
   const deleteProject = async (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
       try {
         await api.delete(`/dreams/${id}`)
         setProjects(projects.filter((p) => p.id !== id))
+        setTimeout(() => handleRefresh(), 100)
       } catch (error) {
         console.error("Error deleting project:", error)
       }
@@ -445,6 +437,14 @@ const EnhancedDashboard = () => {
               <TrendingUp className="w-4 h-4 text-green-500" />
               {stats.avgProgress}% progression moyenne
             </span>
+            <button
+              onClick={handleRefresh}
+              className="flex items-center gap-1 px-3 py-1 bg-white rounded-full shadow-sm hover:shadow-md transition-all duration-200 text-purple-600 hover:text-purple-700"
+              disabled={loading}
+            >
+              <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              Actualiser
+            </button>
           </div>
         </div>
 
@@ -600,16 +600,6 @@ const EnhancedDashboard = () => {
 
                       <p className="text-gray-700 mb-3 text-sm line-clamp-2">{project.description}</p>
 
-                      {project.tags && project.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {project.tags.map((tag, index) => (
-                            <span key={index} className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
                       <div className="flex justify-between items-center mb-3">
                         <div className="flex gap-2">
                           <span
@@ -623,14 +613,6 @@ const EnhancedDashboard = () => {
                             {getPriorityIcon(project.priorite)}
                             {project.priorite}
                           </span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-gray-600">{project.progress}%</div>
-                          {project.spentHours > 0 && (
-                            <div className="text-xs text-gray-500">
-                              {project.spentHours}h / {project.estimatedHours}h
-                            </div>
-                          )}
                         </div>
                       </div>
 
@@ -658,12 +640,11 @@ const EnhancedDashboard = () => {
 
             {/* Right Sidebar - Creative Tree and Charts */}
             <div className="lg:col-span-1 space-y-6">
-              <CreativeTree projects={projects} />
+              <CreativeTree projects={projects} key={`tree-${projects.length}-${stats.avgProgress}`} />
 
-              {/* Fixed: Corrected PieChart component usage */}
               <div className="bg-white rounded-2xl shadow-xl p-6">
                 <h3 className="text-xl font-bold mb-4 text-gray-800">Répartition des Projets</h3>
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={200} key={`pie-${stats.total}-${stats.completed}`}>
                   <RechartsPieChart data={pieData} cx="50%" cy="50%" outerRadius={70}>
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -716,43 +697,58 @@ const EnhancedDashboard = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-purple-600">{project.progress}%</div>
-                        <div className="text-sm text-gray-500">
-                          {project.spentHours}h / {project.estimatedHours}h
-                        </div>
+                        <div className="text-sm text-gray-500">Basé sur le statut</div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {project.workspaces.map((workspace) => (
-                        <div
-                          key={workspace.id}
-                          className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                            workspace.completed ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-800">{workspace.name}</h4>
-                            {workspace.completed ? (
-                              <CheckCircle className="w-5 h-5 text-green-600" />
-                            ) : (
-                              <Clock className="w-5 h-5 text-gray-400" />
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {workspace.hours}h {workspace.completed ? "terminées" : "estimées"}
-                          </div>
-                          <div className="mt-2">
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div
-                                className={`h-2 rounded-full transition-all duration-500 ${
-                                  workspace.completed ? "bg-green-500" : "bg-gray-300"
-                                }`}
-                                style={{ width: workspace.completed ? "100%" : "0%" }}
-                              ></div>
-                            </div>
-                          </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div
+                        className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                          project.statut === "À faire" ? "bg-yellow-50 border-yellow-200" : "bg-gray-50 border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800">À faire</h4>
+                          {project.statut === "À faire" ? (
+                            <Clock className="w-5 h-5 text-yellow-600" />
+                          ) : (
+                            <Clock className="w-5 h-5 text-gray-400" />
+                          )}
                         </div>
-                      ))}
+                        <div className="text-sm text-gray-600">Phase initiale</div>
+                      </div>
+
+                      <div
+                        className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                          project.statut === "En cours" ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800">En cours</h4>
+                          {project.statut === "En cours" ? (
+                            <AlertCircle className="w-5 h-5 text-blue-600" />
+                          ) : (
+                            <AlertCircle className="w-5 h-5 text-gray-400" />
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">En développement</div>
+                      </div>
+
+                      <div
+                        className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                          project.statut === "Terminé" ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800">Terminé</h4>
+                          {project.statut === "Terminé" ? (
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <CheckCircle className="w-5 h-5 text-gray-400" />
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">Projet finalisé</div>
+                      </div>
                     </div>
 
                     <div className="mt-4 w-full bg-gray-200 rounded-full h-3">
@@ -773,7 +769,7 @@ const EnhancedDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="bg-white rounded-2xl shadow-xl p-6">
                 <h3 className="text-xl font-bold mb-4 text-gray-800">Progression des Projets</h3>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={300} key={`bar-${progressData.length}`}>
                   <BarChart data={progressData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
@@ -844,21 +840,12 @@ const ProjectModal = ({ project, onSave, onClose }) => {
     description: project?.description || "",
     statut: project?.statut || "À faire",
     priorite: project?.priorite || "moyenne",
-    tags: project?.tags?.join(", ") || "",
-    estimatedHours: project?.estimatedHours || 0,
-    spentHours: project?.spentHours || 0,
   })
 
   const handleSubmit = (e) => {
     e.preventDefault()
     const processedData = {
       ...formData,
-      tags: formData.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag),
-      estimatedHours: parseInt(formData.estimatedHours) || 0,
-      spentHours: parseInt(formData.spentHours) || 0,
     }
     onSave(processedData)
   }
@@ -891,17 +878,6 @@ const ProjectModal = ({ project, onSave, onClose }) => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tags (séparés par des virgules)</label>
-            <input
-              type="text"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-              placeholder="art, créatif, personnel..."
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Statut *</label>
@@ -929,32 +905,6 @@ const ProjectModal = ({ project, onSave, onClose }) => {
                 <option value="moyenne">Moyenne</option>
                 <option value="haute">Haute</option>
               </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Heures estimées</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.estimatedHours}
-                onChange={(e) => setFormData({ ...formData, estimatedHours: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                placeholder="0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Heures passées</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.spentHours}
-                onChange={(e) => setFormData({ ...formData, spentHours: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                placeholder="0"
-              />
             </div>
           </div>
 

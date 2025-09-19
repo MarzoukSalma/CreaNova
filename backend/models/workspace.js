@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT,
       dateCreation: DataTypes.DATE,
       userId: DataTypes.INTEGER,
+      accorder: DataTypes.STRING
     },
     {
       sequelize,
