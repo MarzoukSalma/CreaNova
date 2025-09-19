@@ -20,6 +20,15 @@ import {
   Zap,
   Cloud,
 } from "lucide-react";
+import  img1 from "../assets/image1.jpeg";
+import img2 from "../assets/image2.jpeg";
+import img3 from "../assets/image3.jpeg";
+import img4 from "../assets/image4.jpeg";
+import img5 from "../assets/image5.jpeg";
+import img6 from "../assets/image6.jpeg";
+import img7 from "../assets/image7.jpeg";
+
+
 import api from '../api/api.jsx'; // Import de l'API
 
 const GalleryPage = () => {
@@ -97,14 +106,14 @@ const GalleryPage = () => {
   // Obtenir une image par défaut selon le mood
   const getMoodDefaultImage = (mood) => {
     const imageMap = {
-      heureux: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-      triste: "https://images.unsplash.com/photo-1502780402662-acc01917286e?w=400&h=300&fit=crop", 
-      stressé: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-      motivé: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-      fatigué: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-      amoureux: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+      heureux: img2,
+      triste: img1,
+      stressé: img5,
+      motivé: img7,
+      fatigué: img6,
+      amoureux: img4,
     };
-    return imageMap[mood] || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop";
+    return imageMap[mood] || img3;
   };
 
   // Charger toutes les inspirations depuis l'API
