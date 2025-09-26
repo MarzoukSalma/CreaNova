@@ -4,13 +4,14 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "migrate": " sequelize-cli db:migrate",
+    "migrate": "sequelize-cli db:migrate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate:undo": "sequelize db:migrate:undo"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
@@ -19,8 +20,10 @@
     "groq-sdk": "^0.30.0",
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.10",
+    "openai": "^5.21.0",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
+    "pgvector": "^0.2.1",
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.3"
   }

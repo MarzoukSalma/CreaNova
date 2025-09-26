@@ -16,6 +16,9 @@ module.exports = {
       description: {
         type: Sequelize.TEXT,
       },
+      accorder: {
+        type: Sequelize.STRING
+      },
       dateCreation: {
         type: Sequelize.DATE,
       },

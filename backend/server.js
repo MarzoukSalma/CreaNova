@@ -9,6 +9,7 @@ const authRoutes = require("./routes/auth");
 const users = require("./routes/userRoutes.js");
 const dreamRoutes = require("./routes/dream");
 const workRoutes = require("./routes/work.js");
+const llmRoutes = require("./routes/llm.routes");
 
 const app = express();
 const cors = require("cors");
@@ -28,6 +29,7 @@ app.use("/users", users);
 app.use("/dreams", dreamRoutes);
 app.use("/workspaces", workRoutes);
 app.use("/inspirations", inspirationRoutes);
+app.use("/llm", llmRoutes);
 
 // Tester la connexion à la base
 db.sequelize
