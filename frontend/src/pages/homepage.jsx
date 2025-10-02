@@ -8,7 +8,7 @@ import { Navigate } from "react-router-dom";
 
 
 const HomePage = ({ onNavigateToLogin }) => {
-  const features = [
+  const features = [  
     {
       icon: <BookOpen className="w-8 h-8" />,
       title: "Journal Créatif",
