@@ -372,7 +372,7 @@ const EnhancedDashboard = () => {
           onClick={() => setActiveTab("overview")}
           className={`px-4 md:px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
             activeTab === "overview"
-              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform scale-105"
+              ? "bg-black  text-white shadow-lg transform scale-105"
               : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
           }`}
         >
