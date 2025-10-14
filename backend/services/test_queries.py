@@ -15,58 +15,44 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "llm"))
 from llm.llmService import LLMService
 from llm.llmHelper import LLMHelper
 
-# -----------------------------
-# Connexion PostgreSQL
-# -----------------------------
-conn = psycopg2.connect("dbname=rag_chatbot_db user=postgres password=salma")
-cursor = conn.cursor()
 
-# -----------------------------
-# Charger le modèle
-# -----------------------------
-model = SentenceTransformer('all-MiniLM-L6-v2')
+def get_answer(query):
+    """
+    Fonction qui reçoit une question (query)
+    et renvoie la réponse générée par le modèle RAG.
+    """
 
-# -----------------------------
-# Liste de requêtes à tester
-# -----------------------------
-queries = [
-    "Comment je peux réaliser mes rêves ?",
-    "Quels sont les bienfaits de la méditation ?",
-    "Comment gérer le stress au travail ?",
-    "Comment améliorer ma concentration ?"
-]
+    # -----------------------------
+    # Connexion PostgreSQL
+    # -----------------------------
+    conn = psycopg2.connect("dbname=rag_chatbot_db user=postgres password=salma")
+    cursor = conn.cursor()
 
-# -----------------------------
-# Charger les embeddings + doc_id depuis la base
-# -----------------------------
-cursor.execute("SELECT id, document_id, embedding FROM embeddings")
-rows = cursor.fetchall()
+    # -----------------------------
+    # Charger le modèle
+    # -----------------------------
+    model = SentenceTransformer('all-MiniLM-L6-v2')
 
-embedding_ids = [row[0] for row in rows]
-doc_ids = [row[1] for row in rows]
-embeddings = [np.array([float(x) for x in row[2]]) for row in rows]
+    # -----------------------------
+    # Charger les embeddings + doc_id depuis la base
+    # -----------------------------
+    cursor.execute("SELECT id, document_id, embedding FROM embeddings")
+    rows = cursor.fetchall()
 
-# -----------------------------
-# Instancier helper & LLM
-# -----------------------------
-llm_helper = LLMHelper(max_tokens=1500)
-llm_service = LLMService()
+    doc_ids = [row[1] for row in rows]
+    embeddings = [np.array([float(x) for x in row[2]]) for row in rows]
 
-# -----------------------------
-# Boucle sur chaque requête
-# -----------------------------
-for query in queries:
-    print(f"🔹 Question : {query}")
+    # -----------------------------
+    # Trouver les documents similaires
+    # -----------------------------
     query_embedding = model.encode([query])[0]
-
-    # Similarité cosinus
     similarities = cosine_similarity([query_embedding], embeddings)[0]
-
-    # Trier les documents par score décroissant
-    top_k = 3  # nombre de chunks/documents à utiliser
+    top_k = 3
     best_indices = similarities.argsort()[-top_k:][::-1]
 
-    # Récupérer les contenus des meilleurs documents
+    # -----------------------------
+    # Récupérer le contenu des meilleurs documents
+    # -----------------------------
     retrieved_chunks = []
     for idx in best_indices:
         best_doc_id = doc_ids[idx]
@@ -74,23 +60,23 @@ for query in queries:
         cursor.execute("SELECT title, content FROM documents WHERE id = %s", (best_doc_id,))
         result = cursor.fetchone()
         if result:
-            retrieved_chunks.append(result[1][:300])  # on prend un extrait
+            retrieved_chunks.append(result[1][:300])
             print(f"✅ Match (score={similarity_score:.4f}) - {result[0]}")
 
-    # Construire le prompt
-    prompt = llm_helper.build_prompt(query, retrieved_chunks)
-    print("\n--- Prompt généré ---\n")
-    print(prompt)
+    # -----------------------------
+    # Construire le prompt et interroger le LLM
+    # -----------------------------
+    llm_helper = LLMHelper(max_tokens=1500)
+    llm_service = LLMService()
 
-    # Envoyer au LLM
+    prompt = llm_helper.build_prompt(query, retrieved_chunks)
+
     try:
         response = llm_service.ask(prompt)
-        print("\n--- Réponse LLM ---\n")
-        print(response)
     except Exception as e:
-        print(f"⚠️ Erreur avec le LLMService : {e}")
+        response = f"⚠️ Erreur avec le LLMService : {e}"
 
-    print("\n============================\n")
+    cursor.close()
+    conn.close()
 
-cursor.close()
-conn.close()
+    return response
