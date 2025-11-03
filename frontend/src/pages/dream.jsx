@@ -18,7 +18,9 @@ import {
   Zap,
   Activity,
   Timer,
-} from "lucide-react"
+  Sparkles,
+  Flame,
+} from "lucide-react";
 import {
   PieChart as RechartsPieChart,
   Cell,
@@ -31,18 +33,22 @@ import {
   Tooltip,
   Area,
   AreaChart,
+  LineChart,
+  Line,
 } from "recharts"
-import api from "../api/api"
+
+// Import your API
+import api from "../api/api";
 
 const fetchProjectsFromApi = async () => {
   try {
-    const allProjects = await api.get(`/dreams`)
-    return allProjects.data || []
+    const allProjects = await api.get(`/dreams`);
+    return allProjects.data || [];
   } catch (error) {
-    console.error("Erreur lors du chargement des journaux:", error)
-    return []
+    console.error("Error loading projects:", error);
+    return [];
   }
-}
+};
 
 const CreativeTree = ({ projects }) => {
   const totalProgress =
@@ -50,7 +56,7 @@ const CreativeTree = ({ projects }) => {
       ? projects.reduce((sum, p) => {
           if (p.statut === "Terminé") return sum + 100
           if (p.statut === "En cours") return sum + 50
-          return sum + 0 // "À faire"
+          return sum + 0
         }, 0) / projects.length
       : 0
 
@@ -59,28 +65,29 @@ const CreativeTree = ({ projects }) => {
   const leafCount = Math.floor(totalProgress / 10)
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6">
-      <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">🌳 Arbre Créatif</h3>
-      <div className="flex justify-center">
-        <svg width="200" height="300" viewBox="0 0 200 300" className="overflow-visible">
-          {/* Tree trunk */}
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl p-8 border border-slate-200/50 shadow-sm hover:shadow-lg transition-all duration-300">
+      <div className="flex items-center gap-2 mb-6">
+        <Sparkles className="w-5 h-5 text-amber-500" />
+        <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Growth Tree</h3>
+      </div>
+      <div className="flex justify-center mb-8">
+        <svg width="160" height="240" viewBox="0 0 200 300" className="overflow-visible">
           <rect
             x="90"
             y={300 - treeHeight * 0.3}
             width="20"
             height={treeHeight * 0.3}
-            fill="#8B4513"
+            fill="#78350f"
             rx="2"
             className="transition-all duration-1000"
           />
 
-          {/* Main branches */}
           {Array.from({ length: branchCount }, (_, i) => {
-            const angle = (i * 60 - 30) * (Math.PI / 180)
-            const branchLength = 30 + (totalProgress / 100) * 20
-            const startY = 300 - treeHeight * 0.3 + i * 15
-            const endX = 100 + Math.sin(angle) * branchLength
-            const endY = startY - Math.cos(angle) * branchLength
+            const angle = (i * 60 - 30) * (Math.PI / 180);
+            const branchLength = 30 + (totalProgress / 100) * 20;
+            const startY = 300 - treeHeight * 0.3 + i * 15;
+            const endX = 100 + Math.sin(angle) * branchLength;
+            const endY = startY - Math.cos(angle) * branchLength;
 
             return (
               <g key={i}>
@@ -89,13 +96,11 @@ const CreativeTree = ({ projects }) => {
                   y1={startY}
                   x2={endX}
                   y2={endY}
-                  stroke="#654321"
+                  stroke="#b45309"
                   strokeWidth="3"
                   className="transition-all duration-1000"
-                  style={{ animationDelay: `${i * 200}ms` }}
                 />
 
-                {/* Sub-branches */}
                 {totalProgress > (i + 1) * 15 && (
                   <>
                     <line
@@ -103,7 +108,7 @@ const CreativeTree = ({ projects }) => {
                       y1={endY}
                       x2={endX + Math.sin(angle + 0.5) * 15}
                       y2={endY - Math.cos(angle + 0.5) * 15}
-                      stroke="#654321"
+                      stroke="#b45309"
                       strokeWidth="2"
                       className="transition-all duration-1000"
                     />
@@ -112,23 +117,22 @@ const CreativeTree = ({ projects }) => {
                       y1={endY}
                       x2={endX + Math.sin(angle - 0.5) * 15}
                       y2={endY - Math.cos(angle - 0.5) * 15}
-                      stroke="#654321"
+                      stroke="#b45309"
                       strokeWidth="2"
                       className="transition-all duration-1000"
                     />
                   </>
                 )}
               </g>
-            )
+            );
           })}
 
-          {/* Leaves */}
           {Array.from({ length: leafCount }, (_, i) => {
-            const angle = i * 36 * (Math.PI / 180)
-            const radius = 40 + (i % 3) * 15
-            const x = 100 + Math.sin(angle) * radius
-            const y = 200 - Math.cos(angle) * radius - (totalProgress / 100) * 50
-            const colors = ["#22c55e", "#16a34a", "#15803d", "#84cc16", "#65a30d"]
+            const angle = i * 36 * (Math.PI / 180);
+            const radius = 40 + (i % 3) * 15;
+            const x = 100 + Math.sin(angle) * radius;
+            const y = 200 - Math.cos(angle) * radius - (totalProgress / 100) * 50;
+            const colors = ["#10b981", "#059669", "#047857", "#84cc16", "#65a30d"];
 
             return (
               <circle
@@ -138,46 +142,42 @@ const CreativeTree = ({ projects }) => {
                 r="4"
                 fill={colors[i % colors.length]}
                 className="transition-all duration-1000 animate-pulse"
-                style={{
-                  animationDelay: `${i * 100}ms`,
-                  opacity: totalProgress > i * 5 ? 1 : 0,
-                }}
+                style={{ opacity: totalProgress > i * 5 ? 1 : 0.3 }}
               />
-            )
+            );
           })}
 
-          {/* Flowers for completed projects */}
-          {projects
-            .filter((p) => p.statut === "Terminé")
-            .map((_, i) => (
-              <g key={`flower-${i}`}>
-                <circle cx={80 + i * 40} cy={180} r="3" fill="#ec4899" />
-                <circle cx={77 + i * 40} cy={177} r="2" fill="#f9a8d4" />
-                <circle cx={83 + i * 40} cy={177} r="2" fill="#f9a8d4" />
-                <circle cx={77 + i * 40} cy={183} r="2" fill="#f9a8d4" />
-                <circle cx={83 + i * 40} cy={183} r="2" fill="#f9a8d4" />
-              </g>
-            ))}
+          {projects.filter((p) => p.statut === "Terminé").map((_, i) => (
+            <g key={`flower-${i}`}>
+              <circle cx={80 + i * 40} cy={180} r="3" fill="#f43f5e" />
+              <circle cx={77 + i * 40} cy={177} r="2" fill="#fbcfe8" />
+              <circle cx={83 + i * 40} cy={177} r="2" fill="#fbcfe8" />
+              <circle cx={77 + i * 40} cy={183} r="2" fill="#fbcfe8" />
+              <circle cx={83 + i * 40} cy={183} r="2" fill="#fbcfe8" />
+            </g>
+          ))}
         </svg>
       </div>
 
-      <div className="mt-4 text-center">
-        <div className="text-2xl font-bold text-green-600 mb-2">{Math.round(totalProgress)}%</div>
-        <div className="text-sm text-gray-600">Progression Globale</div>
-        <div className="mt-3 flex justify-center gap-4 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Feuilles: {leafCount}</span>
+      <div className="text-center space-y-2">
+        <div className="text-4xl font-black bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+          {Math.round(totalProgress)}%
+        </div>
+        <div className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Overall Progress</div>
+        <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-slate-200">
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 bg-green-500 rounded-full"></div>
+            <span className="text-xs text-slate-600 font-medium">{leafCount} leaves</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
-            <span>Fleurs: {projects.filter((p) => p.statut === "Terminé").length}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 bg-rose-500 rounded-full"></div>
+            <span className="text-xs text-slate-600 font-medium">{projects.filter((p) => p.statut === "Terminé").length} blooms</span>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const EnhancedDashboard = () => {
   const [projects, setProjects] = useState([])
@@ -188,31 +188,25 @@ const EnhancedDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [activeTab, setActiveTab] = useState("overview")
-  const [viewMode, setViewMode] = useState("grid")
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const loadProjects = useCallback(async () => {
     try {
       setLoading(true)
-      const apiProjects = await fetchProjectsFromApi()
-
-      const projectsWithProgress = apiProjects.map((project) => {
+      const response = await fetchProjectsFromApi()
+      const projectsWithProgress = response.map((project) => {
         let progress = 0
         if (project.statut === "Terminé") progress = 100
         else if (project.statut === "En cours") progress = 50
-        else progress = 0 // "À faire"
-
+        else progress = 0
         return {
           ...project,
           dateCreation: new Date(project.dateCreation),
           progress,
-          workspaces: project.workspaces || [],
         }
       })
-
       setProjects(projectsWithProgress)
     } catch (error) {
-      console.error("Erreur lors du chargement des projets:", error)
+      console.error("Error loading projects:", error)
     } finally {
       setLoading(false)
     }
@@ -220,11 +214,7 @@ const EnhancedDashboard = () => {
 
   useEffect(() => {
     loadProjects()
-  }, [loadProjects, refreshTrigger])
-
-  const handleRefresh = useCallback(() => {
-    setRefreshTrigger((prev) => prev + 1)
-  }, [])
+  }, [loadProjects])
 
   const filteredProjects = projects.filter((project) => {
     const statusMatch = !statusFilter || project.statut === statusFilter
@@ -243,33 +233,29 @@ const EnhancedDashboard = () => {
     completed: projects.filter((p) => p.statut === "Terminé").length,
     totalHours: projects.reduce((sum, p) => sum + (p.spentHours || 0), 0),
     avgProgress:
-      projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / projects.length) : 0,
+      projects.length > 0
+        ? Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / projects.length)
+        : 0,
   }
 
-  // Data for charts
   const pieData = [
-    { name: "À faire", value: stats.todo, color: "#fbbf24" },
-    { name: "En cours", value: stats.inProgress, color: "#3b82f6" },
-    { name: "Terminé", value: stats.completed, color: "#10b981" },
+    { name: "To Do", value: stats.todo, color: "#fbbf24" },
+    { name: "In Progress", value: stats.inProgress, color: "#3b82f6" },
+    { name: "Completed", value: stats.completed, color: "#10b981" },
   ]
 
   const progressData = projects.map((p) => ({
-    name: p.titre.length > 15 ? p.titre.substring(0, 15) + "..." : p.titre,
+    name: p.titre.length > 12 ? p.titre.substring(0, 12) + "..." : p.titre,
     progress: p.progress,
-    priorite: p.priorite,
-    hours: p.spentHours || 0,
   }))
 
   const monthlyData = [
-    { month: "Jan", projets: 2, heures: 45 },
-    { month: "Fév", projets: 3, heures: 78 },
-    { month: "Mar", projets: 1, heures: 32 },
-    { month: "Avr", projets: 2, heures: 56 },
-    { month: "Mai", projets: 1, heures: 23 },
-    { month: "Juin", projets: 0, heures: 0 },
+    { month: "Jan", projects: 2, hours: 45 },
+    { month: "Feb", projects: 3, hours: 78 },
+    { month: "Mar", projects: 1, hours: 32 },
+    { month: "Apr", projects: 2, hours: 56 },
   ]
 
-  // Modal functions
   const openModal = (project = null) => {
     setEditingProject(project)
     setIsModalOpen(true)
@@ -294,32 +280,25 @@ const EnhancedDashboard = () => {
         const response = await api.post("/dreams/", {
           ...projectData,
           dateCreation: new Date().toISOString(),
-          statut: projectData.statut || "À faire",
         })
-
         const newProject = {
           ...response.data,
           dateCreation: new Date(response.data.dateCreation),
-          progress: response.data.statut === "Terminé" ? 100 : response.data.statut === "En cours" ? 50 : 0,
-          workspaces: [],
+          progress: projectData.statut === "Terminé" ? 100 : projectData.statut === "En cours" ? 50 : 0,
         }
-
         setProjects([...projects, newProject])
       }
-
       closeModal()
-      setTimeout(() => handleRefresh(), 100)
     } catch (error) {
       console.error("Error saving project:", error)
     }
   }
 
   const deleteProject = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
+    if (window.confirm("Delete this project?")) {
       try {
         await api.delete(`/dreams/${id}`)
         setProjects(projects.filter((p) => p.id !== id))
-        setTimeout(() => handleRefresh(), 100)
       } catch (error) {
         console.error("Error deleting project:", error)
       }
@@ -329,511 +308,434 @@ const EnhancedDashboard = () => {
   const getStatusColor = (statut) => {
     switch (statut) {
       case "À faire":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-amber-100/60 text-amber-700 border border-amber-200/50"
       case "En cours":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100/60 text-blue-700 border border-blue-200/50"
       case "Terminé":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-emerald-100/60 text-emerald-700 border border-emerald-200/50"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-slate-100 text-slate-700"
     }
   }
 
   const getPriorityColor = (priorite) => {
     switch (priorite) {
       case "haute":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100/60 text-red-700 border border-red-200/50"
       case "moyenne":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-yellow-100/60 text-yellow-700 border border-yellow-200/50"
       case "faible":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-blue-100/60 text-blue-700 border border-blue-200/50"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-slate-100 text-slate-700"
     }
   }
-
-  const getPriorityIcon = (priorite) => {
-    switch (priorite) {
-      case "haute":
-        return <Zap className="w-4 h-4" />
-      case "moyenne":
-        return <Target className="w-4 h-4" />
-      case "faible":
-        return <Clock className="w-4 h-4" />
-      default:
-        return null
-    }
-  }
-
-  const renderTabNavigation = () => (
-    <div className="flex justify-center mb-8">
-      <div className="bg-white rounded-xl p-1 shadow-lg">
-        <button
-          onClick={() => setActiveTab("overview")}
-          className={`px-4 md:px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-            activeTab === "overview"
-              ? "bg-black  text-white shadow-lg transform scale-105"
-              : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
-          }`}
-        >
-          <TrendingUp className="inline w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">Vue d'ensemble</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("process")}
-          className={`px-4 md:px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-            activeTab === "process"
-              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform scale-105"
-              : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
-          }`}
-        >
-          <Activity className="inline w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">Processus</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("analytics")}
-          className={`px-4 md:px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-            activeTab === "analytics"
-              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform scale-105"
-              : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
-          }`}
-        >
-          <BarChart3 className="inline w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">Analytiques</span>
-        </button>
-      </div>
-    </div>
-  )
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des projets créatifs...</p>
+          <div className="animate-spin rounded-full h-14 w-14 border-3 border-slate-300 border-t-slate-900 mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading your dreams...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            ✨ Les Rêves
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 mb-4">Dashboard - Gestion des Projets Créatifs</p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
-            <span className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-yellow-500" />
-              {stats.total} projets créatifs
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4 text-blue-500" />
-              {stats.totalHours}h investies
-            </span>
-            <span className="flex items-center gap-1">
-              <TrendingUp className="w-4 h-4 text-green-500" />
-              {stats.avgProgress}% progression moyenne
-            </span>
-            <button
-              onClick={handleRefresh}
-              className="flex items-center gap-1 px-3 py-1 bg-white rounded-full shadow-sm hover:shadow-md transition-all duration-200 text-purple-600 hover:text-purple-700"
-              disabled={loading}
-            >
-              <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              Actualiser
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-16">
+        {/* Header */}
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-2 h-10 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"></div>
+            <h1 className="text-6xl md:text-7xl font-black text-slate-900">
+              Les Rêves
+            </h1>
+          </div>
+          <p className="text-lg text-slate-600 mb-8 max-w-2xl">
+            Transform your creative vision into reality. Track, manage, and celebrate your projects.
+          </p>
+          <div className="flex flex-wrap gap-8 text-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                <Star className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <div className="text-slate-500 text-xs font-semibold uppercase">Projects</div>
+                <div className="text-2xl font-bold text-slate-900">{stats.total}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-slate-500 text-xs font-semibold uppercase">Hours</div>
+                <div className="text-2xl font-bold text-slate-900">{stats.totalHours}h</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <div className="text-slate-500 text-xs font-semibold uppercase">Avg Progress</div>
+                <div className="text-2xl font-bold text-slate-900">{stats.avgProgress}%</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {renderTabNavigation()}
+        {/* Tab Navigation */}
+        <div className="flex gap-1 mb-12 border-b border-slate-200">
+          {["overview", "process"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-6 py-3 font-semibold text-sm transition-all border-b-2 ${
+                activeTab === tab
+                  ? "border-slate-900 text-slate-900"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-xs md:text-sm">Total Projets</p>
-                <p className="text-2xl md:text-3xl font-bold">{stats.total}</p>
-              </div>
-              <div className="bg-blue-400 rounded-full p-2 md:p-3">
-                <PieChart className="w-4 h-4 md:w-6 md:h-6" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-yellow-100 text-xs md:text-sm">À faire</p>
-                <p className="text-2xl md:text-3xl font-bold">{stats.todo}</p>
-              </div>
-              <div className="bg-yellow-400 rounded-full p-2 md:p-3">
-                <Clock className="w-4 h-4 md:w-6 md:h-6" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-indigo-100 text-xs md:text-sm">En cours</p>
-                <p className="text-2xl md:text-3xl font-bold">{stats.inProgress}</p>
-              </div>
-              <div className="bg-indigo-400 rounded-full p-2 md:p-3">
-                <AlertCircle className="w-4 h-4 md:w-6 md:h-6" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-100 text-xs md:text-sm">Terminés</p>
-                <p className="text-2xl md:text-3xl font-bold">{stats.completed}</p>
-              </div>
-              <div className="bg-green-400 rounded-full p-2 md:p-3">
-                <CheckCircle className="w-4 h-4 md:w-6 md:h-6" />
-              </div>
-            </div>
-          </div>
-        </div>
+      
 
         {/* Main Content */}
         {activeTab === "overview" && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
-            {/* Projects List - takes 3 columns */}
-            <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-xl p-4 md:p-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-800">Mes Projets</h2>
-                  <div className="flex gap-2">
-                    <div className="flex bg-gray-100 rounded-lg p-1">
-                      <button
-                        onClick={() => setViewMode("grid")}
-                        className={`p-2 rounded ${viewMode === "grid" ? "bg-white shadow-sm" : ""}`}
-                      >
-                        <BarChart3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setViewMode("list")}
-                        className={`p-2 rounded ${viewMode === "list" ? "bg-white shadow-sm" : ""}`}
-                      >
-                        <Filter className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => openModal()}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
-                    >
-                      <Plus className="w-5 h-5" />
-                      <span className="hidden sm:inline">Nouveau</span>
-                    </button>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Projects List */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-3xl border border-slate-200/50 p-8 shadow-sm">
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-3xl font-bold text-slate-900">Projects</h2>
+                  <button
+                    onClick={() => openModal()}
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl transition-all font-semibold flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+                  >
+                    <Plus className="w-5 h-5" />
+                    New
+                  </button>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                {/* Filters */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                     <input
                       type="text"
-                      placeholder="Rechercher un projet..."
+                      placeholder="Search projects..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-sm bg-slate-50"
                     />
                   </div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-sm bg-slate-50"
                   >
-                    <option value="">Tous les statuts</option>
-                    <option value="À faire">À faire</option>
-                    <option value="En cours">En cours</option>
-                    <option value="Terminé">Terminé</option>
+                    <option value="">All Status</option>
+                    <option value="À faire">To Do</option>
+                    <option value="En cours">In Progress</option>
+                    <option value="Terminé">Completed</option>
                   </select>
-
                   <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-sm bg-slate-50"
                   >
-                    <option value="">Toutes les priorités</option>
-                    <option value="haute">Haute</option>
-                    <option value="moyenne">Moyenne</option>
-                    <option value="faible">Faible</option>
+                    <option value="">All Priority</option>
+                    <option value="haute">High</option>
+                    <option value="moyenne">Medium</option>
+                    <option value="faible">Low</option>
                   </select>
                 </div>
 
-                <div className={`${viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"}`}>
+                {/* Projects */}
+                <div className="space-y-3">
                   {filteredProjects.map((project) => (
                     <div
                       key={project.id}
-                      className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white to-gray-50"
+                      className="border border-slate-200/50 rounded-2xl p-5 hover:bg-slate-50 hover:border-slate-300 transition-all group hover:shadow-md"
                     >
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-start justify-between gap-4 mb-3">
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg text-gray-800 mb-1">{project.titre}</h3>
-                          <p className="text-gray-600 text-sm flex items-center gap-1">
-                            <Timer className="w-4 h-4" />
-                            Créé le {project.dateCreation.toLocaleDateString("fr-FR")}
-                          </p>
+                          <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-slate-700">{project.titre}</h3>
+                          <p className="text-sm text-slate-600 line-clamp-1">{project.description}</p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openModal(project)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => deleteProject(project.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
 
-                      <p className="text-gray-700 mb-3 text-sm line-clamp-2">{project.description}</p>
-
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="flex gap-2">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(project.statut)}`}
-                          >
-                            {project.statut}
-                          </span>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1 ${getPriorityColor(project.priorite)}`}
-                          >
-                            {getPriorityIcon(project.priorite)}
-                            {project.priorite}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className={`px-3 py-1 rounded-lg text-xs font-bold ${getStatusColor(project.statut)}`}>
+                          {project.statut}
+                        </span>
+                        <span className={`px-3 py-1 rounded-lg text-xs font-bold ${getPriorityColor(project.priorite)}`}>
+                          {project.priorite}
+                        </span>
                       </div>
 
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-slate-600 font-medium">Progress</span>
+                          <span className="font-bold text-slate-900">{project.progress}%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                          <div
+                            className="bg-gradient-to-r from-slate-900 to-slate-700 h-2.5 rounded-full transition-all duration-500"
+                            style={{ width: `${project.progress}%` }}
+                          ></div>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
 
                 {filteredProjects.length === 0 && (
-                  <div className="text-center py-12">
-                    <div className="text-gray-400 mb-4">
-                      <Search className="w-16 h-16 mx-auto mb-4" />
-                      <p className="text-lg">Aucun projet trouvé</p>
-                      <p className="text-sm">Essayez de modifier vos filtres ou créez un nouveau projet</p>
-                    </div>
+                  <div className="text-center py-16 text-slate-500">
+                    <Search className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                    <p className="font-semibold text-lg">No projects found</p>
+                    <p className="text-sm">Try adjusting your filters or create a new project</p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Right Sidebar - Creative Tree and Charts */}
-            <div className="lg:col-span-1 space-y-6">
-              <CreativeTree projects={projects} key={`tree-${projects.length}-${stats.avgProgress}`} />
-
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Répartition des Projets</h3>
-                <ResponsiveContainer width="100%" height={200} key={`pie-${stats.total}-${stats.completed}`}>
-                  <RechartsPieChart data={pieData} cx="50%" cy="50%" outerRadius={70}>
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+            {/* Sidebar */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-3xl border border-slate-200/50 p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-6">
+                  <Flame className="w-5 h-5 text-orange-500" />
+                  <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Insights</h3>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { label: "Avg Progress", value: `${stats.avgProgress}%`, color: "from-purple-50 to-purple-100" },
+                    { label: "Hours Invested", value: `${stats.totalHours}h`, color: "from-blue-50 to-blue-100" },
+                    {
+                      label: "Success Rate",
+                      value: `${stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%`,
+                      color: "from-emerald-50 to-emerald-100",
+                    },
+                  ].map((insight, i) => (
+                    <div key={i} className={`bg-gradient-to-r ${insight.color} rounded-xl p-4`}>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-slate-700">{insight.label}</span>
+                        <span className="text-lg font-black text-slate-900">{insight.value}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Insights
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                    <span className="text-sm text-purple-700">Progression moyenne</span>
-                    <span className="font-bold text-purple-800">{stats.avgProgress}%</span>
+              <div className="bg-white rounded-3xl border border-slate-200/50 p-8 shadow-sm">
+                <h3 className="text-xl font-bold text-slate-900 mb-6">Analytics</h3>
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-widest">Progress by Project</h4>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={progressData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b" }} />
+                        <YAxis tick={{ fontSize: 10, fill: "#64748b" }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#f1f5f9",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Bar dataKey="progress" fill="#1e293b" radius={[6, 6, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm text-blue-700">Heures investies</span>
-                    <span className="font-bold text-blue-800">{stats.totalHours}h</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm text-green-700">Taux de réussite</span>
-                    <span className="font-bold text-green-800">
-                      {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
-                    </span>
+
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-widest">Monthly Evolution</h4>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <LineChart data={monthlyData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#64748b" }} />
+                        <YAxis tick={{ fontSize: 10, fill: "#64748b" }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#f1f5f9",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="projects"
+                          stroke="#1e293b"
+                          strokeWidth={2}
+                          dot={{ fill: "#1e293b", r: 4 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl border border-slate-700/50 p-6 shadow-sm text-white">
+                <h3 className="text-lg font-bold mb-3">About Les Rêves</h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Transform your creative vision into reality. Track, manage, and celebrate every step of your creative journey. 
+                </p>
               </div>
             </div>
           </div>
         )}
 
         {activeTab === "process" && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Activity className="w-7 h-7" />
-                Suivi des Processus par Projet
-              </h2>
-
-              <div className="space-y-6">
-                {projects.map((project) => (
-                  <div key={project.id} className="border border-gray-200 rounded-xl p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-800">{project.titre}</h3>
-                        <p className="text-gray-600 text-sm">{project.description}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-purple-600">{project.progress}%</div>
-                        <div className="text-sm text-gray-500">Basé sur le statut</div>
-                      </div>
+          <div className="bg-white rounded-3xl border border-slate-200/50 p-8 shadow-sm">
+            <h2 className="text-3xl font-bold text-slate-900 mb-8">Process Overview</h2>
+            <div className="space-y-6">
+              {projects.map((project) => (
+                <div key={project.id} className="border border-slate-200/50 rounded-2xl p-6 hover:shadow-md transition-all">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-lg">{project.titre}</h3>
+                      <p className="text-slate-600 text-sm">{project.description}</p>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div
-                        className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                          project.statut === "À faire" ? "bg-yellow-50 border-yellow-200" : "bg-gray-50 border-gray-200"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-800">À faire</h4>
-                          {project.statut === "À faire" ? (
-                            <Clock className="w-5 h-5 text-yellow-600" />
-                          ) : (
-                            <Clock className="w-5 h-5 text-gray-400" />
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600">Phase initiale</div>
-                      </div>
-
-                      <div
-                        className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                          project.statut === "En cours" ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-800">En cours</h4>
-                          {project.statut === "En cours" ? (
-                            <AlertCircle className="w-5 h-5 text-blue-600" />
-                          ) : (
-                            <AlertCircle className="w-5 h-5 text-gray-400" />
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600">En développement</div>
-                      </div>
-
-                      <div
-                        className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                          project.statut === "Terminé" ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-800">Terminé</h4>
-                          {project.statut === "Terminé" ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <CheckCircle className="w-5 h-5 text-gray-400" />
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600">Projet finalisé</div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${project.progress}%` }}
-                      ></div>
+                    <div className="text-right">
+                      <div className="text-3xl font-black text-slate-900">{project.progress}%</div>
+                      <div className="text-xs text-slate-500 font-semibold">Progress</div>
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    {[
+                      { label: "To Do", active: project.statut === "À faire", icon: Clock, color: "amber" },
+                      { label: "In Progress", active: project.statut === "En cours", icon: AlertCircle, color: "blue" },
+                      { label: "Completed", active: project.statut === "Terminé", icon: CheckCircle, color: "emerald" },
+                    ].map((stage, i) => {
+                      const Icon = stage.icon
+                      const colorMap = {
+                        amber: "bg-amber-50 border-amber-200 text-amber-700",
+                        blue: "bg-blue-50 border-blue-200 text-blue-700",
+                        emerald: "bg-emerald-50 border-emerald-200 text-emerald-700",
+                        gray: "bg-slate-50 border-slate-200 text-slate-500",
+                      }
+                      return (
+                        <div
+                          key={i}
+                          className={`border-2 rounded-xl p-4 transition-all ${
+                            stage.active
+                              ? `${colorMap[stage.color]} font-bold`
+                              : `${colorMap["gray"]}`
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icon className="w-4 h-4" />
+                            <span className="text-xs font-semibold">{stage.label}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="w-full bg-slate-200 rounded-full h-3">
+                    <div
+                      className="bg-gradient-to-r from-slate-900 to-slate-700 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${project.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {activeTab === "analytics" && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Progression des Projets</h3>
-                <ResponsiveContainer width="100%" height={300} key={`bar-${progressData.length}`}>
-                  <BarChart data={progressData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="progress" fill="url(#progressGradient)" radius={[4, 4, 0, 0]} />
-                    <defs>
-                      <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9} />
-                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0.7} />
-                      </linearGradient>
-                    </defs>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white rounded-3xl border border-slate-200/50 p-8 shadow-sm">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Progress by Project</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={progressData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#64748b" }} />
+                  <YAxis tick={{ fontSize: 12, fill: "#64748b" }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#f1f5f9",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Bar dataKey="progress" fill="#1e293b" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
 
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Évolution Mensuelle</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis />
-                    <Tooltip />
-                    <Area
-                      type="monotone"
-                      dataKey="projets"
-                      stroke="#8b5cf6"
-                      fill="url(#areaGradient)"
-                      strokeWidth={3}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="heures"
-                      stroke="#ec4899"
-                      fill="url(#areaGradient2)"
-                      strokeWidth={2}
-                      fillOpacity={0.3}
-                    />
-                    <defs>
-                      <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
-                      </linearGradient>
-                      <linearGradient id="areaGradient2" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0.1} />
-                      </linearGradient>
-                    </defs>
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="bg-white rounded-3xl border border-slate-200/50 p-8 shadow-sm">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Monthly Evolution</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#64748b" }} />
+                  <YAxis tick={{ fontSize: 12, fill: "#64748b" }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#f1f5f9",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="projects"
+                    stroke="#1e293b"
+                    strokeWidth={3}
+                    dot={{ fill: "#1e293b", r: 5 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="hours"
+                    stroke="#64748b"
+                    strokeWidth={2}
+                    dot={{ fill: "#64748b", r: 4 }}
+                    strokeDasharray="5 5"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}
       </div>
 
-      {/* Project Modal */}
-      {isModalOpen && <ProjectModal project={editingProject} onSave={saveProject} onClose={closeModal} />}
+      {/* Modal */}
+      {isModalOpen && (
+        <ProjectModal
+          project={editingProject}
+          onSave={saveProject}
+          onClose={closeModal}
+        />
+      )}
     </div>
   )
 }
 
-// ProjectModal component
 const ProjectModal = ({ project, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     titre: project?.titre || "",
@@ -844,83 +746,96 @@ const ProjectModal = ({ project, onSave, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const processedData = {
-      ...formData,
-    }
-    onSave(processedData)
+    onSave(formData)
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">{project ? "Modifier le Projet" : "Nouveau Projet"}</h2>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-slate-200/50">
+        <h2 className="text-3xl font-bold text-slate-900 mb-8">
+          {project ? "Edit Project" : "Create Project"}
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Titre *</label>
+            <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-widest">
+              Title
+            </label>
             <input
               type="text"
               required
               value={formData.titre}
-              onChange={(e) => setFormData({ ...formData, titre: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-              placeholder="Titre de votre projet..."
+              onChange={(e) =>
+                setFormData({ ...formData, titre: e.target.value })
+              }
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-base bg-slate-50"
+              placeholder="Your project title..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-widest">
+              Description
+            </label>
             <textarea
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 transition-all"
-              placeholder="Décrivez votre projet..."
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-base h-28 resize-none bg-slate-50"
+              placeholder="Describe your project..."
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Statut *</label>
+              <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-widest">
+                Status
+              </label>
               <select
-                required
                 value={formData.statut}
-                onChange={(e) => setFormData({ ...formData, statut: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                onChange={(e) =>
+                  setFormData({ ...formData, statut: e.target.value })
+                }
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-base bg-slate-50"
               >
-                <option value="À faire">À faire</option>
-                <option value="En cours">En cours</option>
-                <option value="Terminé">Terminé</option>
+                <option value="À faire">To Do</option>
+                <option value="En cours">In Progress</option>
+                <option value="Terminé">Completed</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Priorité *</label>
+              <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-widest">
+                Priority
+              </label>
               <select
-                required
                 value={formData.priorite}
-                onChange={(e) => setFormData({ ...formData, priorite: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                onChange={(e) =>
+                  setFormData({ ...formData, priorite: e.target.value })
+                }
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-base bg-slate-50"
               >
-                <option value="faible">Faible</option>
-                <option value="moyenne">Moyenne</option>
-                <option value="haute">Haute</option>
+                <option value="faible">Low</option>
+                <option value="moyenne">Medium</option>
+                <option value="haute">High</option>
               </select>
             </div>
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300"
+              className="flex-1 px-4 py-3 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-base font-semibold"
             >
-              Annuler
+              Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="flex-1 px-4 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all text-base font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              Enregistrer
+              Save
             </button>
           </div>
         </form>
