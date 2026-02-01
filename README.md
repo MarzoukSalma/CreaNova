@@ -6,7 +6,7 @@ Creanova est une application complète de productivité et de développement per
 
 ---
 
-**Projet en cours de développement** - Cette application est actuellement en construction. Certaines fonctionnalités peuvent être incomplètes ou en phase de test!!!
+ > ⚠️ **Projet en cours de développement** - Cette application est actuellement en construction. Certaines fonctionnalités peuvent être incomplètes ou en phase de test!!!
 
 
 ##  Fonctionnalités
