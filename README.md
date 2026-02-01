@@ -17,23 +17,23 @@ Créez et personnalisez votre espace de travail selon vos besoins. Visualisez vo
 ### Gestion des Tâches
 Organisez, planifiez et suivez l'accomplissement de vos tâches. Transformez vos grands rêves en actions concrètes et mesurables.
 
-# Espace journal
+### Espace journal
 Capturez vos idées, réflexions et insights au moment où ils surgissent. Un espace dédié pour libérer votre créativité.
 
-#  Espace Inspiration
+### Espace Inspiration
 Recevez quotidiennement des citations motivantes générées par IA, accompagnées d'images relaxantes. Une source constante d'inspiration pour nourrir votre motivation.
 
-# Chatbot Intelligent (RAG)
+### Chatbot Intelligent (RAG)
 Bénéficiez d'un assistant conversationnel intelligent utilisant la technologie RAG (Retrieval Augmented Generation) pour des conseils personnalisés et contextuels adaptés à vos projets.
 
-# Workspace
+### Workspace
 Un environnement de travail optimisé où vous pouvez :
 - Sélectionner et travailler sur vos projets/rêves
 - Utiliser la technique Pomodoro pour une productivité maximale
 - Profiter d'une ambiance musicale personnalisable
 - Rester concentré dans un espace dédié
 
-# Profil Utilisateur
+### Profil Utilisateur
 Gérez vos informations personnelles, préférences et paramètres en toute simplicité.
 
 ---
@@ -54,14 +54,14 @@ Base de données : PostgreSQL
 
 ---
 
-# 🤝 Contribution
+## 🤝 Contribution
 
 Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à soumettre une pull request.
 
 
 ---
 
-# 📧 Contact
+## 📧 Contact
 
 salmamarzouk07@gmail.com
 
