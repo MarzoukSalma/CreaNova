@@ -11,10 +11,10 @@ Creanova est une application complète de productivité et de développement per
 
 ##  Fonctionnalités
 
-# Dashboard Personnalisé
+### Dashboard Personnalisé
 Créez et personnalisez votre espace de travail selon vos besoins. Visualisez votre progression et restez motivé grâce à une vue d'ensemble claire de vos objectifs.
 
-# Gestion des Tâches
+### Gestion des Tâches
 Organisez, planifiez et suivez l'accomplissement de vos tâches. Transformez vos grands rêves en actions concrètes et mesurables.
 
 # Espace journal
