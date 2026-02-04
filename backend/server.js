@@ -2,20 +2,30 @@ const express = require("express");
 const db = require("./models");
 const dotenv = require("dotenv");
 dotenv.config();
-// Va chercher models/index.js
+
+const cors = require("cors");
+
+// Routes existantes
 const inspirationRoutes = require("./routes/inspiration");
 const journalRoutes = require("./routes/journalRoutes");
 const authRoutes = require("./routes/auth");
 const users = require("./routes/userRoutes.js");
 const dreamRoutes = require("./routes/dream");
 const workRoutes = require("./routes/work.js");
-const llmRoutes = require("./routes/llm.routes");
+
+// 🆕 Route RAG
+const ragRoutes = require("./routes/rag");
+
+// 🧠 Génération quotidienne des inspirations
+const {
+  generateDailyInspirations,
+} = require("./controllers/inspirationController");
 
 const app = express();
-const cors = require("cors");
-app.use(express.json()); // pour lire JSON
+
+// Middleware
+app.use(express.json());
 app.use(cors());
-// Middleware pour lire le JSON dans les requêtes
 
 // Route de test
 app.get("/", (req, res) => {
@@ -29,24 +39,46 @@ app.use("/users", users);
 app.use("/dreams", dreamRoutes);
 app.use("/workspaces", workRoutes);
 app.use("/inspirations", inspirationRoutes);
-app.use("/llm", llmRoutes);
+app.use("/rag", ragRoutes);
 
-// Tester la connexion à la base
+// Connexion DB + lancement serveur
 db.sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Connexion PostgreSQL réussie !");
-    // Synchroniser les modèles avec la base de données
-    return db.sequelize.sync(); // Ajoutez cette ligne
+    return db.sequelize.sync();
   })
-  .then(() => {
-    console.log(" Tables synchronisées !");
-    // Lancer le serveur après la synchronisation
+  .then(async () => {
+    console.log("📊 Tables synchronisées !");
+
+    // 🔥 GÉNÉRATION DES INSPIRATIONS DU JOUR
+    await generateDailyInspirations();
+
+    // Lancer le serveur
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
+      console.log(`\n${"=".repeat(60)}`);
+      console.log(`🚀 Serveur Express lancé sur http://localhost:${PORT}`);
+      console.log(`${"=".repeat(60)}`);
+      console.log(`\n📍 Routes disponibles:`);
+      console.log(`   • GET  /                        - Page d'accueil`);
+      console.log(`   • POST /journals                - Journaux`);
+      console.log(`   • POST /auth                    - Authentification`);
+      console.log(`   • GET  /users                   - Utilisateurs`);
+      console.log(`   • POST /dreams                  - Rêves`);
+      console.log(`   • GET  /workspaces              - Espaces de travail`);
+      console.log(
+        `   • GET  /inspirations/default    - Inspirations AI du jour`,
+      );
+      console.log(`\n🆕 Routes RAG :`);
+      console.log(`   • POST /rag/ask`);
+      console.log(`   • GET  /rag/stats`);
+      console.log(`   • POST /rag/clear-memory`);
+      console.log(`   • POST /rag/search`);
+      console.log(`   • GET  /rag/health`);
+      console.log(`${"=".repeat(60)}\n`);
     });
   })
   .catch((err) => {
-    console.error(" Erreur connexion DB :", err);
+    console.error("❌ Erreur connexion DB :", err);
   });

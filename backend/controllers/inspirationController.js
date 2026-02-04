@@ -2,6 +2,7 @@
 const { Inspiration, Inspiration_utilisateur } = require("../models");
 const Groq = require("groq-sdk");
 const { Op } = require("sequelize");
+console.log("GROQ KEY DANS CONTROLLER =", process.env.GROQ_API_KEY);
 
 // 🔑 Initialiser Groq avec ta clé API
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });

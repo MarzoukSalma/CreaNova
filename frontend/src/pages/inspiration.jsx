@@ -20,7 +20,8 @@ import {
   Zap,
   Cloud,
 } from "lucide-react";
-import  img1 from "../assets/image1.jpeg";
+import { motion } from "framer-motion";
+import img1 from "../assets/image1.jpeg";
 import img2 from "../assets/image2.jpeg";
 import img3 from "../assets/image3.jpeg";
 import img4 from "../assets/image4.jpeg";
@@ -28,8 +29,7 @@ import img5 from "../assets/image5.jpeg";
 import img6 from "../assets/image6.jpeg";
 import img7 from "../assets/image7.jpeg";
 
-
-import api from '../api/api.jsx'; // Import de l'API
+import api from "../api/api.jsx"; // Import de l'API
 
 const GalleryPage = () => {
   const [selectedMood, setSelectedMood] = useState("tous");
@@ -121,21 +121,21 @@ const GalleryPage = () => {
     setIsLoading(true);
     try {
       // Charger les inspirations utilisateur
-      const userResponse = await api.get('/inspirations/user');
-      console.log('Inspirations utilisateur:', userResponse.data);
-      
+      const userResponse = await api.get("/inspirations/user");
+      console.log("Inspirations utilisateur:", userResponse.data);
+
       // Charger les inspirations par défaut (générées par l'IA)
       let defaultInspirations = [];
       try {
-        const defaultResponse = await api.get('/inspirations/default');
-        console.log('Inspirations par défaut:', defaultResponse.data);
+        const defaultResponse = await api.get("/inspirations/default");
+        console.log("Inspirations par défaut:", defaultResponse.data);
         defaultInspirations = defaultResponse.data || [];
       } catch (error) {
-        console.log('Aucune inspiration par défaut trouvée:', error.message);
+        console.log("Aucune inspiration par défaut trouvée:", error.message);
       }
 
       // Adapter les inspirations utilisateur
-      const userInspirations = userResponse.data.map(inspiration => ({
+      const userInspirations = userResponse.data.map((inspiration) => ({
         id: inspiration.id,
         type: "quote",
         text: inspiration.contenu,
@@ -148,32 +148,39 @@ const GalleryPage = () => {
         isUserCreated: true,
         isGenerated: inspiration.isGenerated || false,
         originalMoodInput: inspiration.originalMood || null,
-        isCustomMood: inspiration.originalMood && inspiration.originalMood !== inspiration.mood,
+        isCustomMood:
+          inspiration.originalMood &&
+          inspiration.originalMood !== inspiration.mood,
       }));
 
       // Adapter les inspirations par défaut
-      const adaptedDefaultInspirations = defaultInspirations.map(inspiration => ({
-        id: `default_${inspiration.id}`,
-        type: "quote",
-        text: inspiration.contenu,
-        title: `Inspiration ${inspiration.mood}`,
-        mood: inspiration.mood,
-        createur: "IA Assistant",
-        date: inspiration.date,
-        createdAt: inspiration.createdAt,
-        image: getMoodDefaultImage(inspiration.mood),
-        isUserCreated: false,
-        isGenerated: true,
-      }));
-      
+      const adaptedDefaultInspirations = defaultInspirations.map(
+        (inspiration) => ({
+          id: `default_${inspiration.id}`,
+          type: "quote",
+          text: inspiration.contenu,
+          title: `Inspiration ${inspiration.mood}`,
+          mood: inspiration.mood,
+          createur: "IA Assistant",
+          date: inspiration.date,
+          createdAt: inspiration.createdAt,
+          image: getMoodDefaultImage(inspiration.mood),
+          isUserCreated: false,
+          isGenerated: true,
+        }),
+      );
+
       // Combiner toutes les inspirations
-      const allInspirations = [...userInspirations, ...adaptedDefaultInspirations];
-      console.log('Toutes les inspirations:', allInspirations);
-      
+      const allInspirations = [
+        ...userInspirations,
+        ...adaptedDefaultInspirations,
+      ];
+      console.log("Toutes les inspirations:", allInspirations);
+
       setInspirations(allInspirations);
     } catch (error) {
-      console.error('Erreur lors du chargement des inspirations:', error);
-      alert('Erreur lors du chargement des inspirations');
+      console.error("Erreur lors du chargement des inspirations:", error);
+      alert("Erreur lors du chargement des inspirations");
     } finally {
       setIsLoading(false);
     }
@@ -183,23 +190,33 @@ const GalleryPage = () => {
   const generateDailyInspirations = async () => {
     setIsGeneratingDaily(true);
     try {
-      const principalMoods = ["heureux", "triste", "stressé", "motivé", "fatigué", "amoureux"];
-      
+      const principalMoods = [
+        "heureux",
+        "triste",
+        "stressé",
+        "motivé",
+        "fatigué",
+        "amoureux",
+      ];
+
       for (const mood of principalMoods) {
         try {
           console.log(`Génération pour mood: ${mood}`);
-          await api.post('/inspirations/generate', { mood });
+          await api.post("/inspirations/generate", { mood });
         } catch (error) {
           console.error(`Erreur pour mood ${mood}:`, error);
         }
       }
-      
+
       // Recharger toutes les inspirations
       await loadAllInspirations();
-      alert('Inspirations quotidiennes générées avec succès !');
+      alert("Inspirations quotidiennes générées avec succès !");
     } catch (error) {
-      console.error('Erreur lors de la génération des inspirations quotidiennes:', error);
-      alert('Erreur lors de la génération des inspirations quotidiennes');
+      console.error(
+        "Erreur lors de la génération des inspirations quotidiennes:",
+        error,
+      );
+      alert("Erreur lors de la génération des inspirations quotidiennes");
     } finally {
       setIsGeneratingDaily(false);
     }
@@ -208,15 +225,15 @@ const GalleryPage = () => {
   // Générer une inspiration personnalisée
   const generateCustomInspiration = async () => {
     if (!customMood.trim()) return;
-    
+
     setIsGeneratingCustom(true);
     try {
-      const response = await api.post('/inspirations/generate', { 
-        mood: customMood.trim() 
+      const response = await api.post("/inspirations/generate", {
+        mood: customMood.trim(),
       });
-      
-      console.log('Inspiration personnalisée générée:', response.data);
-      
+
+      console.log("Inspiration personnalisée générée:", response.data);
+
       // Ajouter la nouvelle inspiration à la liste
       const newInspiration = {
         id: response.data.id,
@@ -233,15 +250,17 @@ const GalleryPage = () => {
         isCustomMood: true,
         originalMoodInput: customMood.trim(),
       };
-      
-      setInspirations(prev => [newInspiration, ...prev]);
+
+      setInspirations((prev) => [newInspiration, ...prev]);
       setCustomMood("");
-      
+
       alert(`Inspiration générée pour l'humeur "${customMood}" !`);
-      
     } catch (error) {
-      console.error('Erreur lors de la génération de l\'inspiration personnalisée:', error);
-      alert('Erreur lors de la génération. Veuillez réessayer.');
+      console.error(
+        "Erreur lors de la génération de l'inspiration personnalisée:",
+        error,
+      );
+      alert("Erreur lors de la génération. Veuillez réessayer.");
     } finally {
       setIsGeneratingCustom(false);
     }
@@ -250,19 +269,18 @@ const GalleryPage = () => {
   // Créer une inspiration manuellement
   const saveInspiration = async () => {
     if (!uploadData.text || !uploadData.mood) {
-    
       return;
     }
 
     try {
-      const response = await api.post('/inspirations/', {
+      const response = await api.post("/inspirations/", {
         contenu: uploadData.text,
         mood: uploadData.mood,
         date: new Date().toISOString(),
-        createur: 'user',
+        createur: "user",
       });
 
-      console.log('Inspiration manuelle créée:', response.data);
+      console.log("Inspiration manuelle créée:", response.data);
 
       const newInspiration = {
         id: response.data.id,
@@ -276,7 +294,7 @@ const GalleryPage = () => {
         createdAt: response.data.createdAt,
       };
 
-      setInspirations(prev => [newInspiration, ...prev]);
+      setInspirations((prev) => [newInspiration, ...prev]);
       setIsUploadModalOpen(false);
       setUploadData({
         image: null,
@@ -285,26 +303,24 @@ const GalleryPage = () => {
         mood: "",
         title: "",
       });
-
-      
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
+      console.error("Erreur lors de la sauvegarde:", error);
     }
   };
 
   // Supprimer une inspiration
   const deleteInspiration = async (id) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette inspiration ?')) {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette inspiration ?")) {
       return;
     }
 
     try {
       await api.delete(`/inspirations/${id}`);
-      setInspirations(prev => prev.filter(insp => insp.id !== id));
-      alert('Inspiration supprimée avec succès !');
+      setInspirations((prev) => prev.filter((insp) => insp.id !== id));
+      alert("Inspiration supprimée avec succès !");
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      alert('Erreur lors de la suppression. Veuillez réessayer.');
+      console.error("Erreur lors de la suppression:", error);
+      alert("Erreur lors de la suppression. Veuillez réessayer.");
     }
   };
 
@@ -316,54 +332,98 @@ const GalleryPage = () => {
   // Filtrer les inspirations par mood et par type (toutes vs mes créations)
   useEffect(() => {
     let filtered = inspirations;
-    
+
     // Filtrer par type (toutes vs mes créations)
     if (showUserCreations) {
-    filtered = filtered.filter(inspiration => inspiration.createur === "user");
-  }
+      filtered = filtered.filter(
+        (inspiration) => inspiration.createur === "user",
+      );
+    }
     // Filtrer par mood
     if (selectedMood !== "tous") {
-      filtered = filtered.filter(inspiration => inspiration.mood === selectedMood);
+      filtered = filtered.filter(
+        (inspiration) => inspiration.mood === selectedMood,
+      );
     }
-    
+
     setFilteredInspirations(filtered);
   }, [selectedMood, inspirations, showUserCreations]);
-
-  
 
   // Obtenir les inspirations du jour
   const getTodayInspirations = () => {
     const today = new Date().toDateString();
-    return inspirations.filter(insp => 
-      new Date(insp.createdAt).toDateString() === today
+    return inspirations.filter(
+      (insp) => new Date(insp.createdAt).toDateString() === today,
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="min-h-screen bg-[#080c1a] text-slate-300 font-sans relative overflow-x-hidden">
+      {/* Background blobs */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-18%] left-[-12%] w-[50%] h-[50%] bg-blue-900/12 blur-[150px] rounded-full" />
+        <div className="absolute bottom-[-18%] right-[-12%] w-[45%] h-[45%] bg-violet-900/10 blur-[150px] rounded-full" />
+        <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-pink-900/8 blur-[120px] rounded-full" />
+      </div>
+
+      {/* Floating particles */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {[...Array(30)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-blue-400/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -35, 0],
+              opacity: [0.1, 0.35, 0.1],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto p-6">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            🎨 Galerie d'Inspirations
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
+            <span>🎨</span>
+            <span>Galerie d'Inspirations</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extralight text-white tracking-tight mb-2">
+            Galerie d'{" "}
+            <span className="font-serif italic text-violet-400">
+              Inspirations
+            </span>
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-slate-400 text-sm">
             Trouvez l'inspiration selon votre humeur du moment
           </p>
-          <div className="text-sm text-gray-500 mt-2">
-            {new Date().toLocaleDateString('fr-FR', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+          <div className="text-xs text-slate-500 mt-2">
+            {new Date().toLocaleDateString("fr-FR", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Mood Selector */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 mb-8">
+        <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-3xl shadow-xl p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <h2 className="text-2xl font-light text-white flex items-center gap-2">
               <Heart className="w-6 h-6 text-pink-500" />
               Comment vous sentez-vous aujourd'hui ?
             </h2>
@@ -372,17 +432,19 @@ const GalleryPage = () => {
               <button
                 onClick={loadAllInspirations}
                 disabled={isLoading}
-                className="p-2 rounded-lg transition-all text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                className="p-2 rounded-lg transition-all text-slate-400 hover:text-slate-200 hover:bg-[#1a1f35] disabled:opacity-50"
                 title="Actualiser"
               >
-                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`}
+                />
               </button>
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-lg transition-all ${
                   viewMode === "grid"
-                    ? "bg-purple-100 text-purple-600"
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "bg-purple-500/20 text-purple-400"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-[#1a1f35]"
                 }`}
               >
                 <Grid className="w-5 h-5" />
@@ -391,8 +453,8 @@ const GalleryPage = () => {
                 onClick={() => setViewMode("list")}
                 className={`p-2 rounded-lg transition-all ${
                   viewMode === "list"
-                    ? "bg-purple-100 text-purple-600"
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "bg-purple-500/20 text-purple-400"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-[#1a1f35]"
                 }`}
               >
                 <List className="w-5 h-5" />
@@ -406,10 +468,10 @@ const GalleryPage = () => {
               <button
                 key={key}
                 onClick={() => setSelectedMood(key)}
-                className={`p-4 rounded-2xl transition-all duration-300 transform hover:scale-105 ${
+                className={`p-4 rounded-2xl transition-all duration-300 transform hover:scale-105 border ${
                   selectedMood === key
-                    ? `bg-gradient-to-r ${mood.color} text-white shadow-lg`
-                    : `${mood.bg} ${mood.text} hover:shadow-md`
+                    ? `bg-gradient-to-r ${mood.color} text-white shadow-lg border-transparent`
+                    : `bg-[#0f1323] border-[#1e2540] text-slate-300 hover:border-blue-500/50`
                 }`}
               >
                 <div className="flex flex-col items-center gap-2">
@@ -421,10 +483,10 @@ const GalleryPage = () => {
           </div>
 
           {/* Section humeur personnalisée */}
-          <div className="border-t border-gray-100 pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="border-t border-[#1e2540] pt-6">
+            <h3 className="text-lg font-light text-white mb-4 flex items-center gap-2">
               🎯 Humeur personnalisée
-              <span className="text-sm text-gray-500 font-normal">
+              <span className="text-sm text-slate-500 font-normal">
                 (Générez une inspiration selon votre humeur exacte)
               </span>
             </h3>
@@ -434,13 +496,15 @@ const GalleryPage = () => {
                 value={customMood}
                 onChange={(e) => setCustomMood(e.target.value)}
                 placeholder="Ex: confus, excité, nostalgique, déçu, fier..."
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                onKeyPress={(e) => e.key === 'Enter' && generateCustomInspiration()}
+                className="flex-1 px-4 py-3 bg-[#0f1323] border border-[#1e2540] text-white placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                onKeyPress={(e) =>
+                  e.key === "Enter" && generateCustomInspiration()
+                }
               />
               <button
                 onClick={generateCustomInspiration}
                 disabled={!customMood.trim() || isGeneratingCustom}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isGeneratingCustom ? (
                   <>
@@ -455,80 +519,96 @@ const GalleryPage = () => {
                 )}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              💡 Appuyez sur Entrée ou cliquez sur Générer pour créer une inspiration personnalisée
+            <p className="text-xs text-slate-500 mt-2">
+              💡 Appuyez sur Entrée ou cliquez sur Générer pour créer une
+              inspiration personnalisée
             </p>
           </div>
         </div>
 
         {/* Section Inspirations d'Aujourd'hui */}
         {getTodayInspirations().length > 0 && (
-          <div className="bg-white rounded-3xl shadow-xl p-6 mb-8">
+          <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-3xl shadow-xl p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <h2 className="text-2xl font-light text-white flex items-center gap-2">
                 <Star className="w-6 h-6 text-purple-500" />
-                Mes Inspirations 
+                Mes Inspirations
               </h2>
-              <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-medium">
-                {getTodayInspirations().length} inspiration{getTodayInspirations().length > 1 ? 's' : ''}
+              <span className="bg-purple-500/20 border border-purple-500/30 text-purple-400 px-3 py-1 rounded-full text-sm font-medium">
+                {getTodayInspirations().length} inspiration
+                {getTodayInspirations().length > 1 ? "s" : ""}
               </span>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {getTodayInspirations().slice(0, 6).map(inspiration => (
-                <div key={inspiration.id} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <div
-                      className={`px-2 py-1 bg-gradient-to-r ${
-                        moods[inspiration.mood]?.color || "from-gray-400 to-gray-600"
-                      } text-white rounded-full text-xs font-semibold flex items-center gap-1`}
-                    >
-                      {moods[inspiration.mood]?.icon || <Meh className="w-3 h-3" />}
-                      {moods[inspiration.mood]?.name || inspiration.mood}
+              {getTodayInspirations()
+                .slice(0, 6)
+                .map((inspiration) => (
+                  <div
+                    key={inspiration.id}
+                    className="bg-[#0f1323] rounded-2xl p-4 border border-[#1e2540] hover:border-purple-500/30 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div
+                        className={`px-2 py-1 bg-gradient-to-r ${
+                          moods[inspiration.mood]?.color ||
+                          "from-gray-400 to-gray-600"
+                        } text-white rounded-full text-xs font-semibold flex items-center gap-1`}
+                      >
+                        {moods[inspiration.mood]?.icon || (
+                          <Meh className="w-3 h-3" />
+                        )}
+                        {moods[inspiration.mood]?.name || inspiration.mood}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {inspiration.isCustomMood && (
+                          <span className="bg-amber-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
+                            {inspiration.originalMoodInput || "Custom"}
+                          </span>
+                        )}
+                        {inspiration.isGenerated && (
+                          <span className="bg-blue-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
+                            IA
+                          </span>
+                        )}
+                        {inspiration.isUserCreated && (
+                          <button
+                            onClick={() => deleteInspiration(inspiration.id)}
+                            className="text-red-400 hover:text-red-600 transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {inspiration.isCustomMood && (
-                        <span className="bg-amber-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
-                          {inspiration.originalMoodInput || 'Custom'}
-                        </span>
-                      )}
-                      {inspiration.isGenerated && (
-                        <span className="bg-blue-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
-                          IA
-                        </span>
-                      )}
-                      {inspiration.isUserCreated && (
-                        <button
-                          onClick={() => deleteInspiration(inspiration.id)}
-                          className="text-red-400 hover:text-red-600 transition-colors"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      )}
+
+                    <h4 className="font-semibold text-white mb-2 text-sm">
+                      {inspiration.title}
+                    </h4>
+
+                    <p className="text-slate-300 text-sm italic leading-relaxed mb-3">
+                      "{inspiration.text}"
+                    </p>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-slate-500">
+                        {new Date(inspiration.createdAt).toLocaleTimeString(
+                          "fr-FR",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        par vous{" "}
+                        {inspiration.isGenerated
+                          ? "(IA générée)"
+                          : "(création manuelle)"}
+                      </span>
                     </div>
                   </div>
-                  
-                  <h4 className="font-semibold text-gray-800 mb-2 text-sm">
-                    {inspiration.title}
-                  </h4>
-                  
-                  <p className="text-gray-700 text-sm italic leading-relaxed mb-3">
-                    "{inspiration.text}"
-                  </p>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      {new Date(inspiration.createdAt).toLocaleTimeString('fr-FR', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      par vous {inspiration.isGenerated ? '(IA générée)' : '(création manuelle)'}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}
@@ -539,20 +619,21 @@ const GalleryPage = () => {
             <div
               className={`px-4 py-2 bg-gradient-to-r ${
                 moods[selectedMood]?.color || "from-gray-400 to-gray-600"
-              } text-white rounded-full font-semibold flex items-center gap-2`}
+              } text-white rounded-full font-semibold flex items-center gap-2 shadow-lg`}
             >
               {moods[selectedMood] && moods[selectedMood].icon}
-              Mode {moods[selectedMood] ? moods[selectedMood].name : selectedMood}
+              Mode{" "}
+              {moods[selectedMood] ? moods[selectedMood].name : selectedMood}
             </div>
-            <span className="text-gray-600">
+            <span className="text-slate-400">
               {filteredInspirations.length} inspiration
               {filteredInspirations.length !== 1 ? "s" : ""}
             </span>
             {(isLoading || isGeneratingDaily) && (
-              <div className="flex items-center gap-2 text-gray-500">
+              <div className="flex items-center gap-2 text-slate-400">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
                 <span className="text-sm">
-                  {isGeneratingDaily ? 'Génération...' : 'Chargement...'}
+                  {isGeneratingDaily ? "Génération..." : "Chargement..."}
                 </span>
               </div>
             )}
@@ -562,27 +643,29 @@ const GalleryPage = () => {
             <button
               onClick={() => setShowUserCreations(!showUserCreations)}
               className={`px-4 py-2 rounded-xl transition-all duration-300 flex items-center gap-2 ${
-                showUserCreations 
-                  ? 'bg-indigo-500 text-white shadow-lg' 
-                  : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                showUserCreations
+                  ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30"
+                  : "bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/30"
               }`}
             >
               <Star className="w-4 h-4" />
-              {showUserCreations ? 'Toutes' : 'Mes créations'}
+              {showUserCreations ? "Toutes" : "Mes créations"}
             </button>
 
             <button
               onClick={generateDailyInspirations}
               disabled={isGeneratingDaily || isLoading}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105 disabled:opacity-50"
+              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 flex items-center gap-2 transform hover:scale-105 disabled:opacity-50"
             >
-              <RefreshCw className={`w-5 h-5 ${isGeneratingDaily ? 'animate-spin' : ''}`} />
-              {isGeneratingDaily ? 'Génération...' : 'Générer du jour'}
+              <RefreshCw
+                className={`w-5 h-5 ${isGeneratingDaily ? "animate-spin" : ""}`}
+              />
+              {isGeneratingDaily ? "Génération..." : "Générer du jour"}
             </button>
-            
+
             <button
               onClick={() => setIsUploadModalOpen(true)}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
             >
               <Plus className="w-5 h-5" />
               Ajouter Inspiration
@@ -598,10 +681,14 @@ const GalleryPage = () => {
               : "space-y-6"
           }`}
         >
-          {filteredInspirations.map((inspiration) => (
-            <div
+          {filteredInspirations.map((inspiration, index) => (
+            <motion.div
               key={inspiration.id}
-              className={`bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:scale-105 ${
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.08 }}
+              whileHover={{ y: -5 }}
+              className={`group bg-[#0a0e1a] border border-[#1e2540] rounded-3xl overflow-hidden hover:border-blue-500/30 hover:shadow-2xl transition-all duration-500 ${
                 viewMode === "list" ? "flex" : ""
               }`}
             >
@@ -615,26 +702,27 @@ const GalleryPage = () => {
                 />
                 <div
                   className={`absolute top-4 left-4 px-3 py-1 bg-gradient-to-r ${
-                    moods[inspiration.mood]?.color || "from-gray-400 to-gray-600"
-                  } text-white rounded-full text-sm font-semibold flex items-center gap-1`}
+                    moods[inspiration.mood]?.color ||
+                    "from-gray-400 to-gray-600"
+                  } text-white rounded-full text-sm font-semibold flex items-center gap-1 shadow-lg`}
                 >
                   {moods[inspiration.mood]?.icon || <Meh className="w-4 h-4" />}
                   {moods[inspiration.mood]?.name || inspiration.mood}
                 </div>
-                
+
                 <div className="absolute top-4 right-4 flex gap-2">
                   {inspiration.isCustomMood && (
-                    <div className="bg-amber-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
+                    <div className="bg-amber-500 text-white rounded-full px-2 py-1 text-xs font-semibold shadow-lg">
                       Custom
                     </div>
                   )}
                   {inspiration.isGenerated && (
-                    <div className="bg-blue-500 text-white rounded-full p-2">
+                    <div className="bg-blue-500 text-white rounded-full p-2 shadow-lg">
                       <Star className="w-4 h-4" />
                     </div>
                   )}
                   {inspiration.isUserCreated && !inspiration.isGenerated && (
-                    <div className="bg-green-500 text-white rounded-full p-2">
+                    <div className="bg-green-500 text-white rounded-full p-2 shadow-lg">
                       <Heart className="w-4 h-4" />
                     </div>
                   )}
@@ -648,45 +736,46 @@ const GalleryPage = () => {
                     : ""
                 }`}
               >
-                <h3 className="font-bold text-xl mb-3 text-gray-800">
+                <h3 className="font-bold text-xl mb-3 text-white">
                   {inspiration.title}
                 </h3>
 
                 <div className="flex items-start gap-3 mb-4">
-                  <Quote className="w-6 h-6 text-purple-500 flex-shrink-0 mt-1" />
-                  <p className="text-gray-700 leading-relaxed italic text-lg">
+                  <Quote className="w-6 h-6 text-purple-400 flex-shrink-0 mt-1" />
+                  <p className="text-slate-300 leading-relaxed italic text-lg">
                     "{inspiration.text}"
                   </p>
                 </div>
 
                 {inspiration.createur && (
-                  <p className="text-right text-gray-500 font-medium">
+                  <p className="text-right text-slate-500 font-medium">
                     — {inspiration.createur}
                   </p>
                 )}
 
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-[#1e2540]">
                   <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 text-pink-500 hover:text-pink-600 transition-colors">
+                    <button className="flex items-center gap-2 text-pink-400 hover:text-pink-300 transition-colors">
                       <Heart className="w-5 h-5" />
                       <span className="text-sm font-medium">J'aime</span>
                     </button>
-                    
-                    {inspiration.isCustomMood && inspiration.originalMoodInput && (
-                      <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
-                        {inspiration.originalMoodInput}
-                      </span>
-                    )}
+
+                    {inspiration.isCustomMood &&
+                      inspiration.originalMoodInput && (
+                        <span className="text-xs text-amber-400 bg-amber-500/20 border border-amber-500/30 px-2 py-1 rounded-full">
+                          {inspiration.originalMoodInput}
+                        </span>
+                      )}
                   </div>
 
                   <div className="flex gap-2">
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button className="text-slate-400 hover:text-slate-200 transition-colors">
                       <Upload className="w-5 h-5" />
                     </button>
                     {inspiration.isUserCreated && (
                       <button
                         onClick={() => deleteInspiration(inspiration.id)}
-                        className="text-red-400 hover:text-red-600 transition-colors"
+                        className="text-red-400 hover:text-red-300 transition-colors"
                       >
                         <X className="w-5 h-5" />
                       </button>
@@ -695,46 +784,55 @@ const GalleryPage = () => {
                 </div>
 
                 {inspiration.createdAt && (
-                  <div className="text-xs text-gray-400 mt-2">
-                    {new Date(inspiration.createdAt).toLocaleDateString('fr-FR')}
+                  <div className="text-xs text-slate-500 mt-2">
+                    {new Date(inspiration.createdAt).toLocaleDateString(
+                      "fr-FR",
+                    )}
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Empty State */}
         {filteredInspirations.length === 0 && !isLoading && (
           <div className="text-center py-20">
-            <div className="text-6xl mb-4">🌟</div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-              {showUserCreations ? "Aucune de vos créations" : "Aucune inspiration"} 
-              {selectedMood !== "tous" ? ` pour l'humeur "${moods[selectedMood]?.name || selectedMood}"` : ""}
+            <div className="text-6xl mb-4 opacity-60">🌟</div>
+            <h3 className="text-2xl font-light mb-2 text-white">
+              {showUserCreations
+                ? "Aucune de vos créations"
+                : "Aucune inspiration"}
+              {selectedMood !== "tous"
+                ? ` pour l'humeur "${moods[selectedMood]?.name || selectedMood}"`
+                : ""}
             </h3>
-            <p className="text-gray-600 mb-6">
-              {showUserCreations 
+            <p className="text-slate-400 mb-6">
+              {showUserCreations
                 ? "Vous n'avez pas encore créé d'inspiration. Commencez dès maintenant !"
-                : "Soyez le premier à ajouter une inspiration pour cette humeur !"
-              }
+                : "Soyez le premier à ajouter une inspiration pour cette humeur !"}
             </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowUserCreations(!showUserCreations)}
-                className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300"
               >
-                {showUserCreations ? 'Voir toutes les inspirations' : 'Voir mes inspirations'}
+                {showUserCreations
+                  ? "Voir toutes les inspirations"
+                  : "Voir mes inspirations"}
               </button>
               <button
                 onClick={generateDailyInspirations}
                 disabled={isGeneratingDaily}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 disabled:opacity-50"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 disabled:opacity-50"
               >
-                {isGeneratingDaily ? 'Génération...' : 'Générer automatiquement'}
+                {isGeneratingDaily
+                  ? "Génération..."
+                  : "Générer automatiquement"}
               </button>
               <button
                 onClick={() => setIsUploadModalOpen(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg transition-all duration-300"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-2xl hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300"
               >
                 Créer manuellement
               </button>
@@ -745,15 +843,20 @@ const GalleryPage = () => {
 
       {/* Upload Modal */}
       {isUploadModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-[#0f1323] border border-[#1e2540] rounded-3xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
+          >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-light text-white">
                 Nouvelle Inspiration
               </h2>
               <button
                 onClick={() => setIsUploadModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-slate-400 hover:text-slate-200 hover:bg-[#1a1f35] rounded-full p-2 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -762,7 +865,7 @@ const GalleryPage = () => {
             <div className="space-y-6">
               {/* mood */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-light text-slate-300 mb-2 uppercase tracking-wider">
                   Mood associé *
                 </label>
                 <input
@@ -774,16 +877,14 @@ const GalleryPage = () => {
                       mood: e.target.value,
                     }))
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-[#0a0e1a] border border-[#1e2540] text-white placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                   placeholder="Donnez un mood à votre inspiration..."
                 />
               </div>
 
-              
-
               {/* Text */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-light text-slate-300 mb-2 uppercase tracking-wider">
                   Texte d'inspiration *
                 </label>
                 <textarea
@@ -791,31 +892,29 @@ const GalleryPage = () => {
                   onChange={(e) =>
                     setUploadData((prev) => ({ ...prev, text: e.target.value }))
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 h-32 resize-none"
+                  className="w-full px-4 py-3 bg-[#0a0e1a] border border-[#1e2540] text-white placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 h-32 resize-none transition-all"
                   placeholder="Écrivez votre message inspirant..."
                 />
               </div>
-
-              
 
               {/* Buttons */}
               <div className="flex gap-4 pt-4">
                 <button
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-6 py-3 bg-[#1a1f35] border border-[#1e2540] text-slate-300 rounded-xl hover:border-slate-600 transition-all"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={saveInspiration}
                   disabled={!uploadData.text || !uploadData.mood}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Publier
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

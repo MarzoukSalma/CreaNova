@@ -1,254 +1,374 @@
-import React from 'react';
-import { 
-  Palette, BookOpen, Lightbulb, MessageCircle, 
-  Settings, Timer, ArrowRight, Sparkles, Target,
-  Camera, Music, PenTool, Brain, Heart, Star
-} from 'lucide-react';
-import { Navigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Sparkles, Quote, Zap, MessageCircle, Star, Mail } from "lucide-react";
+import Testimonials from "../components/Testimonials";
+import Features from "../components/Features";
+import Contact from "../components/Contact";
+import FAQ from "../components/FAQ";
 
-
-const HomePage = ({ onNavigateToLogin }) => {
-  const features = [  
-    {
-      icon: <BookOpen className="w-8 h-8" />,
-      title: "Journal Créatif",
-      description: "Capturez vos idées, réflexions et inspirations quotidiennes dans un espace personnel et sécurisé.",
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      icon: <Lightbulb className="w-8 h-8" />,
-      title: "Studio Rêves Créatifs",
-      description: "Transformez vos rêves en projets concrets avec des outils de planification et de suivi.",
-      color: "from-purple-500 to-pink-500",
-    },
-    {
-      icon: <Camera className="w-8 h-8" />,
-      title: "Galerie d'Inspiration",
-      description: "Découvrez, sauvegardez et organisez des contenus inspirants pour alimenter votre créativité.",
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      icon: <MessageCircle className="w-8 h-8" />,
-      title: "Muse IA",
-      description: "Votre assistant créatif intelligent pour débloquer votre potentiel et trouver l'inspiration.",
-      color: "from-orange-500 to-red-500",
-    },
-    {
-      icon: <Timer className="w-8 h-8" />,
-      title: "Espace de Travail",
-      description: "Optimisez votre productivité avec des techniques Pomodoro et la gestion de tâches créatives.",
-      color: "from-indigo-500 to-purple-500",
-    },
-    {
-      icon: <Settings className="w-8 h-8" />,
-      title: "Paramètres",
-      description: "Personnalisez votre expérience et gérez vos préférences pour un environnement sur mesure.",
-      color: "from-gray-500 to-slate-600",
+// --- 1. BACKGROUND ANIMÉ (ÉTOILES SUIVANT LA SOURIS) ---
+const MouseStarsBackground = () => {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", resize);
+    resize();
+    const handleMouseMove = (e) => {
+      for (let i = 0; i < 2; i++) particles.push(new Particle(e.x, e.y));
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 2;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+        this.color = `rgba(168, 85, 247, ${Math.random() * 0.5 + 0.5})`;
+        this.life = 100;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life -= 0.8;
+      }
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
-  ];
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        p.update();
+        p.draw();
+        if (p.life <= 0) particles.splice(i, 1);
+      });
+      requestAnimationFrame(animate);
+    };
+    animate();
+    return () => {
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+  return (
+    <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />
+  );
+};
 
-  const scrollToFeatures = () => {
-    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+// --- 2. COMPOSANT PAGE PRINCIPALE ---
+const HomePage = ({ onNavigateToLogin }) => {
+  // Fonction de scroll fluide pour les boutons intégrés
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute top-40 right-10 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-500"></div>
-        </div>
+    <div className="min-h-screen bg-[#020617] text-slate-300 font-sans relative overflow-x-hidden">
+      <MouseStarsBackground />
 
-        <div className="relative max-w-7xl mx-auto px-6 py-20">
-          <div className="text-center">
-            <div className="flex justify-center items-center gap-2 mb-6">
-              <Sparkles className="w-12 h-12 text-purple-600" />
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent">
-                Créativité Studio
-              </h1>
-            </div>
-            
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Libérez votre potentiel créatif avec une plateforme complète qui combine journal personnel, 
-              gestion de projets, inspiration et outils de productivité. Votre atelier créatif digital vous attend.
-            </p>
+      {/* 1. HERO SECTION */}
+      <section className="relative z-10 h-screen flex flex-col justify-center items-center px-6 text-center overflow-hidden">
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute w-[600px] h-[300px] bg-purple-600/20 blur-[120px] rounded-full -z-10"
+        />
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <button
-                onClick={onNavigateToLogin}
-                className="group px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
-              >
-                Commencer l'aventure
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              
-              <button
-                onClick={scrollToFeatures}
-                className="px-8 py-4 border-2 border-purple-600 text-purple-600 font-semibold rounded-2xl hover:bg-purple-600 hover:text-white transition-all duration-300"
-              >
-                Découvrir les fonctionnalités
-              </button>
-            </div>
+        <div className="max-w-5xl space-y-10">
+          <div className="space-y-4">
+            <motion.h1
+              initial={{ opacity: 0, filter: "blur(20px)", y: 20 }}
+              animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="text-7xl md:text-[10rem] font-extralight text-white tracking-tighter leading-none"
+            >
+              CREA
+              <span className="font-serif italic text-purple-500">NOVA</span>
+            </motion.h1>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="flex justify-center items-center gap-2 mb-2">
-                  <Heart className="w-6 h-6 text-red-500" />
-                  <span className="text-3xl font-bold text-gray-800">100%</span>
-                </div>
-                <p className="text-gray-600">Passion créative</p>
-              </div>
-              <div className="text-center">
-                <div className="flex justify-center items-center gap-2 mb-2">
-                  <Target className="w-6 h-6 text-green-500" />
-                  <span className="text-3xl font-bold text-gray-800">6</span>
-                </div>
-                <p className="text-gray-600">Outils intégrés</p>
-              </div>
-              <div className="text-center">
-                <div className="flex justify-center items-center gap-2 mb-2">
-                  <Star className="w-6 h-6 text-yellow-500" />
-                  <span className="text-3xl font-bold text-gray-800">∞</span>
-                </div>
-                <p className="text-gray-600">Possibilités créatives</p>
-              </div>
-            </div>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ delay: 1, duration: 1.5, ease: "easeInOut" }}
+              className="h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent mx-auto"
+            />
           </div>
-        </div>
-      </div>
 
-      {/* Features Section */}
-      <div id="features" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
-              Votre écosystème créatif complet
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 1 }}
+            className="text-slate-400 text-xl md:text-2xl font-light max-w-3xl mx-auto leading-relaxed"
+          >
+            L'espace où vos{" "}
+            <span className="text-white italic font-serif">
+              visions les plus folles
+            </span>{" "}
+            deviennent des architectures digitales d'exception.
+          </motion.p>
+
+          {/* --- NOUVEAUX BOUTONS DE NAVIGATION INTÉGRÉS --- */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.8 }}
+            className="flex flex-wrap justify-center gap-4 pt-4"
+          >
+            {[
+              {
+                label: "Features",
+                icon: <Zap size={14} />,
+                id: "features-sec",
+              },
+              {
+                label: "Témoignages",
+                icon: <Star size={14} />,
+                id: "testimonials-sec",
+              },
+              {
+                label: "FAQ",
+                icon: <MessageCircle size={14} />,
+                id: "faq-sec",
+              },
+              { label: "Contact", icon: <Mail size={14} />, id: "contact-sec" },
+            ].map((btn) => (
+              <button
+                key={btn.id}
+                onClick={() => scrollToSection(btn.id)}
+                className="group flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-purple-500/10 hover:border-purple-500/50 transition-all duration-300 text-sm font-light tracking-wide hover:scale-105"
+              >
+                <span className="text-purple-400">{btn.icon}</span>
+                {btn.label}
+              </button>
+            ))}
+          </motion.div>
+
+          {/* --- BOUTONS D'ACTION VERS LOGIN --- */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.2, duration: 1 }}
+            className="flex flex-col md:flex-row items-center justify-center gap-6 pt-10"
+          >
+            <button
+              onClick={onNavigateToLogin}
+              className="group relative px-12 py-5 bg-white text-black font-bold rounded-full overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95"
+            >
+              <span className="relative z-10">COMMENCER L'EXPÉRIENCE</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </button>
+
+            <button
+              onClick={onNavigateToLogin}
+              className="px-10 py-5 border border-white/20 rounded-full font-medium hover:bg-white hover:text-black transition-all duration-500"
+            >
+              DÉCOUVRIR TOUT
+            </button>
+          </motion.div>
+        </div>
+
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(10)].map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: ["0vh", "100vh"], opacity: [0, 0.3, 0] }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Infinity,
+                delay: Math.random() * 10,
+              }}
+              className="absolute w-[1px] h-20 bg-gradient-to-b from-purple-500/50 to-transparent"
+              style={{ left: `${Math.random() * 100}%` }}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 2. CITATION SECTION */}
+      <section className="relative z-10 py-28 bg-slate-950/40 border-y border-slate-900/50 text-center">
+        <div className="max-w-3xl mx-auto px-6">
+          <Quote className="w-10 h-10 text-purple-900 mx-auto mb-8 opacity-30" />
+          <h2 className="text-2xl md:text-4xl text-slate-400 font-light italic leading-snug">
+            "La créativité est la seule richesse qui augmente quand on la
+            partage."
+          </h2>
+        </div>
+      </section>
+
+      {/* 3. MANIFESTO SECTION */}
+      <section className="relative z-10 py-32 px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="space-y-8"
+          >
+            <h2 className="text-4xl md:text-5xl font-extralight text-white leading-tight">
+              L'Équilibre Parfait entre <br />
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="font-serif italic text-purple-400"
+              >
+                Rigueur et Chaos
+              </motion.span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Six espaces interconnectés pour nourrir, organiser et concrétiser vos idées créatives
-            </p>
-          </div>
+            <div className="space-y-6 text-slate-400 font-light text-lg border-l border-purple-500/30 pl-6">
+              <p>
+                CreaNova est né d'un constat simple : les outils actuels sont
+                soit trop rigides, soit trop désordonnés.
+              </p>
+              <p>
+                Nous avons bâti un écosystème hybride où chaque pixel est au
+                service de votre intuition.
+              </p>
+            </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="group bg-white border-2 border-gray-100 rounded-3xl p-6 hover:border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.2, ease: "circOut" }}
+            className="relative"
+          >
+            <div className="absolute -inset-4 bg-purple-600/20 blur-[60px] rounded-full animate-pulse" />
+            <motion.div
+              whileHover={{ rotateX: 5, rotateY: -5, scale: 1.02 }}
+              animate={{ y: [0, -20, 0] }}
+              transition={{
+                y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                default: { type: "spring", stiffness: 300 },
+              }}
+              className="relative border border-slate-700/50 rounded-[3rem] overflow-hidden bg-slate-900/40 p-3 shadow-2xl backdrop-blur-sm"
+            >
+              <img
+                src="/image0.png"
+                className="rounded-[2.5rem] opacity-80 grayscale hover:grayscale-0 transition-all duration-700 w-full object-cover"
+                alt="Manifesto Visual"
+              />
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-6 -right-6 bg-slate-900 border border-purple-500/50 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-md z-20"
+            >
+              <span className="text-xs uppercase tracking-[0.2em] text-purple-400 font-bold">
+                Innovation Art
+              </span>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 4. GALERIE SECTION */}
+      <section className="relative z-10 py-32 bg-black/40 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <span className="text-purple-400 text-xs uppercase tracking-[0.3em]">
+              Découvrez notre univers
+            </span>
+            <h2 className="text-4xl font-extralight text-white mt-4">
+              Symphonie{" "}
+              <span className="italic font-serif text-purple-400">
+                Digitale
+              </span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12">
+            {[
+              {
+                id: "01",
+                title: "Design Émotionnel",
+                price: "Premium",
+                img: "/image1.png",
+              },
+              {
+                id: "02",
+                title: "Structure Agile",
+                price: "Pro",
+                img: "/image2.png",
+              },
+              {
+                id: "03",
+                title: "Interface Intuitive",
+                price: "Élite",
+                img: "/image3.png",
+              },
+              {
+                id: "04",
+                title: "Vision Créative",
+                price: "Concept",
+                img: "/image.png",
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.8 }}
+                className="group relative h-[350px] rounded-[2.5rem] overflow-hidden border border-slate-800/50 bg-slate-900"
               >
-                <div className={`inline-flex p-3 rounded-2xl bg-gradient-to-r ${feature.color} text-white mb-4 group-hover:scale-110 transition-transform`}>
-                  {feature.icon}
+                <motion.img
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.6 }}
+                  src={item.img}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-700"
+                  alt={item.title}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-80" />
+                <div className="relative h-full p-10 flex flex-col justify-between items-start">
+                  <div className="self-end px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md text-[10px] text-purple-300 uppercase tracking-widest">
+                    {item.price}
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-light text-white mb-4 group-hover:text-purple-400 transition-colors">
+                      {item.title}
+                    </h3>
+                    <div className="w-12 h-1 bg-purple-500 rounded-full group-hover:w-24 transition-all duration-500" />
+                  </div>
                 </div>
-                
-                <h3 className="text-xl font-bold text-gray-800 mb-3">
-                  {feature.title}
-                </h3>
-                
-                <p className="text-gray-600 mb-4 leading-relaxed">
-                  {feature.description}
-                </p>
-                
-                <button
-                  onClick={onNavigateToLogin}
-                  className={`inline-flex items-center gap-2 text-transparent bg-gradient-to-r ${feature.color} bg-clip-text font-semibold hover:underline`}
-                >
-                  Explorer
-                  <ArrowRight className="w-4 h-4 opacity-60" />
-                </button>
-              </div>
+                <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-purple-500/0 group-hover:border-purple-500/50 transition-all duration-500 rounded-tl-[2.5rem]" />
+              </motion.div>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* --- SECTIONS AVEC IDS POUR LE SCROLL --- */}
+      <div id="features-sec">
+        <Features />
       </div>
-
-      {/* Benefits Section */}
-      <div className="py-20 bg-gradient-to-br from-purple-100 to-pink-100">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
-              Pourquoi choisir Créativité Studio ?
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">Intelligence créative</h3>
-                  <p className="text-gray-600">Des outils pensés pour stimuler votre imagination et structurer vos idées.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
-                  <PenTool className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">Interface intuitive</h3>
-                  <p className="text-gray-600">Une expérience utilisateur fluide qui ne fait pas obstacle à votre créativité.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                  <Music className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">Écosystème harmonieux</h3>
-                  <p className="text-gray-600">Tous vos outils créatifs dans un seul endroit, parfaitement intégrés.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Palette className="w-10 h-10 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                    Prêt à créer ?
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Rejoignez une communauté de créateurs passionnés et donnez vie à vos idées.
-                  </p>
-                  <button
-                    onClick={onNavigateToLogin}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-2xl hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                  >
-                    Commencer maintenant
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div id="faq-sec">
+        <FAQ />
       </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <div className="flex justify-center items-center gap-2 mb-4">
-            <Sparkles className="w-8 h-8 text-purple-400" />
-            <h3 className="text-2xl font-bold">Créativité Studio</h3>
-          </div>
-          <p className="text-gray-400 mb-6">
-            Votre compagnon créatif pour transformer les idées en réalité
-          </p>
-          <button
-            onClick={onNavigateToLogin}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-2xl hover:shadow-lg transition-all duration-300"
-          >
-            Démarrer votre parcours créatif
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </footer>
+      <div id="testimonials-sec">
+        <Testimonials />
+      </div>
+      <div id="contact-sec">
+        <Contact />
+      </div>
     </div>
   );
 };

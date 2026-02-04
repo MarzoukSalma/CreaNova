@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react";
 import {
   Plus,
   Filter,
@@ -19,6 +19,7 @@ import {
   Activity,
   Timer,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import {
   PieChart as RechartsPieChart,
   Cell,
@@ -31,16 +32,16 @@ import {
   Tooltip,
   Area,
   AreaChart,
-} from "recharts"
-import api from "../api/api"
+} from "recharts";
+import api from "../api/api";
 
 const fetchProjectsFromApi = async () => {
   try {
     const allProjects = await api.get(`/dreams`);
     return allProjects.data || [];
   } catch (error) {
-    console.error("Erreur lors du chargement des journaux:", error)
-    return []
+    console.error("Erreur lors du chargement des journaux:", error);
+    return [];
   }
 };
 
@@ -48,19 +49,19 @@ const CreativeTree = ({ projects }) => {
   const totalProgress =
     projects.length > 0
       ? projects.reduce((sum, p) => {
-          if (p.statut === "Terminé") return sum + 100
-          if (p.statut === "En cours") return sum + 50
-          return sum + 0 // "À faire"
+          if (p.statut === "Terminé") return sum + 100;
+          if (p.statut === "En cours") return sum + 50;
+          return sum + 0; // "À faire"
         }, 0) / projects.length
-      : 0
+      : 0;
 
-  const treeHeight = Math.max(200, (totalProgress / 100) * 400)
-  const branchCount = Math.floor(totalProgress / 20) + 1
-  const leafCount = Math.floor(totalProgress / 10)
+  const treeHeight = Math.max(200, (totalProgress / 100) * 400);
+  const branchCount = Math.floor(totalProgress / 20) + 1;
+  const leafCount = Math.floor(totalProgress / 10);
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6">
-      <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+    <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
+      <h3 className="text-xl font-light mb-4 text-white flex items-center gap-2">
         🌳 Arbre Créatif
       </h3>
       <div className="flex justify-center">
@@ -176,11 +177,11 @@ const CreativeTree = ({ projects }) => {
       </div>
 
       <div className="mt-4 text-center">
-        <div className="text-2xl font-bold text-green-600 mb-2">
+        <div className="text-2xl font-bold text-green-400 mb-2">
           {Math.round(totalProgress)}%
         </div>
-        <div className="text-sm text-gray-600">Progression Globale</div>
-        <div className="mt-3 flex justify-center gap-4 text-xs">
+        <div className="text-sm text-slate-400">Progression Globale</div>
+        <div className="mt-3 flex justify-center gap-4 text-xs text-slate-300">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             <span>Feuilles: {leafCount}</span>
@@ -198,51 +199,51 @@ const CreativeTree = ({ projects }) => {
 };
 
 const EnhancedDashboard = () => {
-  const [projects, setProjects] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState("")
-  const [priorityFilter, setPriorityFilter] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingProject, setEditingProject] = useState(null)
-  const [activeTab, setActiveTab] = useState("overview")
-  const [viewMode, setViewMode] = useState("grid")
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [viewMode, setViewMode] = useState("grid");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const loadProjects = useCallback(async () => {
     try {
-      setLoading(true)
-      const apiProjects = await fetchProjectsFromApi()
+      setLoading(true);
+      const apiProjects = await fetchProjectsFromApi();
 
       const projectsWithProgress = apiProjects.map((project) => {
-        let progress = 0
-        if (project.statut === "Terminé") progress = 100
-        else if (project.statut === "En cours") progress = 50
-        else progress = 0 // "À faire"
+        let progress = 0;
+        if (project.statut === "Terminé") progress = 100;
+        else if (project.statut === "En cours") progress = 50;
+        else progress = 0; // "À faire"
 
         return {
           ...project,
           dateCreation: new Date(project.dateCreation),
           progress,
           workspaces: project.workspaces || [],
-        }
-      })
+        };
+      });
 
-      setProjects(projectsWithProgress)
+      setProjects(projectsWithProgress);
     } catch (error) {
-      console.error("Erreur lors du chargement des projets:", error)
+      console.error("Erreur lors du chargement des projets:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    loadProjects()
-  }, [loadProjects, refreshTrigger])
+    loadProjects();
+  }, [loadProjects, refreshTrigger]);
 
   const handleRefresh = useCallback(() => {
-    setRefreshTrigger((prev) => prev + 1)
-  }, [])
+    setRefreshTrigger((prev) => prev + 1);
+  }, []);
 
   const filteredProjects = projects.filter((project) => {
     const statusMatch = !statusFilter || project.statut === statusFilter;
@@ -251,9 +252,9 @@ const EnhancedDashboard = () => {
     const searchMatch =
       !searchTerm ||
       project.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase())
-    return statusMatch && priorityMatch && searchMatch
-  })
+      project.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return statusMatch && priorityMatch && searchMatch;
+  });
 
   const stats = {
     total: projects.length,
@@ -265,7 +266,7 @@ const EnhancedDashboard = () => {
     avgProgress:
       projects.length > 0
         ? Math.round(
-            projects.reduce((sum, p) => sum + p.progress, 0) / projects.length
+            projects.reduce((sum, p) => sum + p.progress, 0) / projects.length,
           )
         : 0,
   };
@@ -300,39 +301,53 @@ const EnhancedDashboard = () => {
   };
 
   const closeModal = () => {
-    setEditingProject(null)
-    setIsModalOpen(false)
-  }
+    setEditingProject(null);
+    setIsModalOpen(false);
+  };
 
   const saveProject = async (projectData) => {
     try {
       if (editingProject) {
-        await api.put(`/dreams/${editingProject.id}`, projectData)
+        await api.put(`/dreams/${editingProject.id}`, projectData);
         const updatedProject = {
           ...editingProject,
           ...projectData,
-          progress: projectData.statut === "Terminé" ? 100 : projectData.statut === "En cours" ? 50 : 0,
-        }
-        setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)))
+          progress:
+            projectData.statut === "Terminé"
+              ? 100
+              : projectData.statut === "En cours"
+                ? 50
+                : 0,
+        };
+        setProjects(
+          projects.map((p) =>
+            p.id === editingProject.id ? updatedProject : p,
+          ),
+        );
       } else {
         const response = await api.post("/dreams/", {
           ...projectData,
           dateCreation: new Date().toISOString(),
           statut: projectData.statut || "À faire",
-        })
+        });
 
         const newProject = {
           ...response.data,
           dateCreation: new Date(response.data.dateCreation),
-          progress: response.data.statut === "Terminé" ? 100 : response.data.statut === "En cours" ? 50 : 0,
+          progress:
+            response.data.statut === "Terminé"
+              ? 100
+              : response.data.statut === "En cours"
+                ? 50
+                : 0,
           workspaces: [],
-        }
+        };
 
-        setProjects([...projects, newProject])
+        setProjects([...projects, newProject]);
       }
 
-      closeModal()
-      setTimeout(() => handleRefresh(), 100)
+      closeModal();
+      setTimeout(() => handleRefresh(), 100);
     } catch (error) {
       console.error("Error saving project:", error);
     }
@@ -341,9 +356,9 @@ const EnhancedDashboard = () => {
   const deleteProject = async (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
       try {
-        await api.delete(`/dreams/${id}`)
-        setProjects(projects.filter((p) => p.id !== id))
-        setTimeout(() => handleRefresh(), 100)
+        await api.delete(`/dreams/${id}`);
+        setProjects(projects.filter((p) => p.id !== id));
+        setTimeout(() => handleRefresh(), 100);
       } catch (error) {
         console.error("Error deleting project:", error);
       }
@@ -353,26 +368,26 @@ const EnhancedDashboard = () => {
   const getStatusColor = (statut) => {
     switch (statut) {
       case "À faire":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
       case "En cours":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       case "Terminé":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-green-500/20 text-green-400 border-green-500/30";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
   const getPriorityColor = (priorite) => {
     switch (priorite) {
       case "haute":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-red-500/20 text-red-400 border-red-500/30";
       case "moyenne":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
       case "faible":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-green-500/20 text-green-400 border-green-500/30";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
@@ -391,13 +406,13 @@ const EnhancedDashboard = () => {
 
   const renderTabNavigation = () => (
     <div className="flex justify-center mb-8">
-      <div className="bg-white rounded-xl p-1 shadow-lg">
+      <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-xl p-1 shadow-lg">
         <button
           onClick={() => setActiveTab("overview")}
           className={`px-4 md:px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
             activeTab === "overview"
               ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform scale-105"
-              : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
+              : "text-slate-400 hover:text-white hover:bg-[#1a1f35]"
           }`}
         >
           <TrendingUp className="inline w-5 h-5 mr-2" />
@@ -408,7 +423,7 @@ const EnhancedDashboard = () => {
           className={`px-4 md:px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
             activeTab === "process"
               ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform scale-105"
-              : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
+              : "text-slate-400 hover:text-white hover:bg-[#1a1f35]"
           }`}
         >
           <Activity className="inline w-5 h-5 mr-2" />
@@ -419,7 +434,7 @@ const EnhancedDashboard = () => {
           className={`px-4 md:px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
             activeTab === "analytics"
               ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform scale-105"
-              : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
+              : "text-slate-400 hover:text-white hover:bg-[#1a1f35]"
           }`}
         >
           <BarChart3 className="inline w-5 h-5 mr-2" />
@@ -431,54 +446,101 @@ const EnhancedDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#080c1a] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des projets créatifs...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-slate-400">Chargement des projets créatifs...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            ✨ Les Rêves
+    <div className="min-h-screen bg-[#080c1a] text-slate-300 font-sans relative overflow-x-hidden">
+      {/* Background blobs */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-18%] left-[-12%] w-[50%] h-[50%] bg-blue-900/12 blur-[150px] rounded-full" />
+        <div className="absolute bottom-[-18%] right-[-12%] w-[45%] h-[45%] bg-violet-900/10 blur-[150px] rounded-full" />
+        <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-pink-900/8 blur-[120px] rounded-full" />
+      </div>
+
+      {/* Floating particles */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {[...Array(30)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-blue-400/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -35, 0],
+              opacity: [0.1, 0.35, 0.1],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto p-4 md:p-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
+            <span>✨</span>
+            <span>Les Rêves</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extralight text-white tracking-tight mb-2">
+            Dashboard{" "}
+            <span className="font-serif italic text-violet-400">Créatif</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 mb-4">
-            Dashboard - Gestion des Projets Créatifs
+          <p className="text-slate-400 text-sm mb-4">
+            Gestion des Projets Créatifs
           </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-400">
             <span className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-yellow-500" />
+              <Star className="w-4 h-4 text-yellow-400" />
               {stats.total} projets créatifs
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4 text-blue-500" />
+              <Clock className="w-4 h-4 text-blue-400" />
               {stats.totalHours}h investies
             </span>
             <span className="flex items-center gap-1">
-              <TrendingUp className="w-4 h-4 text-green-500" />
+              <TrendingUp className="w-4 h-4 text-green-400" />
               {stats.avgProgress}% progression moyenne
             </span>
             <button
               onClick={handleRefresh}
-              className="flex items-center gap-1 px-3 py-1 bg-white rounded-full shadow-sm hover:shadow-md transition-all duration-200 text-purple-600 hover:text-purple-700"
+              className="flex items-center gap-1 px-3 py-1 bg-[#0a0e1a] border border-[#1e2540] rounded-full shadow-sm hover:border-purple-500/50 transition-all duration-200 text-purple-400 hover:text-purple-300"
               disabled={loading}
             >
-              <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              <Activity
+                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+              />
               Actualiser
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {renderTabNavigation()}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0 }}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/30"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-xs md:text-sm">
@@ -486,51 +548,66 @@ const EnhancedDashboard = () => {
                 </p>
                 <p className="text-2xl md:text-3xl font-bold">{stats.total}</p>
               </div>
-              <div className="bg-blue-400 rounded-full p-2 md:p-3">
+              <div className="bg-white/20 rounded-full p-2 md:p-3">
                 <PieChart className="w-4 h-4 md:w-6 md:h-6" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/30"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-yellow-100 text-xs md:text-sm">À faire</p>
+                <p className="text-blue-100 text-xs md:text-sm">À faire</p>
                 <p className="text-2xl md:text-3xl font-bold">{stats.todo}</p>
               </div>
-              <div className="bg-yellow-400 rounded-full p-2 md:p-3">
+              <div className="bg-white/20 rounded-full p-2 md:p-3">
                 <Clock className="w-4 h-4 md:w-6 md:h-6" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/30"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-indigo-100 text-xs md:text-sm">En cours</p>
+                <p className="text-blue-100 text-xs md:text-sm">En cours</p>
                 <p className="text-2xl md:text-3xl font-bold">
                   {stats.inProgress}
                 </p>
               </div>
-              <div className="bg-indigo-400 rounded-full p-2 md:p-3">
+              <div className="bg-white/20 rounded-full p-2 md:p-3">
                 <AlertCircle className="w-4 h-4 md:w-6 md:h-6" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-4 md:p-6 text-white transform hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/30"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-xs md:text-sm">Terminés</p>
+                <p className="text-blue-100 text-xs md:text-sm">Terminés</p>
                 <p className="text-2xl md:text-3xl font-bold">
                   {stats.completed}
                 </p>
               </div>
-              <div className="bg-green-400 rounded-full p-2 md:p-3">
+              <div className="bg-white/20 rounded-full p-2 md:p-3">
                 <CheckCircle className="w-4 h-4 md:w-6 md:h-6" />
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Main Content */}
@@ -538,17 +615,19 @@ const EnhancedDashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
             {/* Projects List - takes 3 columns */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-xl p-4 md:p-6">
+              <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-4 md:p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                  <h2 className="text-xl md:text-2xl font-light text-white">
                     Mes Projets
                   </h2>
                   <div className="flex gap-2">
-                    <div className="flex bg-gray-100 rounded-lg p-1">
+                    <div className="flex bg-[#1a1f35] border border-[#1e2540] rounded-lg p-1">
                       <button
                         onClick={() => setViewMode("grid")}
                         className={`p-2 rounded ${
-                          viewMode === "grid" ? "bg-white shadow-sm" : ""
+                          viewMode === "grid"
+                            ? "bg-purple-500/20 text-purple-400"
+                            : "text-slate-400 hover:text-slate-200"
                         }`}
                       >
                         <BarChart3 className="w-4 h-4" />
@@ -556,7 +635,9 @@ const EnhancedDashboard = () => {
                       <button
                         onClick={() => setViewMode("list")}
                         className={`p-2 rounded ${
-                          viewMode === "list" ? "bg-white shadow-sm" : ""
+                          viewMode === "list"
+                            ? "bg-purple-500/20 text-purple-400"
+                            : "text-slate-400 hover:text-slate-200"
                         }`}
                       >
                         <Filter className="w-4 h-4" />
@@ -564,7 +645,7 @@ const EnhancedDashboard = () => {
                     </div>
                     <button
                       onClick={() => openModal()}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
                     >
                       <Plus className="w-5 h-5" />
                       <span className="hidden sm:inline">Nouveau</span>
@@ -574,19 +655,19 @@ const EnhancedDashboard = () => {
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                     <input
                       type="text"
                       placeholder="Rechercher un projet..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full pl-10 pr-4 py-2 bg-[#0f1323] border border-[#1e2540] text-white placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                     />
                   </div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="px-4 py-2 bg-[#0f1323] border border-[#1e2540] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                   >
                     <option value="">Tous les statuts</option>
                     <option value="À faire">À faire</option>
@@ -597,7 +678,7 @@ const EnhancedDashboard = () => {
                   <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="px-4 py-2 bg-[#0f1323] border border-[#1e2540] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                   >
                     <option value="">Toutes les priorités</option>
                     <option value="haute">Haute</option>
@@ -613,17 +694,20 @@ const EnhancedDashboard = () => {
                       : "space-y-4"
                   }`}
                 >
-                  {filteredProjects.map((project) => (
-                    <div
+                  {filteredProjects.map((project, index) => (
+                    <motion.div
                       key={project.id}
-                      className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white to-gray-50"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.05 }}
+                      className="border border-[#1e2540] rounded-xl p-4 hover:shadow-lg hover:border-blue-500/30 transition-all duration-300 transform hover:-translate-y-1 bg-[#0f1323]"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg text-gray-800 mb-1">
+                          <h3 className="font-semibold text-lg text-white mb-1">
                             {project.titre}
                           </h3>
-                          <p className="text-gray-600 text-sm flex items-center gap-1">
+                          <p className="text-slate-400 text-sm flex items-center gap-1">
                             <Timer className="w-4 h-4" />
                             Créé le{" "}
                             {project.dateCreation.toLocaleDateString("fr-FR")}
@@ -632,33 +716,35 @@ const EnhancedDashboard = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => openModal(project)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => deleteProject(project.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
 
-                      <p className="text-gray-700 mb-3 text-sm line-clamp-2">{project.description}</p>
+                      <p className="text-slate-300 mb-3 text-sm line-clamp-2">
+                        {project.description}
+                      </p>
 
                       <div className="flex justify-between items-center mb-3">
                         <div className="flex gap-2">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                              project.statut
+                              project.statut,
                             )}`}
                           >
                             {project.statut}
                           </span>
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1 ${getPriorityColor(
-                              project.priorite
+                              project.priorite,
                             )}`}
                           >
                             {getPriorityIcon(project.priorite)}
@@ -667,20 +753,20 @@ const EnhancedDashboard = () => {
                         </div>
                       </div>
 
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-[#1a1f35] rounded-full h-2">
                         <div
                           className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
                           style={{ width: `${project.progress}%` }}
                         ></div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
 
                 {filteredProjects.length === 0 && (
                   <div className="text-center py-12">
-                    <div className="text-gray-400 mb-4">
-                      <Search className="w-16 h-16 mx-auto mb-4" />
+                    <div className="text-slate-400 mb-4">
+                      <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
                       <p className="text-lg">Aucun projet trouvé</p>
                       <p className="text-sm">
                         Essayez de modifier vos filtres ou créez un nouveau
@@ -694,12 +780,26 @@ const EnhancedDashboard = () => {
 
             {/* Right Sidebar - Creative Tree and Charts */}
             <div className="lg:col-span-1 space-y-6">
-              <CreativeTree projects={projects} key={`tree-${projects.length}-${stats.avgProgress}`} />
+              <CreativeTree
+                projects={projects}
+                key={`tree-${projects.length}-${stats.avgProgress}`}
+              />
 
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Répartition des Projets</h3>
-                <ResponsiveContainer width="100%" height={200} key={`pie-${stats.total}-${stats.completed}`}>
-                  <RechartsPieChart data={pieData} cx="50%" cy="50%" outerRadius={70}>
+              <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
+                <h3 className="text-xl font-light mb-4 text-white">
+                  Répartition des Projets
+                </h3>
+                <ResponsiveContainer
+                  width="100%"
+                  height={200}
+                  key={`pie-${stats.total}-${stats.completed}`}
+                >
+                  <RechartsPieChart
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={70}
+                  >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
@@ -707,33 +807,33 @@ const EnhancedDashboard = () => {
                 </ResponsiveContainer>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+              <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
+                <h3 className="text-xl font-light mb-4 text-white flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" />
                   Insights
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                    <span className="text-sm text-purple-700">
+                  <div className="flex items-center justify-between p-3 bg-purple-500/20 border border-purple-500/30 rounded-lg">
+                    <span className="text-sm text-purple-300">
                       Progression moyenne
                     </span>
-                    <span className="font-bold text-purple-800">
+                    <span className="font-bold text-purple-400">
                       {stats.avgProgress}%
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm text-blue-700">
+                  <div className="flex items-center justify-between p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+                    <span className="text-sm text-blue-300">
                       Heures investies
                     </span>
-                    <span className="font-bold text-blue-800">
+                    <span className="font-bold text-blue-400">
                       {stats.totalHours}h
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm text-green-700">
+                  <div className="flex items-center justify-between p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+                    <span className="text-sm text-green-300">
                       Taux de réussite
                     </span>
-                    <span className="font-bold text-green-800">
+                    <span className="font-bold text-green-400">
                       {stats.total > 0
                         ? Math.round((stats.completed / stats.total) * 100)
                         : 0}
@@ -748,8 +848,8 @@ const EnhancedDashboard = () => {
 
         {activeTab === "process" && (
           <div className="space-y-8">
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
+              <h2 className="text-2xl font-light text-white mb-6 flex items-center gap-2">
                 <Activity className="w-7 h-7" />
                 Suivi des Processus par Projet
               </h2>
@@ -758,74 +858,90 @@ const EnhancedDashboard = () => {
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    className="border border-gray-200 rounded-xl p-6"
+                    className="border border-[#1e2540] rounded-xl p-6 bg-[#0f1323]"
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">
+                        <h3 className="text-xl font-semibold text-white">
                           {project.titre}
                         </h3>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-slate-400 text-sm">
                           {project.description}
                         </p>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-purple-600">{project.progress}%</div>
-                        <div className="text-sm text-gray-500">Basé sur le statut</div>
+                        <div className="text-2xl font-bold text-purple-400">
+                          {project.progress}%
+                        </div>
+                        <div className="text-sm text-slate-500">
+                          Basé sur le statut
+                        </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div
                         className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                          project.statut === "À faire" ? "bg-yellow-50 border-yellow-200" : "bg-gray-50 border-gray-200"
+                          project.statut === "À faire"
+                            ? "bg-yellow-500/20 border-yellow-500/40"
+                            : "bg-[#1a1f35] border-[#1e2540]"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-800">À faire</h4>
+                          <h4 className="font-semibold text-white">À faire</h4>
                           {project.statut === "À faire" ? (
-                            <Clock className="w-5 h-5 text-yellow-600" />
+                            <Clock className="w-5 h-5 text-yellow-400" />
                           ) : (
-                            <Clock className="w-5 h-5 text-gray-400" />
+                            <Clock className="w-5 h-5 text-slate-500" />
                           )}
                         </div>
-                        <div className="text-sm text-gray-600">Phase initiale</div>
+                        <div className="text-sm text-slate-400">
+                          Phase initiale
+                        </div>
                       </div>
 
                       <div
                         className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                          project.statut === "En cours" ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"
+                          project.statut === "En cours"
+                            ? "bg-blue-500/20 border-blue-500/40"
+                            : "bg-[#1a1f35] border-[#1e2540]"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-800">En cours</h4>
+                          <h4 className="font-semibold text-white">En cours</h4>
                           {project.statut === "En cours" ? (
-                            <AlertCircle className="w-5 h-5 text-blue-600" />
+                            <AlertCircle className="w-5 h-5 text-blue-400" />
                           ) : (
-                            <AlertCircle className="w-5 h-5 text-gray-400" />
+                            <AlertCircle className="w-5 h-5 text-slate-500" />
                           )}
                         </div>
-                        <div className="text-sm text-gray-600">En développement</div>
+                        <div className="text-sm text-slate-400">
+                          En développement
+                        </div>
                       </div>
 
                       <div
                         className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                          project.statut === "Terminé" ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
+                          project.statut === "Terminé"
+                            ? "bg-green-500/20 border-green-500/40"
+                            : "bg-[#1a1f35] border-[#1e2540]"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-800">Terminé</h4>
+                          <h4 className="font-semibold text-white">Terminé</h4>
                           {project.statut === "Terminé" ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
+                            <CheckCircle className="w-5 h-5 text-green-400" />
                           ) : (
-                            <CheckCircle className="w-5 h-5 text-gray-400" />
+                            <CheckCircle className="w-5 h-5 text-slate-500" />
                           )}
                         </div>
-                        <div className="text-sm text-gray-600">Projet finalisé</div>
+                        <div className="text-sm text-slate-400">
+                          Projet finalisé
+                        </div>
                       </div>
                     </div>
 
-                    <div className="mt-4 w-full bg-gray-200 rounded-full h-3">
+                    <div className="mt-4 w-full bg-[#1a1f35] rounded-full h-3">
                       <div
                         className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500"
                         style={{ width: `${project.progress}%` }}
@@ -841,14 +957,30 @@ const EnhancedDashboard = () => {
         {activeTab === "analytics" && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Progression des Projets</h3>
-                <ResponsiveContainer width="100%" height={300} key={`bar-${progressData.length}`}>
+              <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
+                <h3 className="text-xl font-light mb-4 text-white">
+                  Progression des Projets
+                </h3>
+                <ResponsiveContainer
+                  width="100%"
+                  height={300}
+                  key={`bar-${progressData.length}`}
+                >
                   <BarChart data={progressData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e2540" />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 12, fill: "#94a3b8" }}
+                    />
+                    <YAxis tick={{ fill: "#94a3b8" }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#0f1323",
+                        border: "1px solid #1e2540",
+                        borderRadius: "8px",
+                        color: "#fff",
+                      }}
+                    />
                     <Bar
                       dataKey="progress"
                       fill="url(#progressGradient)"
@@ -869,7 +1001,7 @@ const EnhancedDashboard = () => {
                         />
                         <stop
                           offset="95%"
-                          stopColor="#ec4899"
+                          stopColor="#182955"
                           stopOpacity={0.7}
                         />
                       </linearGradient>
@@ -878,16 +1010,26 @@ const EnhancedDashboard = () => {
                 </ResponsiveContainer>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-xl p-6">
-                <h3 className="text-xl font-bold mb-4 text-gray-800">
+              <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
+                <h3 className="text-xl font-light mb-4 text-white">
                   Évolution Mensuelle
                 </h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e2540" />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 12, fill: "#94a3b8" }}
+                    />
+                    <YAxis tick={{ fill: "#94a3b8" }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#0f1323",
+                        border: "1px solid #1e2540",
+                        borderRadius: "8px",
+                        color: "#fff",
+                      }}
+                    />
                     <Area
                       type="monotone"
                       dataKey="projets"
@@ -968,26 +1110,31 @@ const ProjectModal = ({ project, onSave, onClose }) => {
     description: project?.description || "",
     statut: project?.statut || "À faire",
     priorite: project?.priorite || "moyenne",
-  })
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const processedData = {
       ...formData,
-    }
-    onSave(processedData)
-  }
+    };
+    onSave(processedData);
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="bg-[#0f1323] border border-[#1e2540] rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto"
+      >
+        <h2 className="text-2xl font-light mb-6 text-white">
           {project ? "Modifier le Projet" : "Nouveau Projet"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-light text-slate-300 mb-2 uppercase tracking-wider">
               Titre *
             </label>
             <input
@@ -997,13 +1144,13 @@ const ProjectModal = ({ project, onSave, onClose }) => {
               onChange={(e) =>
                 setFormData({ ...formData, titre: e.target.value })
               }
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              className="w-full px-4 py-3 bg-[#0a0e1a] border border-[#1e2540] text-white placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
               placeholder="Titre de votre projet..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-light text-slate-300 mb-2 uppercase tracking-wider">
               Description
             </label>
             <textarea
@@ -1011,14 +1158,14 @@ const ProjectModal = ({ project, onSave, onClose }) => {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 transition-all"
+              className="w-full px-4 py-3 bg-[#0a0e1a] border border-[#1e2540] text-white placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 h-24 resize-none transition-all"
               placeholder="Décrivez votre projet..."
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-light text-slate-300 mb-2 uppercase tracking-wider">
                 Statut *
               </label>
               <select
@@ -1027,7 +1174,7 @@ const ProjectModal = ({ project, onSave, onClose }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, statut: e.target.value })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="w-full px-4 py-3 bg-[#0a0e1a] border border-[#1e2540] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
               >
                 <option value="À faire">À faire</option>
                 <option value="En cours">En cours</option>
@@ -1036,7 +1183,7 @@ const ProjectModal = ({ project, onSave, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-light text-slate-300 mb-2 uppercase tracking-wider">
                 Priorité *
               </label>
               <select
@@ -1045,7 +1192,7 @@ const ProjectModal = ({ project, onSave, onClose }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, priorite: e.target.value })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="w-full px-4 py-3 bg-[#0a0e1a] border border-[#1e2540] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
               >
                 <option value="faible">Faible</option>
                 <option value="moyenne">Moyenne</option>
@@ -1058,21 +1205,21 @@ const ProjectModal = ({ project, onSave, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300"
+              className="flex-1 px-6 py-3 bg-[#1a1f35] border border-[#1e2540] text-slate-300 rounded-xl hover:border-slate-600 transition-all duration-300"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 transform hover:scale-105"
             >
               Enregistrer
             </button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
-export default EnhancedDashboard
+export default EnhancedDashboard;

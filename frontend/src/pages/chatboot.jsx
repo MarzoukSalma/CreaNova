@@ -12,6 +12,7 @@ import {
   User,
   Lightbulb,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import api from "../api/api";
 
 const MuseCreativeChatbot = () => {
@@ -63,17 +64,18 @@ const MuseCreativeChatbot = () => {
   // Get appropriate response from API or fallback
   const getMuseResponse = async (userMessage) => {
     try {
-      // Appel à l'API LLM
-      const response = await api.post("api/chat", {
-        message: userMessage,
-        userId: localStorage.getItem("userId") || "1", // Assurez-vous d'avoir un userId
+      const response = await api.post("/rag/ask", {
+        question: userMessage,
+        use_memory: true,
       });
 
-      // Retourner la réponse de l'API
-      return response.data.message || getFallbackResponse(userMessage);
+      if (response.data?.success) {
+        return response.data.answer;
+      }
+
+      return getFallbackResponse(userMessage);
     } catch (error) {
-      console.error("Erreur API:", error);
-      // En cas d'erreur, utiliser les réponses prédéfinies
+      console.error("Erreur RAG:", error);
       return getFallbackResponse(userMessage);
     }
   };
@@ -182,35 +184,84 @@ const MuseCreativeChatbot = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      <div className="max-w-4xl mx-auto p-6">
+    <div className="min-h-screen bg-[#080c1a] text-slate-300 font-sans relative overflow-x-hidden">
+      {/* Background blobs */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-18%] left-[-12%] w-[50%] h-[50%] bg-blue-900/12 blur-[150px] rounded-full" />
+        <div className="absolute bottom-[-18%] right-[-12%] w-[45%] h-[45%] bg-violet-900/10 blur-[150px] rounded-full" />
+        <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-pink-900/8 blur-[120px] rounded-full" />
+      </div>
+
+      {/* Floating particles */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-blue-400/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -35, 0],
+              opacity: [0.1, 0.35, 0.1],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto p-6">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            ✨ Muse Créative
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
+            <Sparkles size={14} className="animate-pulse" />
+            <span>Assistant Créatif</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extralight text-white tracking-tight mb-2">
+            Muse{" "}
+            <span className="font-serif italic text-violet-400">Créative</span>
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-slate-400 text-sm">
             Votre compagnon créatif pour l'inspiration quotidienne
           </p>
-        </div>
+        </motion.div>
 
         {/* Chat Container */}
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-[#0a0e1a] border border-[#1e2540] rounded-3xl shadow-2xl overflow-hidden"
+        >
           {/* Chat Header */}
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 text-white">
+          <div className="bg-gradient-to-r from-blue-600 to-violet-600 p-6 text-white relative">
+            <div className="absolute -top-px left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20">
                 <Sparkles className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Muse Créative</h2>
-                <p className="text-purple-100">En ligne • Prête à inspirer</p>
+                <h2 className="text-xl font-light">Muse Créative</h2>
+                <p className="text-blue-100 text-sm flex items-center gap-1.5">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                  En ligne • Prête à inspirer
+                </p>
               </div>
             </div>
           </div>
 
           {/* Messages Area */}
-          <div className="h-96 overflow-y-auto p-6 space-y-4">
+          <div className="h-96 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-[#0a0e1a] to-[#080c1a]">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -219,7 +270,7 @@ const MuseCreativeChatbot = () => {
                 }`}
               >
                 {message.sender === "bot" && (
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/30">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
                 )}
@@ -227,16 +278,16 @@ const MuseCreativeChatbot = () => {
                 <div
                   className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
                     message.sender === "user"
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-500/20"
+                      : "bg-[#0f1323] border border-[#1e2540] text-slate-200"
                   }`}
                 >
                   <p className="text-sm leading-relaxed">{message.text}</p>
                   <p
                     className={`text-xs mt-2 ${
                       message.sender === "user"
-                        ? "text-purple-100"
-                        : "text-gray-500"
+                        ? "text-blue-100"
+                        : "text-slate-500"
                     }`}
                   >
                     {message.timestamp.toLocaleTimeString([], {
@@ -247,7 +298,7 @@ const MuseCreativeChatbot = () => {
                 </div>
 
                 {message.sender === "user" && (
-                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-500/30">
                     <User className="w-4 h-4 text-white" />
                   </div>
                 )}
@@ -257,18 +308,18 @@ const MuseCreativeChatbot = () => {
             {/* Typing Indicator */}
             {isTyping && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30">
                   <Bot className="w-4 h-4 text-white" />
                 </div>
-                <div className="bg-gray-100 px-4 py-3 rounded-2xl">
+                <div className="bg-[#0f1323] border border-[#1e2540] px-4 py-3 rounded-2xl">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                      className="w-2 h-2 bg-violet-400 rounded-full animate-pulse"
                       style={{ animationDelay: "0.2s" }}
                     ></div>
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                      className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"
                       style={{ animationDelay: "0.4s" }}
                     ></div>
                   </div>
@@ -279,15 +330,15 @@ const MuseCreativeChatbot = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="px-6 py-4 border-t border-gray-100">
-            <div className="flex flex-wrap gap-2 mb-4">
+          <div className="px-6 py-4 border-t border-[#1e2540] bg-[#0a0e1a]">
+            <div className="flex flex-wrap gap-2 mb-0">
               <button
                 onClick={() =>
                   setInputValue(
-                    "J'ai besoin d'inspiration pour un nouveau projet"
+                    "J'ai besoin d'inspiration pour un nouveau projet",
                   )
                 }
-                className="px-3 py-2 text-xs bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200 transition-colors flex items-center gap-1"
+                className="px-3 py-2 text-xs bg-violet-500/10 border border-violet-500/30 text-violet-400 rounded-full hover:bg-violet-500/20 transition-colors flex items-center gap-1"
               >
                 <Lightbulb className="w-3 h-3" />
                 Inspiration
@@ -296,7 +347,7 @@ const MuseCreativeChatbot = () => {
                 onClick={() =>
                   setInputValue("Je me sens découragé dans ma créativité")
                 }
-                className="px-3 py-2 text-xs bg-pink-100 text-pink-600 rounded-full hover:bg-pink-200 transition-colors flex items-center gap-1"
+                className="px-3 py-2 text-xs bg-pink-500/10 border border-pink-500/30 text-pink-400 rounded-full hover:bg-pink-500/20 transition-colors flex items-center gap-1"
               >
                 <Heart className="w-3 h-3" />
                 Motivation
@@ -305,7 +356,7 @@ const MuseCreativeChatbot = () => {
                 onClick={() =>
                   setInputValue("Quelles techniques créatives recommandes-tu ?")
                 }
-                className="px-3 py-2 text-xs bg-indigo-100 text-indigo-600 rounded-full hover:bg-indigo-200 transition-colors flex items-center gap-1"
+                className="px-3 py-2 text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-full hover:bg-blue-500/20 transition-colors flex items-center gap-1"
               >
                 <Star className="w-3 h-3" />
                 Techniques
@@ -314,34 +365,33 @@ const MuseCreativeChatbot = () => {
           </div>
 
           {/* Input Area */}
-          <div className="p-6 border-t border-gray-100">
-            <div className="flex gap-4">
+          <div className="p-6 border-t border-[#1e2540] bg-[#0a0e1a]">
+            <div className="flex gap-3">
               <div className="flex-1">
                 <textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Partagez vos idées créatives avec moi..."
-                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                  className="w-full px-4 py-3 bg-[#0f1323] border border-[#1e2540] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none text-sm transition-all"
                   rows="2"
                 />
               </div>
               <button
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isTyping}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-2xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
+                className="bg-gradient-to-r from-blue-600 to-violet-600 text-white p-3 rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
               >
                 <Send className="w-5 h-5" />
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Footer Info */}
         <div className="text-center mt-8">
-          <p className="text-gray-500 text-sm">
-            🎨 Muse Créative est là pour vous accompagner dans votre parcours
-            artistique
+          <p className="text-slate-600 text-xs tracking-widest uppercase">
+            🎨 Muse Créative • Votre Compagnon Artistique
           </p>
         </div>
       </div>
