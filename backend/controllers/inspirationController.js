@@ -58,11 +58,6 @@ exports.getUserInspirations = async (req, res) => {
     });
 
     // Si aucune inspiration trouvée
-    if (!inspirations || inspirations.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "Aucune inspiration trouvée pour cet utilisateur" });
-    }
 
     res.json(inspirations);
   } catch (error) {
@@ -242,15 +237,24 @@ exports.getInspirationById = async (req, res) => {
   }
 };
 
-// ✅ Supprimer une inspiration (seulement si créée par l'utilisateur)
+// ✅ Supprimer une inspiration (user OU ai si liée à l'utilisateur)
 exports.deleteInspiration = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
 
-    // Vérifier que l'inspiration appartient à l'utilisateur
+    // 1️⃣ Vérifier que l'inspiration existe
+    const inspiration = await Inspiration.findByPk(id);
+    if (!inspiration) {
+      return res.status(404).json({ error: "Inspiration non trouvée" });
+    }
+
+    // 2️⃣ Vérifier que l'utilisateur est lié à cette inspiration
     const inspirationUser = await Inspiration_utilisateur.findOne({
-      where: { inspiration_id: id, userId: userId },
+      where: {
+        inspiration_id: id,
+        userId: userId,
+      },
     });
 
     if (!inspirationUser) {
@@ -259,20 +263,22 @@ exports.deleteInspiration = async (req, res) => {
         .json({ error: "Non autorisé à supprimer cette inspiration" });
     }
 
-    const inspiration = await Inspiration.findByPk(id);
-    if (!inspiration || inspiration.createur !== "user") {
-      return res
-        .status(404)
-        .json({ error: "Inspiration non trouvée ou non supprimable" });
-    }
-
+    // 3️⃣ Supprimer le lien user <-> inspiration
     await Inspiration_utilisateur.destroy({
-      where: { inspiration_id: id, userId: userId },
+      where: {
+        inspiration_id: id,
+        userId: userId,
+      },
     });
-    await Inspiration.destroy({ where: { id } });
+
+    // 4️⃣ Supprimer l'inspiration
+    await Inspiration.destroy({
+      where: { id },
+    });
 
     res.json({ message: "Inspiration supprimée avec succès" });
   } catch (error) {
+    console.error("Erreur deleteInspiration:", error);
     res.status(500).json({ error: error.message });
   }
 };

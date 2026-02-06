@@ -404,10 +404,6 @@ const WorkspacePage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
-              <span>🚀</span>
-              <span>Espace de Travail</span>
-            </div>
             <h1
               className={`text-4xl md:text-5xl font-extralight tracking-tight mb-2 ${
                 isFocusMode ? "text-white" : "text-white"

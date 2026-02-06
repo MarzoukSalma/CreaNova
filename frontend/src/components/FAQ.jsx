@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, Sparkles, HelpCircle } from "lucide-react";
+import { Plus, Minus, HelpCircle } from "lucide-react";
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -50,6 +50,13 @@ const FAQ = () => {
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
+  };
+
+  const scrollToContact = () => {
+    const footer = document.getElementById("contact");
+    if (footer) {
+      footer.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
@@ -121,7 +128,6 @@ const FAQ = () => {
                     : "border-slate-800/50 hover:border-slate-700"
                 }`}
               >
-                {/* Question */}
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="w-full px-6 py-5 flex items-center justify-between text-left transition-colors duration-300"
@@ -142,7 +148,6 @@ const FAQ = () => {
                   </motion.div>
                 </button>
 
-                {/* Answer */}
                 <AnimatePresence>
                   {openIndex === index && (
                     <motion.div
@@ -175,7 +180,7 @@ const FAQ = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-center mt-16 p-8 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-3xl border border-purple-500/20"
         >
-          <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+          {/* L'icône Sparkles a été supprimée d'ici */}
           <h3 className="text-2xl font-light text-white mb-3">
             Vous ne trouvez pas votre réponse ?
           </h3>
@@ -183,6 +188,7 @@ const FAQ = () => {
             Notre équipe est là pour vous aider
           </p>
           <motion.button
+            onClick={scrollToContact}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-xl hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300"

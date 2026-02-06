@@ -220,14 +220,6 @@ const LoginPage = () => {
         >
           {/* Logo Section */}
           <div className="text-center mb-12">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-              className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-[1.5rem] mb-6 shadow-2xl shadow-purple-500/50"
-            >
-              <Sparkles className="w-10 h-10 text-white" />
-            </motion.div>
             <h1 className="text-5xl font-extralight text-white mb-3 tracking-tight">
               <span className="font-serif italic text-purple-400">
                 CreaNova

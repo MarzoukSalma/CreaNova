@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Quote, Zap, MessageCircle, Star, Mail } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // Import ajouté
+import {
+  Sparkles,
+  Quote,
+  Zap,
+  MessageCircle,
+  Star,
+  Mail,
+  Rocket,
+} from "lucide-react"; // Rocket ajouté
 import Testimonials from "../components/Testimonials";
 import Features from "../components/Features";
 import Contact from "../components/Contact";
@@ -67,7 +76,9 @@ const MouseStarsBackground = () => {
 
 // --- 2. COMPOSANT PAGE PRINCIPALE ---
 const HomePage = ({ onNavigateToLogin }) => {
-  // Fonction de scroll fluide pour les boutons intégrés
+  const navigate = useNavigate(); // Hook de navigation initialisé
+
+  // Fonction de scroll fluide pour les sections internes
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -123,7 +134,7 @@ const HomePage = ({ onNavigateToLogin }) => {
             deviennent des architectures digitales d'exception.
           </motion.p>
 
-          {/* --- NOUVEAUX BOUTONS DE NAVIGATION INTÉGRÉS --- */}
+          {/* --- MENU DE NAVIGATION AVEC LE BOUTON "RÉALISÉ PAR" --- */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -135,22 +146,43 @@ const HomePage = ({ onNavigateToLogin }) => {
                 label: "Features",
                 icon: <Zap size={14} />,
                 id: "features-sec",
+                type: "scroll",
               },
               {
                 label: "Témoignages",
                 icon: <Star size={14} />,
                 id: "testimonials-sec",
+                type: "scroll",
               },
               {
                 label: "FAQ",
                 icon: <MessageCircle size={14} />,
                 id: "faq-sec",
+                type: "scroll",
               },
-              { label: "Contact", icon: <Mail size={14} />, id: "contact-sec" },
+              {
+                label: "Contact",
+                icon: <Mail size={14} />,
+                id: "contact-sec",
+                type: "scroll",
+              },
+              // Nouveau bouton vers la page AboutUs
+              {
+                label: "Réalisé par",
+                icon: <Rocket size={14} />,
+                path: "/about",
+                type: "page",
+              },
             ].map((btn) => (
               <button
-                key={btn.id}
-                onClick={() => scrollToSection(btn.id)}
+                key={btn.label}
+                onClick={() => {
+                  if (btn.type === "page") {
+                    navigate(btn.path);
+                  } else {
+                    scrollToSection(btn.id);
+                  }
+                }}
                 className="group flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-purple-500/10 hover:border-purple-500/50 transition-all duration-300 text-sm font-light tracking-wide hover:scale-105"
               >
                 <span className="text-purple-400">{btn.icon}</span>
@@ -281,82 +313,96 @@ const HomePage = ({ onNavigateToLogin }) => {
         </div>
       </section>
 
-      {/* 4. GALERIE SECTION */}
-      <section className="relative z-10 py-32 bg-black/40 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <span className="text-purple-400 text-xs uppercase tracking-[0.3em]">
-              Découvrez notre univers
-            </span>
-            <h2 className="text-4xl font-extralight text-white mt-4">
-              Symphonie{" "}
-              <span className="italic font-serif text-purple-400">
-                Digitale
+      {/* 4. GALERIE SECTION - SYMPHONIE DIGITALE */}
+      <section className="relative z-10 py-32 bg-black/40 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto relative min-h-[700px] flex items-center justify-center">
+          {/* Texte Central */}
+          <div className="relative z-20 text-center max-w-lg">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <span className="text-purple-400 text-xs uppercase tracking-[0.4em] mb-4 block">
+                Découvrez notre univers
               </span>
-            </h2>
+              <h2 className="text-5xl md:text-7xl font-extralight text-white leading-tight">
+                Symphonie{" "}
+                <span className="italic font-serif text-purple-400 block">
+                  Digitale
+                </span>
+              </h2>
+              <p className="mt-6 text-slate-500 text-sm font-light tracking-widest leading-relaxed">
+                Où l'art et la technologie s'unissent pour créer une expérience
+                immersive unique.
+              </p>
+            </motion.div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12">
-            {[
-              {
-                id: "01",
-                title: "Design Émotionnel",
-                price: "Premium",
-                img: "/image1.png",
-              },
-              {
-                id: "02",
-                title: "Structure Agile",
-                price: "Pro",
-                img: "/image2.png",
-              },
-              {
-                id: "03",
-                title: "Interface Intuitive",
-                price: "Élite",
-                img: "/image3.png",
-              },
-              {
-                id: "04",
-                title: "Vision Créative",
-                price: "Concept",
-                img: "/image.png",
-              },
-            ].map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.8 }}
-                className="group relative h-[350px] rounded-[2.5rem] overflow-hidden border border-slate-800/50 bg-slate-900"
-              >
-                <motion.img
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.6 }}
+
+          {/* Photos aux positions originales SANS effet gris */}
+          {[
+            {
+              id: "01",
+              title: "Design Émotionnel",
+              img: "/image1.png",
+              pos: "top-0 left-0",
+              delay: 0.2,
+            },
+            {
+              id: "02",
+              title: "Structure Agile",
+              img: "/image2.png",
+              pos: "top-0 right-0",
+              delay: 0.4,
+            },
+            {
+              id: "03",
+              title: "Interface Intuitive",
+              img: "/image3.png",
+              pos: "bottom-0 left-0",
+              delay: 0.6,
+            },
+            {
+              id: "04",
+              title: "Vision Créative",
+              img: "/image.png",
+              pos: "bottom-0 right-0",
+              delay: 0.8,
+            },
+          ].map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{
+                opacity: 0,
+                x: item.pos.includes("left") ? -50 : 50,
+                y: item.pos.includes("top") ? -50 : 50,
+              }}
+              whileInView={{ opacity: 1, x: 0, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: item.delay, duration: 1, ease: "easeOut" }}
+              className={`absolute ${item.pos} hidden lg:block group`}
+            >
+              <div className="relative w-64 h-80 rounded-[2rem] overflow-hidden border border-white/5 bg-slate-900/40 backdrop-blur-sm">
+                <img
                   src={item.img}
-                  className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-700"
+                  className="absolute inset-0 w-full h-full object-cover"
                   alt={item.title}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-80" />
-                <div className="relative h-full p-10 flex flex-col justify-between items-start">
-                  <div className="self-end px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md text-[10px] text-purple-300 uppercase tracking-widest">
-                    {item.price}
-                  </div>
-                  <div>
-                    <h3 className="text-3xl font-light text-white mb-4 group-hover:text-purple-400 transition-colors">
-                      {item.title}
-                    </h3>
-                    <div className="w-12 h-1 bg-purple-500 rounded-full group-hover:w-24 transition-all duration-500" />
-                  </div>
+                {/* Dégradé discret pour le texte */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+                <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                  <h4 className="text-lg font-light text-white">
+                    {item.title}
+                  </h4>
                 </div>
-                <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-purple-500/0 group-hover:border-purple-500/50 transition-all duration-500 rounded-tl-[2.5rem]" />
-              </motion.div>
-            ))}
-          </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* --- SECTIONS AVEC IDS POUR LE SCROLL --- */}
+      {/* --- SECTIONS AVEC IDS --- */}
       <div id="features-sec">
         <Features />
       </div>

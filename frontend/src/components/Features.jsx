@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   Lightbulb,
@@ -10,6 +11,8 @@ import {
 } from "lucide-react";
 
 const Features = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: <BookOpen size={28} />,
@@ -75,8 +78,10 @@ const Features = () => {
 
   return (
     <section className="relative z-10 py-32 px-6 overflow-hidden">
+      {/* Background Effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-950/5 to-transparent pointer-events-none" />
 
+      {/* Floating Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -100,6 +105,7 @@ const Features = () => {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
+        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -120,6 +126,7 @@ const Features = () => {
           </p>
         </motion.div>
 
+        {/* Features Grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -136,7 +143,8 @@ const Features = () => {
                 scale: 1.02,
                 transition: { duration: 0.3 },
               }}
-              className="group relative"
+              onClick={() => navigate("/login")} // Redirection aussi au clic sur la carte
+              className="group relative cursor-pointer"
             >
               <div
                 className={`absolute -inset-0.5 bg-gradient-to-r ${feature.gradient} rounded-[2rem] opacity-0 group-hover:opacity-20 blur-xl transition-all duration-500`}
@@ -189,29 +197,14 @@ const Features = () => {
                   className="relative z-10 flex items-center gap-2 text-slate-500 group-hover:text-purple-400 transition-colors duration-300"
                   whileHover={{ x: 5 }}
                 >
-                  <span className="text-[10px] uppercase tracking-widest font-bold">
-                    Explorer
-                  </span>
                   <ArrowRight size={14} />
                 </motion.div>
-
-                <motion.div
-                  className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-500`}
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 90, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
               </div>
             </motion.div>
           ))}
         </motion.div>
 
+        {/* Bottom CTA Button */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -223,6 +216,7 @@ const Features = () => {
             Prêt à transformer votre créativité ?
           </p>
           <motion.button
+            onClick={() => navigate("/login")}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-2xl hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300"

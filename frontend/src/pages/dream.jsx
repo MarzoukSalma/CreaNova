@@ -45,159 +45,6 @@ const fetchProjectsFromApi = async () => {
   }
 };
 
-const CreativeTree = ({ projects }) => {
-  const totalProgress =
-    projects.length > 0
-      ? projects.reduce((sum, p) => {
-          if (p.statut === "Terminé") return sum + 100;
-          if (p.statut === "En cours") return sum + 50;
-          return sum + 0; // "À faire"
-        }, 0) / projects.length
-      : 0;
-
-  const treeHeight = Math.max(200, (totalProgress / 100) * 400);
-  const branchCount = Math.floor(totalProgress / 20) + 1;
-  const leafCount = Math.floor(totalProgress / 10);
-
-  return (
-    <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
-      <h3 className="text-xl font-light mb-4 text-white flex items-center gap-2">
-        🌳 Arbre Créatif
-      </h3>
-      <div className="flex justify-center">
-        <svg
-          width="200"
-          height="300"
-          viewBox="0 0 200 300"
-          className="overflow-visible"
-        >
-          {/* Tree trunk */}
-          <rect
-            x="90"
-            y={300 - treeHeight * 0.3}
-            width="20"
-            height={treeHeight * 0.3}
-            fill="#8B4513"
-            rx="2"
-            className="transition-all duration-1000"
-          />
-
-          {/* Main branches */}
-          {Array.from({ length: branchCount }, (_, i) => {
-            const angle = (i * 60 - 30) * (Math.PI / 180);
-            const branchLength = 30 + (totalProgress / 100) * 20;
-            const startY = 300 - treeHeight * 0.3 + i * 15;
-            const endX = 100 + Math.sin(angle) * branchLength;
-            const endY = startY - Math.cos(angle) * branchLength;
-
-            return (
-              <g key={i}>
-                <line
-                  x1="100"
-                  y1={startY}
-                  x2={endX}
-                  y2={endY}
-                  stroke="#654321"
-                  strokeWidth="3"
-                  className="transition-all duration-1000"
-                  style={{ animationDelay: `${i * 200}ms` }}
-                />
-
-                {/* Sub-branches */}
-                {totalProgress > (i + 1) * 15 && (
-                  <>
-                    <line
-                      x1={endX}
-                      y1={endY}
-                      x2={endX + Math.sin(angle + 0.5) * 15}
-                      y2={endY - Math.cos(angle + 0.5) * 15}
-                      stroke="#654321"
-                      strokeWidth="2"
-                      className="transition-all duration-1000"
-                    />
-                    <line
-                      x1={endX}
-                      y1={endY}
-                      x2={endX + Math.sin(angle - 0.5) * 15}
-                      y2={endY - Math.cos(angle - 0.5) * 15}
-                      stroke="#654321"
-                      strokeWidth="2"
-                      className="transition-all duration-1000"
-                    />
-                  </>
-                )}
-              </g>
-            );
-          })}
-
-          {/* Leaves */}
-          {Array.from({ length: leafCount }, (_, i) => {
-            const angle = i * 36 * (Math.PI / 180);
-            const radius = 40 + (i % 3) * 15;
-            const x = 100 + Math.sin(angle) * radius;
-            const y =
-              200 - Math.cos(angle) * radius - (totalProgress / 100) * 50;
-            const colors = [
-              "#22c55e",
-              "#16a34a",
-              "#15803d",
-              "#84cc16",
-              "#65a30d",
-            ];
-
-            return (
-              <circle
-                key={i}
-                cx={x}
-                cy={y}
-                r="4"
-                fill={colors[i % colors.length]}
-                className="transition-all duration-1000 animate-pulse"
-                style={{
-                  animationDelay: `${i * 100}ms`,
-                  opacity: totalProgress > i * 5 ? 1 : 0,
-                }}
-              />
-            );
-          })}
-
-          {/* Flowers for completed projects */}
-          {projects
-            .filter((p) => p.statut === "Terminé")
-            .map((_, i) => (
-              <g key={`flower-${i}`}>
-                <circle cx={80 + i * 40} cy={180} r="3" fill="#ec4899" />
-                <circle cx={77 + i * 40} cy={177} r="2" fill="#f9a8d4" />
-                <circle cx={83 + i * 40} cy={177} r="2" fill="#f9a8d4" />
-                <circle cx={77 + i * 40} cy={183} r="2" fill="#f9a8d4" />
-                <circle cx={83 + i * 40} cy={183} r="2" fill="#f9a8d4" />
-              </g>
-            ))}
-        </svg>
-      </div>
-
-      <div className="mt-4 text-center">
-        <div className="text-2xl font-bold text-green-400 mb-2">
-          {Math.round(totalProgress)}%
-        </div>
-        <div className="text-sm text-slate-400">Progression Globale</div>
-        <div className="mt-3 flex justify-center gap-4 text-xs text-slate-300">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Feuilles: {leafCount}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
-            <span>
-              Fleurs: {projects.filter((p) => p.statut === "Terminé").length}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const EnhancedDashboard = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -494,10 +341,6 @@ const EnhancedDashboard = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
-            <span>✨</span>
-            <span>Les Rêves</span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-extralight text-white tracking-tight mb-2">
             Dashboard{" "}
             <span className="font-serif italic text-violet-400">Créatif</span>
@@ -778,13 +621,8 @@ const EnhancedDashboard = () => {
               </div>
             </div>
 
-            {/* Right Sidebar - Creative Tree and Charts */}
+            {/* Right Sidebar - Charts only (no tree) */}
             <div className="lg:col-span-1 space-y-6">
-              <CreativeTree
-                projects={projects}
-                key={`tree-${projects.length}-${stats.avgProgress}`}
-              />
-
               <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-2xl shadow-xl p-6">
                 <h3 className="text-xl font-light mb-4 text-white">
                   Répartition des Projets
@@ -794,12 +632,7 @@ const EnhancedDashboard = () => {
                   height={200}
                   key={`pie-${stats.total}-${stats.completed}`}
                 >
-                  <RechartsPieChart
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={70}
-                  >
+                  <RechartsPieChart>
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}

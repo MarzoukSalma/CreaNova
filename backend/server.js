@@ -52,7 +52,6 @@ db.sequelize
     console.log("📊 Tables synchronisées !");
 
     // 🔥 GÉNÉRATION DES INSPIRATIONS DU JOUR
-    await generateDailyInspirations();
 
     // Lancer le serveur
     const PORT = process.env.PORT || 3000;

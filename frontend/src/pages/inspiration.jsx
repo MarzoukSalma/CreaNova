@@ -125,14 +125,6 @@ const GalleryPage = () => {
       console.log("Inspirations utilisateur:", userResponse.data);
 
       // Charger les inspirations par défaut (générées par l'IA)
-      let defaultInspirations = [];
-      try {
-        const defaultResponse = await api.get("/inspirations/default");
-        console.log("Inspirations par défaut:", defaultResponse.data);
-        defaultInspirations = defaultResponse.data || [];
-      } catch (error) {
-        console.log("Aucune inspiration par défaut trouvée:", error.message);
-      }
 
       // Adapter les inspirations utilisateur
       const userInspirations = userResponse.data.map((inspiration) => ({
@@ -154,27 +146,9 @@ const GalleryPage = () => {
       }));
 
       // Adapter les inspirations par défaut
-      const adaptedDefaultInspirations = defaultInspirations.map(
-        (inspiration) => ({
-          id: `default_${inspiration.id}`,
-          type: "quote",
-          text: inspiration.contenu,
-          title: `Inspiration ${inspiration.mood}`,
-          mood: inspiration.mood,
-          createur: "IA Assistant",
-          date: inspiration.date,
-          createdAt: inspiration.createdAt,
-          image: getMoodDefaultImage(inspiration.mood),
-          isUserCreated: false,
-          isGenerated: true,
-        }),
-      );
 
       // Combiner toutes les inspirations
-      const allInspirations = [
-        ...userInspirations,
-        ...adaptedDefaultInspirations,
-      ];
+      const allInspirations = [...userInspirations];
       console.log("Toutes les inspirations:", allInspirations);
 
       setInspirations(allInspirations);
@@ -397,10 +371,6 @@ const GalleryPage = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
-            <span>🎨</span>
-            <span>Galerie d'Inspirations</span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-extralight text-white tracking-tight mb-2">
             Galerie d'{" "}
             <span className="font-serif italic text-violet-400">
@@ -485,9 +455,10 @@ const GalleryPage = () => {
           {/* Section humeur personnalisée */}
           <div className="border-t border-[#1e2540] pt-6">
             <h3 className="text-lg font-light text-white mb-4 flex items-center gap-2">
-              🎯 Humeur personnalisée
+              Humeur personnalisée
               <span className="text-sm text-slate-500 font-normal">
-                (Générez une inspiration selon votre humeur exacte)
+                ( Laissez l’IA vous proposer une inspiration adaptée à votre
+                humeur du moment.)
               </span>
             </h3>
             <div className="flex gap-3">
@@ -519,99 +490,8 @@ const GalleryPage = () => {
                 )}
               </button>
             </div>
-            <p className="text-xs text-slate-500 mt-2">
-              💡 Appuyez sur Entrée ou cliquez sur Générer pour créer une
-              inspiration personnalisée
-            </p>
           </div>
         </div>
-
-        {/* Section Inspirations d'Aujourd'hui */}
-        {getTodayInspirations().length > 0 && (
-          <div className="bg-[#0a0e1a] border border-[#1e2540] rounded-3xl shadow-xl p-6 mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-light text-white flex items-center gap-2">
-                <Star className="w-6 h-6 text-purple-500" />
-                Mes Inspirations
-              </h2>
-              <span className="bg-purple-500/20 border border-purple-500/30 text-purple-400 px-3 py-1 rounded-full text-sm font-medium">
-                {getTodayInspirations().length} inspiration
-                {getTodayInspirations().length > 1 ? "s" : ""}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {getTodayInspirations()
-                .slice(0, 6)
-                .map((inspiration) => (
-                  <div
-                    key={inspiration.id}
-                    className="bg-[#0f1323] rounded-2xl p-4 border border-[#1e2540] hover:border-purple-500/30 transition-all"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div
-                        className={`px-2 py-1 bg-gradient-to-r ${
-                          moods[inspiration.mood]?.color ||
-                          "from-gray-400 to-gray-600"
-                        } text-white rounded-full text-xs font-semibold flex items-center gap-1`}
-                      >
-                        {moods[inspiration.mood]?.icon || (
-                          <Meh className="w-3 h-3" />
-                        )}
-                        {moods[inspiration.mood]?.name || inspiration.mood}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {inspiration.isCustomMood && (
-                          <span className="bg-amber-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
-                            {inspiration.originalMoodInput || "Custom"}
-                          </span>
-                        )}
-                        {inspiration.isGenerated && (
-                          <span className="bg-blue-500 text-white rounded-full px-2 py-1 text-xs font-semibold">
-                            IA
-                          </span>
-                        )}
-                        {inspiration.isUserCreated && (
-                          <button
-                            onClick={() => deleteInspiration(inspiration.id)}
-                            className="text-red-400 hover:text-red-600 transition-colors"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <h4 className="font-semibold text-white mb-2 text-sm">
-                      {inspiration.title}
-                    </h4>
-
-                    <p className="text-slate-300 text-sm italic leading-relaxed mb-3">
-                      "{inspiration.text}"
-                    </p>
-
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-500">
-                        {new Date(inspiration.createdAt).toLocaleTimeString(
-                          "fr-FR",
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          },
-                        )}
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        par vous{" "}
-                        {inspiration.isGenerated
-                          ? "(IA générée)"
-                          : "(création manuelle)"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
 
         {/* Action Bar */}
         <div className="flex justify-between items-center mb-8">

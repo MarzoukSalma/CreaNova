@@ -949,10 +949,6 @@ const PersonalSettingsPage = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
-            <span>⚙️</span>
-            <span>Paramètres</span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-extralight text-white tracking-tight mb-2">
             Mon Profil &{" "}
             <span className="font-serif italic text-violet-400">

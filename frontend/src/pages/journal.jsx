@@ -269,10 +269,6 @@ const JournalCreativite = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-[10px] uppercase tracking-[0.3em] mb-4">
-            <span>📔</span>
-            <span>Journal Créatif</span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-extralight text-white tracking-tight mb-2">
             Journal de{" "}
             <span className="font-serif italic text-violet-400">
@@ -362,49 +358,49 @@ const JournalCreativite = () => {
           <Plus className="w-6 h-6" />
         </motion.button>
 
-        {/* Modal */}
+        {/* Modal - VERSION COMPACTE */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100] overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="bg-[#0f1323] border border-[#1e2540] rounded-3xl p-8 w-full max-w-2xl shadow-2xl"
+              className="bg-[#0f1323] border border-[#1e2540] rounded-2xl p-6 w-full max-w-lg shadow-2xl my-4"
             >
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-extralight text-white">
+              <div className="flex justify-between items-center mb-5">
+                <h2 className="text-2xl font-extralight text-white">
                   {currentEditId ? "✏️ Modifier" : "✨ Nouvelle entrée"}
                 </h2>
                 <button
                   onClick={closeModal}
-                  className="p-2 hover:bg-[#1a1f35] rounded-full transition-colors duration-200"
+                  className="p-1.5 hover:bg-[#1a1f35] rounded-full transition-colors duration-200"
                   disabled={submitting}
                 >
-                  <X className="w-6 h-6 text-slate-400" />
+                  <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
 
               <div>
                 {/* Mood Selector */}
-                <div className="mb-8">
-                  <label className="block text-sm font-light text-slate-300 mb-4 uppercase tracking-wider">
-                    Comment vous sentez-vous aujourd'hui ?
+                <div className="mb-5">
+                  <label className="block text-xs font-light text-slate-300 mb-3 uppercase tracking-wider">
+                    Comment vous sentez-vous ?
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-4 gap-2">
                     {moodOptions.map((mood) => (
                       <button
                         key={mood.value}
                         type="button"
                         onClick={() => setSelectedMood(mood.value)}
                         disabled={submitting}
-                        className={`p-4 rounded-xl border transition-all duration-300 hover:scale-105 ${
+                        className={`p-2.5 rounded-lg border transition-all duration-300 hover:scale-105 ${
                           selectedMood === mood.value
                             ? `border-blue-500 bg-gradient-to-r ${mood.color} text-white transform scale-105 shadow-lg`
                             : "border-[#1e2540] bg-[#0a0e1a] hover:border-blue-500/50 text-slate-300"
                         } ${submitting ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
-                        <div className="text-2xl mb-2">{mood.emoji}</div>
-                        <div className="text-xs font-semibold uppercase tracking-wide">
+                        <div className="text-xl mb-1">{mood.emoji}</div>
+                        <div className="text-[10px] font-semibold uppercase tracking-wide">
                           {mood.value}
                         </div>
                       </button>
@@ -413,10 +409,10 @@ const JournalCreativite = () => {
                 </div>
 
                 {/* Text Area */}
-                <div className="mb-8">
+                <div className="mb-5">
                   <label
                     htmlFor="journalText"
-                    className="block text-sm font-light text-slate-300 mb-4 uppercase tracking-wider"
+                    className="block text-xs font-light text-slate-300 mb-3 uppercase tracking-wider"
                   >
                     Écrivez vos pensées...
                   </label>
@@ -424,9 +420,9 @@ const JournalCreativite = () => {
                     id="journalText"
                     value={journalText}
                     onChange={(e) => setJournalText(e.target.value)}
-                    placeholder="Aujourd'hui j'ai ressenti... Mes idées créatives... Ce qui m'inspire..."
+                    placeholder="Aujourd'hui j'ai ressenti... Mes idées créatives..."
                     disabled={submitting}
-                    className={`w-full h-48 p-6 bg-[#0a0e1a] border border-[#1e2540] rounded-2xl resize-none text-white placeholder-slate-600 focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                    className={`w-full h-32 p-4 bg-[#0a0e1a] border border-[#1e2540] rounded-xl resize-none text-white text-sm placeholder-slate-600 focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
                       submitting ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                     style={{ lineHeight: "1.6" }}
@@ -434,12 +430,12 @@ const JournalCreativite = () => {
                 </div>
 
                 {/* Form Buttons */}
-                <div className="flex gap-4 justify-end">
+                <div className="flex gap-3 justify-end">
                   <button
                     type="button"
                     onClick={closeModal}
                     disabled={submitting}
-                    className={`px-8 py-3 bg-[#1a1f35] border border-[#1e2540] text-slate-300 font-medium rounded-xl hover:border-slate-600 transition-all duration-200 ${
+                    className={`px-6 py-2.5 bg-[#1a1f35] border border-[#1e2540] text-slate-300 text-sm font-medium rounded-lg hover:border-slate-600 transition-all duration-200 ${
                       submitting ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
@@ -449,18 +445,18 @@ const JournalCreativite = () => {
                     type="button"
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className={`px-8 py-3 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-medium rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 flex items-center gap-2 ${
+                    className={`px-6 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-medium rounded-lg hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 flex items-center gap-2 ${
                       submitting ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
                     {submitting ? (
                       <>
-                        <Loader className="w-5 h-5 animate-spin" />
+                        <Loader className="w-4 h-4 animate-spin" />
                         {currentEditId ? "Mise à jour..." : "Création..."}
                       </>
                     ) : (
                       <>
-                        <Save className="w-5 h-5" />
+                        <Save className="w-4 h-4" />
                         Sauvegarder
                       </>
                     )}
