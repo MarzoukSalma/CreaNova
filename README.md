@@ -18,7 +18,7 @@ Créez et personnalisez votre espace de travail selon vos besoins. Visualisez vo
 Organisez, planifiez et suivez l'accomplissement de vos tâches. Transformez vos grands rêves en actions concrètes et mesurables.
 
 ### Espace journal
-Capturez vos idées, réflexions et insights au moment où ils surgissent. Un espace dédié pour libérer votre créativité.
+Capturez vos idees , réflexions et insights au moment où ils surgissent. Un espace dédié pour libérer votre créativité.
 
 ### Espace Inspiration
 Recevez quotidiennement des citations motivantes générées par IA, accompagnées d'images relaxantes. Une source constante d'inspiration pour nourrir votre motivation.
