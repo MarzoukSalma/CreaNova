@@ -1,4 +1,5 @@
-#  Creanova
+
+# Creanova
 
 **Transformez vos rêves en réalité**
 
@@ -6,51 +7,91 @@ Creanova est une application complète de productivité et de développement per
 
 ---
 
- > ⚠️ **Projet en cours de développement** - Cette application est actuellement en construction. Certaines fonctionnalités peuvent être incomplètes ou en phase de test!!!
+> 🚀 **Version estimée finale disponible sur la branche `salma`**
+> La version actuelle considérée comme stable / estimée finale du projet est disponible sur la branche **`salma`**.
+> Le projet reste néanmoins en évolution continue : nous poursuivons les améliorations et préparons le **déploiement officiel**.
 
+---
 
-##  Fonctionnalités
+## Fonctionnalités
 
 ### Dashboard Personnalisé
+
 Créez et personnalisez votre espace de travail selon vos besoins. Visualisez votre progression et restez motivé grâce à une vue d'ensemble claire de vos objectifs.
 
 ### Gestion des Tâches
+
 Organisez, planifiez et suivez l'accomplissement de vos tâches. Transformez vos grands rêves en actions concrètes et mesurables.
 
-### Espace journal
-Capturez vos idees , réflexions et insights au moment où ils surgissent. Un espace dédié pour libérer votre créativité.
+### Espace Journal
+
+Capturez vos idées, réflexions et insights au moment où ils surgissent. Un espace dédié pour libérer votre créativité.
 
 ### Espace Inspiration
+
 Recevez quotidiennement des citations motivantes générées par IA, accompagnées d'images relaxantes. Une source constante d'inspiration pour nourrir votre motivation.
 
-### Chatbot Intelligent (RAG)
-Bénéficiez d'un assistant conversationnel intelligent utilisant la technologie RAG (Retrieval Augmented Generation) pour des conseils personnalisés et contextuels adaptés à vos projets.
+### Chatbot Intelligent (RAG + LLM)
+
+Bénéficiez d'un assistant conversationnel intelligent basé sur des **Large Language Models (LLM)** et la technologie **RAG (Retrieval Augmented Generation)** pour fournir des conseils personnalisés, contextuels et adaptés à vos projets.
 
 ### Workspace
+
 Un environnement de travail optimisé où vous pouvez :
-- Sélectionner et travailler sur vos projets/rêves
-- Utiliser la technique Pomodoro pour une productivité maximale
-- Profiter d'une ambiance musicale personnalisable
-- Rester concentré dans un espace dédié
+
+* Sélectionner et travailler sur vos projets/rêves
+* Utiliser la technique Pomodoro pour une productivité maximale
+* Profiter d'une ambiance musicale personnalisable
+* Rester concentré dans un espace dédié
 
 ### Profil Utilisateur
+
 Gérez vos informations personnelles, préférences et paramètres en toute simplicité.
+
+---
+
+## 🔄 État du projet
+
+* ✅ Version estimée finale disponible sur la branche **`salma`**
+* 🔧 Améliorations continues en cours
+* 🚀 Déploiement prévu prochainement
 
 ---
 
 ## Vision
 
-Creanova est né d'une conviction simple : chacun mérite les outils nécessaires pour transformer ses aspirations en accomplissements. En combinant productivité scientifiquement prouvée (Pomodoro), bien-être mental (inspiration, musique) et intelligence artificielle, nous créons plus qu'une simple application - nous construisons votre partenaire de réussite.
+Creanova est né d'une conviction simple : chacun mérite les outils nécessaires pour transformer ses aspirations en accomplissements.
+
+En combinant :
+
+* 📊 Productivité scientifiquement prouvée (Pomodoro)
+* 🧠 Bien-être mental (inspiration, musique)
+* 🤖 Intelligence Artificielle avancée (LLM + RAG)
+
+Nous créons plus qu'une simple application — nous construisons votre partenaire intelligent de réussite.
 
 ---
 
 # Technologies
 
-Frontend : React.js
+### Frontend
 
-Backend : Node.js & Express.js
+* React.js
 
-Base de données : PostgreSQL
+### Backend
+
+* Node.js
+* Express.js
+
+### Base de données
+
+* PostgreSQL
+
+### Intelligence Artificielle (Core du projet 🚀)
+
+* **LLM (Large Language Models)** pour l’assistance intelligente
+* **RAG (Retrieval Augmented Generation)** pour des réponses enrichies et contextuelles
+* Architecture AI-first pour le coaching personnalisé et la génération dynamique de contenu
 
 ---
 
@@ -58,13 +99,15 @@ Base de données : PostgreSQL
 
 Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à soumettre une pull request.
 
-
 ---
- 
+
 ## 📧 Contact
 
-salmamarzouk07@gmail.com
+[salmamarzouk07@gmail.com](mailto:salmamarzouk07@gmail.com)
 
 ---
 
-**Creanova** - Parce que chaque grand accomplissement commence par un rêve et une première action.
+**Creanova** — Parce que chaque grand accomplissement commence par un rêve et une première action. 🌟
+
+---
+
