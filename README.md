@@ -9,6 +9,7 @@ Creanova est une application complète de productivité et de développement per
 
 > 🚀 **Version estimée finale disponible sur la branche `salma`**
 > La version actuelle considérée comme stable / estimée finale du projet est disponible sur la branche **`salma`**.
+
 > Le projet reste néanmoins en évolution continue : nous poursuivons les améliorations et préparons le **déploiement officiel**.
 
 ---
