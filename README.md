@@ -104,7 +104,7 @@ Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à
 
 ## 📧 Contact
 
-[salmamarzouk07@gmail.com](mailto:salmamarzouk07@gmail.com)
+[salmamarzouk07@gmail.com](mailto:salmamarzouk07@gmail.com)  AND
 [dodo42dtp@gmail.com](mailto:dodo42dtp@gmail.com)
 ---
 
