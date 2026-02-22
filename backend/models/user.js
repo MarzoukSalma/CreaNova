@@ -3,6 +3,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
+     User.hasOne(models.UserSetting, { foreignKey: "userId", as: "settings" });
       User.hasMany(models.Dream, { foreignKey: "userId", onDelete: "CASCADE" });
       User.belongsToMany(models.Inspiration, {
         through: models.Inspiration_utilisateur,

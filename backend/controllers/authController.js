@@ -34,7 +34,7 @@ module.exports = {
       });
 
       // Créer un token JWT
-      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
+      const token = jwt.sign({ id: user.id }, JWT_SECRET);
 
       res.status(201).json({
         message: "Utilisateur créé avec succès",

@@ -127,24 +127,26 @@ const GalleryPage = () => {
       // Charger les inspirations par défaut (générées par l'IA)
 
       // Adapter les inspirations utilisateur
-      const userInspirations = userResponse.data.map((inspiration) => ({
-        id: inspiration.id,
-        type: "quote",
-        text: inspiration.contenu,
-        title: inspiration.titre || `Inspiration ${inspiration.mood}`,
-        mood: inspiration.mood,
-        createur: inspiration.isGenerated ? "IA Assistant" : "Vous",
-        date: inspiration.date,
-        createdAt: inspiration.createdAt,
-        image: getMoodDefaultImage(inspiration.mood),
-        isUserCreated: true,
-        isGenerated: inspiration.isGenerated || false,
-        originalMoodInput: inspiration.originalMood || null,
-        isCustomMood:
-          inspiration.originalMood &&
-          inspiration.originalMood !== inspiration.mood,
-      }));
+const userInspirations = userResponse.data.map((inspiration) => ({
+  id: inspiration.id,
+  type: "quote",
+  text: inspiration.contenu,
+  title: inspiration.titre || `Inspiration ${inspiration.mood}`,
+  mood: inspiration.mood,
 
+  // ✅ source réelle (DB)
+  source: inspiration.createur, // "user" ou "ai"
+
+  // ✅ pour l'affichage seulement
+  displayCreator: inspiration.createur === "ai" ? "IA Assistant" : "Vous",
+
+  createdAt: inspiration.createdAt,
+  image: getMoodDefaultImage(inspiration.mood),
+
+  // ✅ flags corrects
+  isUserCreated: inspiration.createur === "user",
+  isGenerated: inspiration.createur === "ai",
+}));
       // Adapter les inspirations par défaut
 
       // Combiner toutes les inspirations
@@ -309,8 +311,9 @@ const GalleryPage = () => {
 
     // Filtrer par type (toutes vs mes créations)
     if (showUserCreations) {
-      filtered = filtered.filter(
-        (inspiration) => inspiration.createur === "user",
+     if (showUserCreations) 
+  filtered = filtered.filter((inspiration) => inspiration.source === "user"
+
       );
     }
     // Filtrer par mood
@@ -629,7 +632,7 @@ const GalleryPage = () => {
 
                 {inspiration.createur && (
                   <p className="text-right text-slate-500 font-medium">
-                    — {inspiration.createur}
+                    — {inspiration.displayCreator}
                   </p>
                 )}
 
