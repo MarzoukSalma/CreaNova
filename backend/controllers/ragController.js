@@ -28,7 +28,8 @@ exports.askRAG = async (req, res) => {
       chunks_used: response.data.chunks_used,
     });
   } catch (error) {
-console.error("RAG ask error:", err?.response?.data || err.message);    return res.status(500).json({
+    console.error("RAG ask error:", error.message);
+    return res.status(500).json({
       success: false,
       error: "Erreur lors de l'appel au service RAG",
     });
