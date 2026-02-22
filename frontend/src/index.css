@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .animate-grain {
+    animation: grain 8s linear infinite;
+  }
+}
+
+@keyframes grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-32px, -32px);
+  }
+}
+
+/* On force le fond pour éviter tout flash blanc */
+body {
+  background-color: #030303;
+  margin: 0;
+  overflow-x: hidden;
+}

@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "start:all": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

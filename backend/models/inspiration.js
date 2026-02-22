@@ -2,13 +2,12 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Inspiration extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      Inspiration.belongsToMany(models.User, {
+        through: models.Inspiration_utilisateur, // même table pivot
+        foreignKey: "inspiration_id",
+        otherKey: "userId",
+      });
     }
   }
   Inspiration.init(
@@ -16,8 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       contenu: DataTypes.TEXT,
       date: DataTypes.DATE,
       mood: DataTypes.STRING,
-      text: DataTypes.TEXT,
-      info: DataTypes.TEXT,
+      createur: DataTypes.STRING,
     },
     {
       sequelize,

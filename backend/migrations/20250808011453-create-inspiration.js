@@ -11,6 +11,7 @@ module.exports = {
       },
       contenu: {
         type: Sequelize.TEXT
+        , allowNull: false
       },
       date: {
         type: Sequelize.DATE
@@ -18,8 +19,8 @@ module.exports = {
       mood: {
         type: Sequelize.STRING
       },
-      text: {
-        type: Sequelize.TEXT
+      createur: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
