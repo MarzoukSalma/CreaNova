@@ -177,11 +177,7 @@ const JournalCreativite = () => {
   };
 
   const deleteJournal = async (id) => {
-    if (
-      window.confirm(
-        "Êtes-vous sûr de vouloir supprimer cette entrée de journal ?",
-      )
-    ) {
+  
       try {
         await deleteJournalApi(id);
         setJournals((prev) => prev.filter((j) => j.id !== id && j._id !== id));
@@ -191,7 +187,7 @@ const JournalCreativite = () => {
           `Erreur lors de la suppression: ${error.message || "Une erreur est survenue"}`,
         );
       }
-    }
+    
   };
 
   const formatDate = (dateString) => {

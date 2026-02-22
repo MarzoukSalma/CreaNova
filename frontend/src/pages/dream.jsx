@@ -201,7 +201,7 @@ const EnhancedDashboard = () => {
   };
 
   const deleteProject = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
+  
       try {
         await api.delete(`/dreams/${id}`);
         setProjects(projects.filter((p) => p.id !== id));
@@ -209,7 +209,7 @@ const EnhancedDashboard = () => {
       } catch (error) {
         console.error("Error deleting project:", error);
       }
-    }
+    
   };
 
   const getStatusColor = (statut) => {
