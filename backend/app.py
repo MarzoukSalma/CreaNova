@@ -16,39 +16,20 @@ app = Flask(__name__)
 CORS(app)  # Permettre les requêtes depuis Express.js
 
 # Initialiser le moteur RAG (une seule fois au démarrage)
-# Initialiser le moteur RAG (une seule fois au démarrage)
-print("Initialisation du service RAG...")
-
-rag_engine = None
-
+print(" Initialisation du service RAG...")
 try:
-    db_url = (
-        f"dbname={os.getenv('RAG_DB_NAME','rag_chatbot_db')} "
-        f"user={os.getenv('RAG_DB_USER','postgres')} "
-        f"password={os.getenv('RAG_DB_PASSWORD','')} "
-        f"host={os.getenv('RAG_DB_HOST','127.0.0.1')} "
-        f"port={os.getenv('RAG_DB_PORT','5432')}"
-    )
-
-    print("RAG_DB_HOST =", os.getenv("RAG_DB_HOST"))
-    print("RAG_DB_NAME =", os.getenv("RAG_DB_NAME"))
-    print("RAG_DB_USER =", os.getenv("RAG_DB_USER"))
-    print("RAG_DB_PASSWORD set? =", bool(os.getenv("RAG_DB_PASSWORD")))
-
+    db_url = f"dbname={os.getenv('DB_NAME', 'rag_chatbot_db')} user={os.getenv('DB_USER', 'postgres')} password={os.getenv('DB_PASSWORD', 'RAG_DB_PASSWORD')}"
     groq_key = os.getenv("GROQ_API", "")
-
+    
     if not groq_key:
-        raise ValueError("GROQ_API manquante dans .env")
-
-    if not os.getenv("RAG_DB_PASSWORD"):
-        raise ValueError("RAG_DB_PASSWORD manquante dans .env")
-
+        raise ValueError(" GROQ_API manquante dans .env")
+    
     rag_engine = RAGEngine(db_url, groq_key)
-    print("Service RAG prêt !")
-
+    print(" Service RAG prêt !\n")
 except Exception as e:
-    print(f"Erreur d'initialisation: {e}")
+    print(f" Erreur d'initialisation: {e}")
     rag_engine = None
+
 
 # ==================== ROUTES API ====================
 

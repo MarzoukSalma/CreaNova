@@ -40,7 +40,7 @@ app.use("/dreams", dreamRoutes);
 app.use("/workspaces", workRoutes);
 app.use("/inspirations", inspirationRoutes);
 app.use("/rag", ragRoutes);
-app.use("/users", require("./routes/userSettings.routes"));
+
 // Connexion DB + lancement serveur
 db.sequelize
   .authenticate()
